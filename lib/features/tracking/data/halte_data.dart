@@ -1,0 +1,75 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:latlong2/latlong.dart';
+
+/// Satu halte dengan koordinatnya.
+class Halte {
+  final String nama;
+  final LatLng pos;
+
+  const Halte({required this.nama, required this.pos});
+}
+
+/// Urutan halte untuk satu arah perjalanan (pergi/pulang).
+class CorridorDirection {
+  final String label;
+  final List<Halte> halte;
+
+  const CorridorDirection({required this.label, required this.halte});
+}
+
+/// Data halte satu koridor (dua arah).
+class CorridorStops {
+  final String kode;
+  final Map<String, CorridorDirection> arah;
+
+  const CorridorStops({required this.kode, required this.arah});
+
+  CorridorDirection? get pergi => arah['pergi'];
+  CorridorDirection? get pulang => arah['pulang'];
+}
+
+/// Seluruh dataset halte per koridor, dimuat dari `assets/halte.json`.
+class HalteDataset {
+  final Map<String, CorridorStops> corridors;
+
+  const HalteDataset(this.corridors);
+
+  CorridorStops? forCorridor(String corridor) =>
+      corridors[corridor.trim().toUpperCase()];
+}
+
+/// Memuat dataset halte dari aset.
+Future<HalteDataset> loadHalteDataset() async {
+  final raw = await rootBundle.loadString('assets/halte.json');
+  final map = json.decode(raw) as Map<String, dynamic>;
+  final corridors = <String, CorridorStops>{};
+
+  map.forEach((kode, value) {
+    final arahMap =
+        (value as Map<String, dynamic>)['arah'] as Map<String, dynamic>;
+    final arah = <String, CorridorDirection>{};
+    arahMap.forEach((dirKey, dirVal) {
+      final v = dirVal as Map<String, dynamic>;
+      final list = (v['halte'] as List).map((h) {
+        final m = h as Map<String, dynamic>;
+        return Halte(
+          nama: (m['nama'] ?? '').toString(),
+          pos: LatLng(
+            (m['lat'] as num).toDouble(),
+            (m['lng'] as num).toDouble(),
+          ),
+        );
+      }).toList(growable: false);
+      arah[dirKey] = CorridorDirection(
+        label: (v['label'] ?? '').toString(),
+        halte: list,
+      );
+    });
+    corridors[kode.trim().toUpperCase()] =
+        CorridorStops(kode: kode, arah: arah);
+  });
+
+  return HalteDataset(corridors);
+}

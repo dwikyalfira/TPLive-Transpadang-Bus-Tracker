@@ -1,0 +1,293 @@
+{
+  "@@locale": "id",
+
+  "statusDemo": "Mode pengembangan",
+  "statusLive": "Live",
+  "statusConnecting": "Menyambung…",
+  "statusReconnecting": "Menyambung ulang…",
+  "statusPillOutsideHours": "Layanan sedang tidak tersedia",
+  "statusPillDisconnected": "Tidak terhubung",
+  "statusWaiting": "Menunggu…",
+  "statusOutsideHoursShort": "Di luar jam operasional",
+  "statusDisconnectedShort": "Terputus",
+
+  "tooltipDemoOn": "Matikan mode demo",
+  "tooltipDemoOff": "Mode demo (data bus palsu)",
+  "tooltipReload": "Muat ulang",
+  "reloading": "Memuat ulang data bus…",
+
+  "searchDestinationHint": "Cari tujuan…",
+  "outsideHoursMessage": "TransPadang beroperasi pukul 05.00–20.00 WIB.",
+  "noBusesMessage": "Belum ada bus terdeteksi di sekitar Anda.",
+  "gettingLocation": "Mendapatkan lokasi…",
+  "retry": "Coba lagi",
+  "destinationHeader": "Tujuan {destination}",
+  "@destinationHeader": {
+    "placeholders": {
+      "destination": {"type": "String"}
+    }
+  },
+  "loadingHalteData": "Memuat data halte…",
+
+  "notifFollowingTitle": "Bus dilacak",
+  "notifFollowingBody": "TPLive mulai melacak {bus}.",
+  "@notifFollowingBody": {
+    "placeholders": {
+      "bus": {"type": "String"}
+    }
+  },
+  "notifApproachBoardTitle": "Bus segera tiba",
+  "notifApproachBoardBody": "Bus {bus} tinggal {count} halte lagi menuju halte {halte}. Siap-siap naik.",
+  "@notifApproachBoardBody": {
+    "placeholders": {
+      "bus": {"type": "String"},
+      "count": {"type": "int"},
+      "halte": {"type": "String"}
+    }
+  },
+  "notifAtBoardTitle": "Waktunya naik",
+  "notifAtBoardBody": "Bus {bus} sudah di halte {halte}. Segera naik.",
+  "@notifAtBoardBody": {
+    "placeholders": {
+      "bus": {"type": "String"},
+      "halte": {"type": "String"}
+    }
+  },
+  "notifApproachAlightTitle": "Sebentar lagi turun",
+  "notifApproachAlightBody": "Bus {bus} tinggal {count} halte lagi menuju halte {halte}. Siap-siap turun.",
+  "@notifApproachAlightBody": {
+    "placeholders": {
+      "bus": {"type": "String"},
+      "count": {"type": "int"},
+      "halte": {"type": "String"}
+    }
+  },
+  "notifAtAlightTitle": "Waktunya turun",
+  "notifAtAlightBody": "Bus {bus} sudah sampai di halte {halte}. Saatnya turun.",
+  "@notifAtAlightBody": {
+    "placeholders": {
+      "bus": {"type": "String"},
+      "halte": {"type": "String"}
+    }
+  },
+
+  "tooltipUnfollow": "Berhenti mengikuti",
+  "tooltipFollow": "Ikuti bus ini",
+  "notifPermissionDenied": "Izin notifikasi ditolak. Izinkan notifikasi untuk mengikuti bus.",
+  "followFailed": "Gagal mengikuti bus: {message}",
+  "@followFailed": {
+    "placeholders": {
+      "message": {"type": "String"}
+    }
+  },
+  "followUnavailable": "Layanan follow tidak tersedia.",
+
+  "busLabel": "Bus {number}",
+  "@busLabel": {
+    "placeholders": {
+      "number": {"type": "String"}
+    }
+  },
+  "destinationLabel": "Tujuan {destination}",
+  "@destinationLabel": {
+    "placeholders": {
+      "destination": {"type": "String"}
+    }
+  },
+  "updatedLabel": "Diperbarui {age}",
+  "@updatedLabel": {
+    "placeholders": {
+      "age": {"type": "String"}
+    }
+  },
+  "etaApprox": "≈ {minutes} mnt",
+  "@etaApprox": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "etaUnknown": "≈ -",
+  "etaPlusMinus": "± {minutes} mnt",
+  "@etaPlusMinus": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "filterAll": "Semua",
+  "ageSeconds": "{seconds} dtk lalu",
+  "@ageSeconds": {
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "ageMinutes": "{minutes} mnt lalu",
+  "@ageMinutes": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "ageHours": "{hours} jam lalu",
+  "@ageHours": {
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+
+  "halteDataLoadFailed": "Gagal memuat data halte.\n{error}",
+  "@halteDataLoadFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "countHalte": "{count} halte",
+  "@countHalte": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "countHalteRange": "{origin} → {destination} · {count} dari {total} halte",
+  "@countHalteRange": {
+    "placeholders": {
+      "origin": {"type": "String"},
+      "destination": {"type": "String"},
+      "count": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "currentAt": "Sedang di",
+  "nextHalte": "Halte berikutnya",
+  "unknown": "Tidak diketahui",
+  "etaSuffix": " · ≈ {minutes} mnt",
+  "@etaSuffix": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "speedUnit": "km/j",
+  "badgeBoard": "Naik",
+  "badgeAlight": "Turun",
+  "badgeStart": "Awal",
+  "badgeEnd": "Akhir",
+  "halteUnavailable": "Data halte untuk koridor {corridor} belum tersedia.",
+  "@halteUnavailable": {
+    "placeholders": {
+      "corridor": {"type": "String"}
+    }
+  },
+
+  "notPassedHalte": "Belum melewati halte",
+  "arrivedDestination": "Tiba di tujuan",
+  "lastHalte": "Halte terakhir",
+  "halteRemaining": "{count} halte lagi",
+  "@halteRemaining": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "searchDestinationTitle": "Cari tujuan",
+  "pickOriginTitle": "Pilih asal",
+  "pickDestinationTitle": "Pilih tujuan",
+  "fieldFrom": "Dari",
+  "fieldTo": "Ke",
+  "hintPickOrigin": "Pilih asal",
+  "hintPickDestination": "Pilih tujuan",
+  "planChooseDestination": "Pilih tujuan lewat tombol \"Ke\" (pilih halte atau cari tempat).",
+  "planWaitingLocation": "Menunggu lokasi Anda…",
+  "planCalculating": "Menghitung rute…",
+  "planNoRoute": "Tidak ada rute TransPadang yang cocok antara kedua titik ini.",
+  "minutesApprox": "≈ {minutes} mnt",
+  "@minutesApprox": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "routeSummary": "{distance} · {haltes} halte",
+  "@routeSummary": {
+    "placeholders": {
+      "distance": {"type": "String"},
+      "haltes": {"type": "int"}
+    }
+  },
+  "routeSummaryTransit": " · {count} transit",
+  "@routeSummaryTransit": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "routeSummaryDirect": " · langsung",
+  "stepWalkToBoard": "Jalan {distance} ke halte {halte}",
+  "@stepWalkToBoard": {
+    "placeholders": {
+      "distance": {"type": "String"},
+      "halte": {"type": "String"}
+    }
+  },
+  "stepRide": "{corridor}: naik di {board} → turun di {alight} ({count} halte)",
+  "@stepRide": {
+    "placeholders": {
+      "corridor": {"type": "String"},
+      "board": {"type": "String"},
+      "alight": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
+  "stepWalkTransfer": "Jalan {distance} ke halte {halte}, lanjut Koridor {corridor}",
+  "@stepWalkTransfer": {
+    "placeholders": {
+      "distance": {"type": "String"},
+      "halte": {"type": "String"},
+      "corridor": {"type": "String"}
+    }
+  },
+  "stepTransfer": "Pindah ke Koridor {corridor} di {halte}",
+  "@stepTransfer": {
+    "placeholders": {
+      "corridor": {"type": "String"},
+      "halte": {"type": "String"}
+    }
+  },
+  "stepWalkToDestination": "Jalan {distance} ke tujuan",
+  "@stepWalkToDestination": {
+    "placeholders": {
+      "distance": {"type": "String"}
+    }
+  },
+  "noBusesToBoard": "Belum ada bus terdeteksi menuju halte naik.",
+  "nearestBusesToBoard": "Bus terdekat ke halte naik",
+  "tapCardHint": "Ketuk kartu untuk detail halte, ikon lonceng untuk mengikuti.",
+
+  "tabHalte": "Halte",
+  "tabPlace": "Tempat",
+  "searchPlaceHint": "Cari tempat, mis. Masjid Raya",
+  "searchHalteHint": "Cari halte…",
+  "tooltipSearch": "Cari",
+  "halteNotFound": "Halte tidak ditemukan.",
+  "nearestHaltesFromYou": "Halte terdekat dari lokasi Anda",
+  "allHaltes": "Semua halte",
+  "myLocation": "Lokasi saya",
+  "myLocationSubtitle": "Gunakan posisi GPS perangkat saat ini",
+  "placeMinChars": "Ketik nama tempat (minimal 3 huruf), lalu tekan cari.",
+  "placeNotFound": "Tempat tidak ditemukan di sekitar Padang.",
+  "placeSearchError": "Terjadi kesalahan saat mencari tempat.",
+
+  "settingsTooltip": "Pengaturan",
+  "settingsTitle": "Pengaturan",
+  "sectionAppearance": "Tampilan",
+  "themeSystem": "Sistem",
+  "themeLight": "Terang",
+  "themeDark": "Gelap",
+  "themeModeTitle": "Mode tampilan",
+  "dynamicColorTitle": "Warna dinamis",
+  "dynamicColorSubtitle": "Ikuti warna wallpaper perangkat (Android 12+)",
+  "sectionLanguage": "Bahasa",
+  "languageTitle": "Bahasa aplikasi",
+  "languageSystem": "Sistem",
+  "languageIndonesian": "Indonesia",
+  "languageEnglish": "English",
+  "sectionAbout": "Tentang",
+  "aboutTitle": "Tentang Aplikasi",
+  "aboutAppDescription": "TPLive menampilkan posisi bus TransPadang secara real-time.",
+  "demoModeTitle": "Mode demo",
+  "demoModeSubtitle": "Gunakan data bus palsu untuk pengembangan"
+}

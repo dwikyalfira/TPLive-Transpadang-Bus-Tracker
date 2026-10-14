@@ -1,0 +1,829 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_en.dart';
+import 'app_localizations_id.dart';
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'l10n/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  }
+
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('id')
+  ];
+
+  /// No description provided for @statusDemo.
+  ///
+  /// In id, this message translates to:
+  /// **'Mode pengembangan'**
+  String get statusDemo;
+
+  /// No description provided for @statusLive.
+  ///
+  /// In id, this message translates to:
+  /// **'Live'**
+  String get statusLive;
+
+  /// No description provided for @statusConnecting.
+  ///
+  /// In id, this message translates to:
+  /// **'Menyambung…'**
+  String get statusConnecting;
+
+  /// No description provided for @statusReconnecting.
+  ///
+  /// In id, this message translates to:
+  /// **'Menyambung ulang…'**
+  String get statusReconnecting;
+
+  /// No description provided for @statusPillOutsideHours.
+  ///
+  /// In id, this message translates to:
+  /// **'Layanan sedang tidak tersedia'**
+  String get statusPillOutsideHours;
+
+  /// No description provided for @statusPillDisconnected.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak terhubung'**
+  String get statusPillDisconnected;
+
+  /// No description provided for @statusWaiting.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu…'**
+  String get statusWaiting;
+
+  /// No description provided for @statusOutsideHoursShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Di luar jam operasional'**
+  String get statusOutsideHoursShort;
+
+  /// No description provided for @statusDisconnectedShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Terputus'**
+  String get statusDisconnectedShort;
+
+  /// No description provided for @tooltipDemoOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Matikan mode demo'**
+  String get tooltipDemoOn;
+
+  /// No description provided for @tooltipDemoOff.
+  ///
+  /// In id, this message translates to:
+  /// **'Mode demo (data bus palsu)'**
+  String get tooltipDemoOff;
+
+  /// No description provided for @tooltipReload.
+  ///
+  /// In id, this message translates to:
+  /// **'Muat ulang'**
+  String get tooltipReload;
+
+  /// No description provided for @reloading.
+  ///
+  /// In id, this message translates to:
+  /// **'Memuat ulang data bus…'**
+  String get reloading;
+
+  /// No description provided for @searchDestinationHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari tujuan…'**
+  String get searchDestinationHint;
+
+  /// No description provided for @outsideHoursMessage.
+  ///
+  /// In id, this message translates to:
+  /// **'TransPadang beroperasi pukul 05.00–20.00 WIB.'**
+  String get outsideHoursMessage;
+
+  /// No description provided for @noBusesMessage.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada bus terdeteksi di sekitar Anda.'**
+  String get noBusesMessage;
+
+  /// No description provided for @gettingLocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Mendapatkan lokasi…'**
+  String get gettingLocation;
+
+  /// No description provided for @retry.
+  ///
+  /// In id, this message translates to:
+  /// **'Coba lagi'**
+  String get retry;
+
+  /// No description provided for @destinationHeader.
+  ///
+  /// In id, this message translates to:
+  /// **'Tujuan {destination}'**
+  String destinationHeader(String destination);
+
+  /// No description provided for @loadingHalteData.
+  ///
+  /// In id, this message translates to:
+  /// **'Memuat data halte…'**
+  String get loadingHalteData;
+
+  /// No description provided for @notifFollowingTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus dilacak'**
+  String get notifFollowingTitle;
+
+  /// No description provided for @notifFollowingBody.
+  ///
+  /// In id, this message translates to:
+  /// **'TPLive mulai melacak {bus}.'**
+  String notifFollowingBody(String bus);
+
+  /// No description provided for @notifApproachBoardTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus segera tiba'**
+  String get notifApproachBoardTitle;
+
+  /// No description provided for @notifApproachBoardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus {bus} tinggal {count} halte lagi menuju halte {halte}. Siap-siap naik.'**
+  String notifApproachBoardBody(String bus, int count, String halte);
+
+  /// No description provided for @notifAtBoardTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Waktunya naik'**
+  String get notifAtBoardTitle;
+
+  /// No description provided for @notifAtBoardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus {bus} sudah di halte {halte}. Segera naik.'**
+  String notifAtBoardBody(String bus, String halte);
+
+  /// No description provided for @notifApproachAlightTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sebentar lagi turun'**
+  String get notifApproachAlightTitle;
+
+  /// No description provided for @notifApproachAlightBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus {bus} tinggal {count} halte lagi menuju halte {halte}. Siap-siap turun.'**
+  String notifApproachAlightBody(String bus, int count, String halte);
+
+  /// No description provided for @notifAtAlightTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Waktunya turun'**
+  String get notifAtAlightTitle;
+
+  /// No description provided for @notifAtAlightBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus {bus} sudah sampai di halte {halte}. Saatnya turun.'**
+  String notifAtAlightBody(String bus, String halte);
+
+  /// No description provided for @tooltipUnfollow.
+  ///
+  /// In id, this message translates to:
+  /// **'Berhenti mengikuti'**
+  String get tooltipUnfollow;
+
+  /// No description provided for @tooltipFollow.
+  ///
+  /// In id, this message translates to:
+  /// **'Ikuti bus ini'**
+  String get tooltipFollow;
+
+  /// No description provided for @notifPermissionDenied.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin notifikasi ditolak. Izinkan notifikasi untuk mengikuti bus.'**
+  String get notifPermissionDenied;
+
+  /// No description provided for @followFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal mengikuti bus: {message}'**
+  String followFailed(String message);
+
+  /// No description provided for @followUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Layanan follow tidak tersedia.'**
+  String get followUnavailable;
+
+  /// No description provided for @busLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus {number}'**
+  String busLabel(String number);
+
+  /// No description provided for @destinationLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Tujuan {destination}'**
+  String destinationLabel(String destination);
+
+  /// No description provided for @updatedLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Diperbarui {age}'**
+  String updatedLabel(String age);
+
+  /// No description provided for @etaApprox.
+  ///
+  /// In id, this message translates to:
+  /// **'≈ {minutes} mnt'**
+  String etaApprox(int minutes);
+
+  /// No description provided for @etaUnknown.
+  ///
+  /// In id, this message translates to:
+  /// **'≈ -'**
+  String get etaUnknown;
+
+  /// No description provided for @etaPlusMinus.
+  ///
+  /// In id, this message translates to:
+  /// **'± {minutes} mnt'**
+  String etaPlusMinus(int minutes);
+
+  /// No description provided for @filterAll.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua'**
+  String get filterAll;
+
+  /// No description provided for @ageSeconds.
+  ///
+  /// In id, this message translates to:
+  /// **'{seconds} dtk lalu'**
+  String ageSeconds(int seconds);
+
+  /// No description provided for @ageMinutes.
+  ///
+  /// In id, this message translates to:
+  /// **'{minutes} mnt lalu'**
+  String ageMinutes(int minutes);
+
+  /// No description provided for @ageHours.
+  ///
+  /// In id, this message translates to:
+  /// **'{hours} jam lalu'**
+  String ageHours(int hours);
+
+  /// No description provided for @halteDataLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat data halte.\n{error}'**
+  String halteDataLoadFailed(String error);
+
+  /// No description provided for @countHalte.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} halte'**
+  String countHalte(int count);
+
+  /// No description provided for @countHalteRange.
+  ///
+  /// In id, this message translates to:
+  /// **'{origin} → {destination} · {count} dari {total} halte'**
+  String countHalteRange(String origin, String destination, int count, int total);
+
+  /// No description provided for @currentAt.
+  ///
+  /// In id, this message translates to:
+  /// **'Sedang di'**
+  String get currentAt;
+
+  /// No description provided for @nextHalte.
+  ///
+  /// In id, this message translates to:
+  /// **'Halte berikutnya'**
+  String get nextHalte;
+
+  /// No description provided for @unknown.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak diketahui'**
+  String get unknown;
+
+  /// No description provided for @etaSuffix.
+  ///
+  /// In id, this message translates to:
+  /// **' · ≈ {minutes} mnt'**
+  String etaSuffix(int minutes);
+
+  /// No description provided for @speedUnit.
+  ///
+  /// In id, this message translates to:
+  /// **'km/j'**
+  String get speedUnit;
+
+  /// No description provided for @badgeBoard.
+  ///
+  /// In id, this message translates to:
+  /// **'Naik'**
+  String get badgeBoard;
+
+  /// No description provided for @badgeAlight.
+  ///
+  /// In id, this message translates to:
+  /// **'Turun'**
+  String get badgeAlight;
+
+  /// No description provided for @badgeStart.
+  ///
+  /// In id, this message translates to:
+  /// **'Awal'**
+  String get badgeStart;
+
+  /// No description provided for @badgeEnd.
+  ///
+  /// In id, this message translates to:
+  /// **'Akhir'**
+  String get badgeEnd;
+
+  /// No description provided for @halteUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Data halte untuk koridor {corridor} belum tersedia.'**
+  String halteUnavailable(String corridor);
+
+  /// No description provided for @notPassedHalte.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum melewati halte'**
+  String get notPassedHalte;
+
+  /// No description provided for @arrivedDestination.
+  ///
+  /// In id, this message translates to:
+  /// **'Tiba di tujuan'**
+  String get arrivedDestination;
+
+  /// No description provided for @lastHalte.
+  ///
+  /// In id, this message translates to:
+  /// **'Halte terakhir'**
+  String get lastHalte;
+
+  /// No description provided for @halteRemaining.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} halte lagi'**
+  String halteRemaining(int count);
+
+  /// No description provided for @searchDestinationTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari tujuan'**
+  String get searchDestinationTitle;
+
+  /// No description provided for @pickOriginTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih asal'**
+  String get pickOriginTitle;
+
+  /// No description provided for @pickDestinationTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih tujuan'**
+  String get pickDestinationTitle;
+
+  /// No description provided for @fieldFrom.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari'**
+  String get fieldFrom;
+
+  /// No description provided for @fieldTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Ke'**
+  String get fieldTo;
+
+  /// No description provided for @hintPickOrigin.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih asal'**
+  String get hintPickOrigin;
+
+  /// No description provided for @hintPickDestination.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih tujuan'**
+  String get hintPickDestination;
+
+  /// No description provided for @planChooseDestination.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih tujuan lewat tombol \"Ke\" (pilih halte atau cari tempat).'**
+  String get planChooseDestination;
+
+  /// No description provided for @planWaitingLocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu lokasi Anda…'**
+  String get planWaitingLocation;
+
+  /// No description provided for @planCalculating.
+  ///
+  /// In id, this message translates to:
+  /// **'Menghitung rute…'**
+  String get planCalculating;
+
+  /// No description provided for @planNoRoute.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada rute TransPadang yang cocok antara kedua titik ini.'**
+  String get planNoRoute;
+
+  /// No description provided for @minutesApprox.
+  ///
+  /// In id, this message translates to:
+  /// **'≈ {minutes} mnt'**
+  String minutesApprox(int minutes);
+
+  /// No description provided for @routeSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'{distance} · {haltes} halte'**
+  String routeSummary(String distance, int haltes);
+
+  /// No description provided for @routeSummaryTransit.
+  ///
+  /// In id, this message translates to:
+  /// **' · {count} transit'**
+  String routeSummaryTransit(int count);
+
+  /// No description provided for @routeSummaryDirect.
+  ///
+  /// In id, this message translates to:
+  /// **' · langsung'**
+  String get routeSummaryDirect;
+
+  /// No description provided for @stepWalkToBoard.
+  ///
+  /// In id, this message translates to:
+  /// **'Jalan {distance} ke halte {halte}'**
+  String stepWalkToBoard(String distance, String halte);
+
+  /// No description provided for @stepRide.
+  ///
+  /// In id, this message translates to:
+  /// **'{corridor}: naik di {board} → turun di {alight} ({count} halte)'**
+  String stepRide(String corridor, String board, String alight, int count);
+
+  /// No description provided for @stepWalkTransfer.
+  ///
+  /// In id, this message translates to:
+  /// **'Jalan {distance} ke halte {halte}, lanjut Koridor {corridor}'**
+  String stepWalkTransfer(String distance, String halte, String corridor);
+
+  /// No description provided for @stepTransfer.
+  ///
+  /// In id, this message translates to:
+  /// **'Pindah ke Koridor {corridor} di {halte}'**
+  String stepTransfer(String corridor, String halte);
+
+  /// No description provided for @stepWalkToDestination.
+  ///
+  /// In id, this message translates to:
+  /// **'Jalan {distance} ke tujuan'**
+  String stepWalkToDestination(String distance);
+
+  /// No description provided for @noBusesToBoard.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada bus terdeteksi menuju halte naik.'**
+  String get noBusesToBoard;
+
+  /// No description provided for @nearestBusesToBoard.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus terdekat ke halte naik'**
+  String get nearestBusesToBoard;
+
+  /// No description provided for @tapCardHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk kartu untuk detail halte, ikon lonceng untuk mengikuti.'**
+  String get tapCardHint;
+
+  /// No description provided for @tabHalte.
+  ///
+  /// In id, this message translates to:
+  /// **'Halte'**
+  String get tabHalte;
+
+  /// No description provided for @tabPlace.
+  ///
+  /// In id, this message translates to:
+  /// **'Tempat'**
+  String get tabPlace;
+
+  /// No description provided for @searchPlaceHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari tempat, mis. Masjid Raya'**
+  String get searchPlaceHint;
+
+  /// No description provided for @searchHalteHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari halte…'**
+  String get searchHalteHint;
+
+  /// No description provided for @tooltipSearch.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari'**
+  String get tooltipSearch;
+
+  /// No description provided for @halteNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Halte tidak ditemukan.'**
+  String get halteNotFound;
+
+  /// No description provided for @nearestHaltesFromYou.
+  ///
+  /// In id, this message translates to:
+  /// **'Halte terdekat dari lokasi Anda'**
+  String get nearestHaltesFromYou;
+
+  /// No description provided for @allHaltes.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua halte'**
+  String get allHaltes;
+
+  /// No description provided for @myLocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi saya'**
+  String get myLocation;
+
+  /// No description provided for @myLocationSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Gunakan posisi GPS perangkat saat ini'**
+  String get myLocationSubtitle;
+
+  /// No description provided for @placeMinChars.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketik nama tempat (minimal 3 huruf), lalu tekan cari.'**
+  String get placeMinChars;
+
+  /// No description provided for @placeNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Tempat tidak ditemukan di sekitar Padang.'**
+  String get placeNotFound;
+
+  /// No description provided for @placeSearchError.
+  ///
+  /// In id, this message translates to:
+  /// **'Terjadi kesalahan saat mencari tempat.'**
+  String get placeSearchError;
+
+  /// No description provided for @settingsTooltip.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan'**
+  String get settingsTooltip;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan'**
+  String get settingsTitle;
+
+  /// No description provided for @sectionAppearance.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilan'**
+  String get sectionAppearance;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In id, this message translates to:
+  /// **'Sistem'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In id, this message translates to:
+  /// **'Terang'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In id, this message translates to:
+  /// **'Gelap'**
+  String get themeDark;
+
+  /// No description provided for @themeModeTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Mode tampilan'**
+  String get themeModeTitle;
+
+  /// No description provided for @dynamicColorTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Warna dinamis'**
+  String get dynamicColorTitle;
+
+  /// No description provided for @dynamicColorSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ikuti warna wallpaper perangkat (Android 12+)'**
+  String get dynamicColorSubtitle;
+
+  /// No description provided for @sectionLanguage.
+  ///
+  /// In id, this message translates to:
+  /// **'Bahasa'**
+  String get sectionLanguage;
+
+  /// No description provided for @languageTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Bahasa aplikasi'**
+  String get languageTitle;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In id, this message translates to:
+  /// **'Sistem'**
+  String get languageSystem;
+
+  /// No description provided for @languageIndonesian.
+  ///
+  /// In id, this message translates to:
+  /// **'Indonesia'**
+  String get languageIndonesian;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In id, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @sectionAbout.
+  ///
+  /// In id, this message translates to:
+  /// **'Tentang'**
+  String get sectionAbout;
+
+  /// No description provided for @aboutTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tentang Aplikasi'**
+  String get aboutTitle;
+
+  /// No description provided for @aboutAppDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'TPLive menampilkan posisi bus TransPadang secara real-time.'**
+  String get aboutAppDescription;
+
+  /// No description provided for @demoModeTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Mode demo'**
+  String get demoModeTitle;
+
+  /// No description provided for @demoModeSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Gunakan data bus palsu untuk pengembangan'**
+  String get demoModeSubtitle;
+}
+
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
+
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) => <String>['en', 'id'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'en': return AppLocalizationsEn();
+    case 'id': return AppLocalizationsId();
+  }
+
+  throw FlutterError(
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.'
+  );
+}

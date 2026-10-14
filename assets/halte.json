@@ -1,0 +1,2376 @@
+{
+ "K1": {
+  "arah": {
+   "pergi": {
+    "label": "RTH Imam Bonjol ← Mega Permai",
+    "halte": [
+     {
+      "nama": "Mega Permai",
+      "lat": -0.809764,
+      "lng": 100.316159
+     },
+     {
+      "nama": "SMAN 8",
+      "lat": -0.812486,
+      "lng": 100.318722
+     },
+     {
+      "nama": "Fak. Ilmu Keolahragaan UNP",
+      "lat": -0.815189,
+      "lng": 100.321297
+     },
+     {
+      "nama": "SMP 15",
+      "lat": -0.818239,
+      "lng": 100.323461
+     },
+     {
+      "nama": "Monang",
+      "lat": -0.821743,
+      "lng": 100.325492
+     },
+     {
+      "nama": "Anak Air",
+      "lat": -0.825427,
+      "lng": 100.327336
+     },
+     {
+      "nama": "Simp. Brimob",
+      "lat": -0.83033,
+      "lng": 100.32736
+     },
+     {
+      "nama": "Halte Lubuk Buaya",
+      "lat": -0.833839,
+      "lng": 100.327678
+     },
+     {
+      "nama": "Kalumpang",
+      "lat": -0.838801,
+      "lng": 100.328598
+     },
+     {
+      "nama": "Mutiara Putih",
+      "lat": -0.845399,
+      "lng": 100.332084
+     },
+     {
+      "nama": "Griya Bunga Mas",
+      "lat": -0.850389,
+      "lng": 100.334425
+     },
+     {
+      "nama": "Singgalang",
+      "lat": -0.854759,
+      "lng": 100.336924
+     },
+     {
+      "nama": "Muaro Penjalinan",
+      "lat": -0.858463,
+      "lng": 100.338778
+     },
+     {
+      "nama": "Halte Tabing",
+      "lat": -0.866866,
+      "lng": 100.342739
+     },
+     {
+      "nama": "Asia Biskuit",
+      "lat": -0.871737,
+      "lng": 100.345298
+     },
+     {
+      "nama": "Asrama Haji",
+      "lat": -0.877603,
+      "lng": 100.348214
+     },
+     {
+      "nama": "Simpang GIA",
+      "lat": -0.884255,
+      "lng": 100.350842
+     },
+     {
+      "nama": "Tunggul Hitam",
+      "lat": -0.891811,
+      "lng": 100.352342
+     },
+     {
+      "nama": "UNP",
+      "lat": -0.896783,
+      "lng": 100.35204
+     },
+     {
+      "nama": "Halte Air Tawar",
+      "lat": -0.902329,
+      "lng": 100.350521
+     },
+     {
+      "nama": "DPRD Sumbar",
+      "lat": -0.907072,
+      "lng": 100.35276
+     },
+     {
+      "nama": "Elang Perkasa",
+      "lat": -0.910609,
+      "lng": 100.355499
+     },
+     {
+      "nama": "Transmart",
+      "lat": -0.91357,
+      "lng": 100.357768
+     },
+     {
+      "nama": "Univ. Alifah",
+      "lat": -0.916703,
+      "lng": 100.359795
+     },
+     {
+      "nama": "Hermina",
+      "lat": -0.920063,
+      "lng": 100.361322
+     },
+     {
+      "nama": "Masjid Raya Sumbar",
+      "lat": -0.923794,
+      "lng": 100.361433
+     },
+     {
+      "nama": "Telkom",
+      "lat": -0.926868,
+      "lng": 100.361285
+     },
+     {
+      "nama": "GOR",
+      "lat": -0.929404,
+      "lng": 100.361291
+     },
+     {
+      "nama": "BTN",
+      "lat": -0.933528,
+      "lng": 100.361275
+     },
+     {
+      "nama": "Kantor Gubernur",
+      "lat": -0.937059,
+      "lng": 100.361374
+     },
+     {
+      "nama": "Kodam",
+      "lat": -0.940575,
+      "lng": 100.361635
+     },
+     {
+      "nama": "SMK 3",
+      "lat": -0.945018,
+      "lng": 100.362476
+     },
+     {
+      "nama": "SMP 1",
+      "lat": -0.949433,
+      "lng": 100.363453
+     },
+     {
+      "nama": "Kantor Pos",
+      "lat": -0.951467,
+      "lng": 100.361221
+     },
+     {
+      "nama": "Pasar Raya Fase VII",
+      "lat": -0.955599,
+      "lng": 100.362073
+     },
+     {
+      "nama": "RTH Imam Bonjol",
+      "lat": -0.952708,
+      "lng": 100.363513
+     }
+    ]
+   },
+   "pulang": {
+    "label": "RTH Imam Bonjol → Mega Permai",
+    "halte": [
+     {
+      "nama": "RTH Imam Bonjol",
+      "lat": -0.952708,
+      "lng": 100.363513
+     },
+     {
+      "nama": "Kantor Pos",
+      "lat": -0.94983,
+      "lng": 100.363485
+     },
+     {
+      "nama": "SMP 1",
+      "lat": -0.947088,
+      "lng": 100.36275
+     },
+     {
+      "nama": "SMK 3",
+      "lat": -0.943814,
+      "lng": 100.36205
+     },
+     {
+      "nama": "Kodam",
+      "lat": -0.94052,
+      "lng": 100.361448
+     },
+     {
+      "nama": "Kantor Gubernur",
+      "lat": -0.937019,
+      "lng": 100.361151
+     },
+     {
+      "nama": "BTN",
+      "lat": -0.933066,
+      "lng": 100.361206
+     },
+     {
+      "nama": "GOR",
+      "lat": -0.929559,
+      "lng": 100.361276
+     },
+     {
+      "nama": "Telkom",
+      "lat": -0.927609,
+      "lng": 100.36125
+     },
+     {
+      "nama": "Masjid Raya Sumbar",
+      "lat": -0.92258,
+      "lng": 100.36125
+     },
+     {
+      "nama": "Hermina",
+      "lat": -0.919243,
+      "lng": 100.360942
+     },
+     {
+      "nama": "Univ. Alifah",
+      "lat": -0.916294,
+      "lng": 100.359237
+     },
+     {
+      "nama": "Transmart",
+      "lat": -0.913387,
+      "lng": 100.357468
+     },
+     {
+      "nama": "Elang Perkasa",
+      "lat": -0.910631,
+      "lng": 100.355464
+     },
+     {
+      "nama": "DPRD Sumbar",
+      "lat": -0.907416,
+      "lng": 100.352863
+     },
+     {
+      "nama": "Halte Air Tawar",
+      "lat": -0.90286,
+      "lng": 100.35059
+     },
+     {
+      "nama": "UNP",
+      "lat": -0.897393,
+      "lng": 100.351686
+     },
+     {
+      "nama": "Tunggul Hitam",
+      "lat": -0.891828,
+      "lng": 100.352177
+     },
+     {
+      "nama": "Simpang GIA",
+      "lat": -0.88418,
+      "lng": 100.350686
+     },
+     {
+      "nama": "Asrama Haji",
+      "lat": -0.877587,
+      "lng": 100.348089
+     },
+     {
+      "nama": "Asia Biskuit",
+      "lat": -0.87195,
+      "lng": 100.345233
+     },
+     {
+      "nama": "Halte Tabing",
+      "lat": -0.866227,
+      "lng": 100.34226
+     },
+     {
+      "nama": "Muaro Penjalinan",
+      "lat": -0.860936,
+      "lng": 100.339766
+     },
+     {
+      "nama": "Singgalang",
+      "lat": -0.855633,
+      "lng": 100.337297
+     },
+     {
+      "nama": "Griya Bunga Mas",
+      "lat": -0.850339,
+      "lng": 100.334267
+     },
+     {
+      "nama": "Mutiara Putih",
+      "lat": -0.846174,
+      "lng": 100.332301
+     },
+     {
+      "nama": "Kalumpang",
+      "lat": -0.838882,
+      "lng": 100.328468
+     },
+     {
+      "nama": "Halte Lubuk Buaya",
+      "lat": -0.831705,
+      "lng": 100.327402
+     },
+     {
+      "nama": "Simp. Brimob",
+      "lat": -0.829237,
+      "lng": 100.327313
+     },
+     {
+      "nama": "Anak Air",
+      "lat": -0.826896,
+      "lng": 100.327836
+     },
+     {
+      "nama": "Monang",
+      "lat": -0.821743,
+      "lng": 100.325331
+     },
+     {
+      "nama": "SMP 15",
+      "lat": -0.818582,
+      "lng": 100.32352
+     },
+     {
+      "nama": "Fak. Ilmu Keolahragaan UNP",
+      "lat": -0.815415,
+      "lng": 100.321331
+     },
+     {
+      "nama": "SMAN 8",
+      "lat": -0.81263,
+      "lng": 100.318687
+     },
+     {
+      "nama": "Mega Permai",
+      "lat": -0.809764,
+      "lng": 100.316159
+     }
+    ]
+   }
+  }
+ },
+ "K2": {
+  "arah": {
+   "pergi": {
+    "label": "Imam Bonjol → Simpang Sei Pisang",
+    "halte": [
+     {
+      "nama": "Imam Bonjol",
+      "lat": -0.952708,
+      "lng": 100.363513
+     },
+     {
+      "nama": "Pasar Raya",
+      "lat": -0.95348,
+      "lng": 100.36406
+     },
+     {
+      "nama": "Masjid Nurul Iman",
+      "lat": -0.954013,
+      "lng": 100.364696
+     },
+     {
+      "nama": "Bulog Sumbar",
+      "lat": -0.954024,
+      "lng": 100.36563
+     },
+     {
+      "nama": "Hotel Grand Sari",
+      "lat": -0.955377,
+      "lng": 100.367947
+     },
+     {
+      "nama": "SMK Dhuafa Nusantara",
+      "lat": -0.956442,
+      "lng": 100.370388
+     },
+     {
+      "nama": "Simpang STIA LPPN Padang",
+      "lat": -0.956869,
+      "lng": 100.373854
+     },
+     {
+      "nama": "Apotik Raisa",
+      "lat": -0.956936,
+      "lng": 100.374108
+     },
+     {
+      "nama": "Simp. Jembatan Babuai",
+      "lat": -0.962225,
+      "lng": 100.379278
+     },
+     {
+      "nama": "Simpang Cendana Mata Air",
+      "lat": -0.972117,
+      "lng": 100.37819
+     },
+     {
+      "nama": "SMPN 20 Padang",
+      "lat": -0.973098,
+      "lng": 100.378176
+     },
+     {
+      "nama": "Klinik Cempaka Indah",
+      "lat": -0.975566,
+      "lng": 100.378552
+     },
+     {
+      "nama": "Dishub Padang",
+      "lat": -0.978141,
+      "lng": 100.380964
+     },
+     {
+      "nama": "Pool HPS",
+      "lat": -0.981163,
+      "lng": 100.382802
+     },
+     {
+      "nama": "Bukik Putuih",
+      "lat": -0.98689,
+      "lng": 100.383957
+     },
+     {
+      "nama": "Pasar Gaung",
+      "lat": -0.991894,
+      "lng": 100.383657
+     },
+     {
+      "nama": "Abdul Gani",
+      "lat": -0.995099,
+      "lng": 100.385328
+     },
+     {
+      "nama": "Masjid Al Qahar",
+      "lat": -1.001715,
+      "lng": 100.387856
+     },
+     {
+      "nama": "Pabrik Karet Seo Beremas",
+      "lat": -1.007213,
+      "lng": 100.390632
+     },
+     {
+      "nama": "Pantai Nirwana",
+      "lat": -1.008343,
+      "lng": 100.392117
+     },
+     {
+      "nama": "VTS Bungus",
+      "lat": -1.02745,
+      "lng": 100.399217
+     },
+     {
+      "nama": "Pelabuhan ASDP Bungus",
+      "lat": -1.028218,
+      "lng": 100.403146
+     },
+     {
+      "nama": "Simp. Batuang Bungus",
+      "lat": -1.028171,
+      "lng": 100.4062
+     },
+     {
+      "nama": "SDN 18 Labuhan Tarok",
+      "lat": -1.028472,
+      "lng": 100.409241
+     },
+     {
+      "nama": "Kampus II MAN 1",
+      "lat": -1.027809,
+      "lng": 100.412248
+     },
+     {
+      "nama": "Kantor Lurah Bungus",
+      "lat": -1.02906,
+      "lng": 100.414994
+     },
+     {
+      "nama": "SPBU Bungus",
+      "lat": -1.031516,
+      "lng": 100.415207
+     },
+     {
+      "nama": "SMPN 19",
+      "lat": -1.034248,
+      "lng": 100.412842
+     },
+     {
+      "nama": "SDN 01 Ps. Laban",
+      "lat": -1.035814,
+      "lng": 100.410822
+     },
+     {
+      "nama": "Puskesmas Bungus",
+      "lat": -1.037788,
+      "lng": 100.410869
+     },
+     {
+      "nama": "Simpang KUD",
+      "lat": -1.04182,
+      "lng": 100.412901
+     },
+     {
+      "nama": "SMAN 11",
+      "lat": -1.046259,
+      "lng": 100.412814
+     },
+     {
+      "nama": "Perumnas Cindakir",
+      "lat": -1.054644,
+      "lng": 100.413057
+     },
+     {
+      "nama": "SDN 21 Cindakir",
+      "lat": -1.056333,
+      "lng": 100.414423
+     },
+     {
+      "nama": "SDN 06 Cindakir",
+      "lat": -1.058539,
+      "lng": 100.414961
+     },
+     {
+      "nama": "SDN 03 Batuang Bungus",
+      "lat": -1.062569,
+      "lng": 100.414213
+     },
+     {
+      "nama": "Masjid Jami'",
+      "lat": -1.066952,
+      "lng": 100.413612
+     },
+     {
+      "nama": "Pasar Teluk Kabung",
+      "lat": -1.071365,
+      "lng": 100.413452
+     },
+     {
+      "nama": "Puskesmas Pembantu Teluk Kabung",
+      "lat": -1.073419,
+      "lng": 100.416272
+     },
+     {
+      "nama": "Simpang Sei Pisang",
+      "lat": -1.07241,
+      "lng": 100.413406
+     }
+    ]
+   },
+   "pulang": {
+    "label": "Imam Bonjol ← Simpang Sei Pisang",
+    "halte": [
+     {
+      "nama": "Simpang Sei Pisang",
+      "lat": -1.07241,
+      "lng": 100.413406
+     },
+     {
+      "nama": "Surau Thara",
+      "lat": -1.069504,
+      "lng": 100.413659
+     },
+     {
+      "nama": "Pasar Teluk Kabung",
+      "lat": -1.066431,
+      "lng": 100.413516
+     },
+     {
+      "nama": "Pasar Teluk Kabung",
+      "lat": -1.063136,
+      "lng": 100.414008
+     },
+     {
+      "nama": "Masjid Jami'",
+      "lat": -1.054787,
+      "lng": 100.413438
+     },
+     {
+      "nama": "SDN 03 Batuang Bungus",
+      "lat": -1.046741,
+      "lng": 100.412553
+     },
+     {
+      "nama": "SDN 06 Cindakir",
+      "lat": -1.045099,
+      "lng": 100.413231
+     },
+     {
+      "nama": "SDN 21 Cindakir",
+      "lat": -1.04333,
+      "lng": 100.4132
+     },
+     {
+      "nama": "Perumnas Cindakir",
+      "lat": -1.041588,
+      "lng": 100.412843
+     },
+     {
+      "nama": "SMAN 11",
+      "lat": -1.039957,
+      "lng": 100.412135
+     },
+     {
+      "nama": "Simpang KUD",
+      "lat": -1.039271,
+      "lng": 100.411827
+     },
+     {
+      "nama": "Puskesmas Bungus",
+      "lat": -1.037871,
+      "lng": 100.410729
+     },
+     {
+      "nama": "SDN 01 Ps. Laban",
+      "lat": -1.035799,
+      "lng": 100.410835
+     },
+     {
+      "nama": "SMPN 19",
+      "lat": -1.034255,
+      "lng": 100.412899
+     },
+     {
+      "nama": "SPBU Bungus",
+      "lat": -1.029783,
+      "lng": 100.414306
+     },
+     {
+      "nama": "Kantor Lurah Bungus",
+      "lat": -1.029902,
+      "lng": 100.415849
+     },
+     {
+      "nama": "Kampus II MAN 1",
+      "lat": -1.027939,
+      "lng": 100.412272
+     },
+     {
+      "nama": "SDN 18 Labuhan Tarok",
+      "lat": -1.028487,
+      "lng": 100.409242
+     },
+     {
+      "nama": "Simp. Batuang Bungus",
+      "lat": -1.028171,
+      "lng": 100.406197
+     },
+     {
+      "nama": "Pelabuhan ASDP Bungus",
+      "lat": -1.028245,
+      "lng": 100.403146
+     },
+     {
+      "nama": "VTS Bungus",
+      "lat": -1.027474,
+      "lng": 100.399217
+     },
+     {
+      "nama": "Pantai Nirwana",
+      "lat": -1.012055,
+      "lng": 100.391271
+     },
+     {
+      "nama": "Pabrik Karet Seo Beremas",
+      "lat": -1.008064,
+      "lng": 100.391768
+     },
+     {
+      "nama": "Masjid Al Qahar",
+      "lat": -1.000856,
+      "lng": 100.387165
+     },
+     {
+      "nama": "Abdul Gani",
+      "lat": -0.995176,
+      "lng": 100.385267
+     },
+     {
+      "nama": "Pasar Gaung",
+      "lat": -0.992006,
+      "lng": 100.38364
+     },
+     {
+      "nama": "Bukik Putuih",
+      "lat": -0.98562,
+      "lng": 100.38399
+     },
+     {
+      "nama": "Dishub Padang",
+      "lat": -0.978858,
+      "lng": 100.381382
+     },
+     {
+      "nama": "Klinik Cempaka Indah",
+      "lat": -0.976659,
+      "lng": 100.379807
+     },
+     {
+      "nama": "SMPN 20 Padang",
+      "lat": -0.974752,
+      "lng": 100.377993
+     },
+     {
+      "nama": "Simpang Cendana Mata Air",
+      "lat": -0.972548,
+      "lng": 100.378105
+     },
+     {
+      "nama": "Simp. Jembatan Babuai",
+      "lat": -0.966149,
+      "lng": 100.378926
+     },
+     {
+      "nama": "Apotik Raisa",
+      "lat": -0.959632,
+      "lng": 100.378749
+     },
+     {
+      "nama": "Simpang STIA LPPN Padang",
+      "lat": -0.95694,
+      "lng": 100.373146
+     },
+     {
+      "nama": "SMK Dhuafa Nusantara",
+      "lat": -0.956336,
+      "lng": 100.370117
+     },
+     {
+      "nama": "Hotel Grand Sari",
+      "lat": -0.955408,
+      "lng": 100.367652
+     },
+     {
+      "nama": "Bulog Sumbar",
+      "lat": -0.955187,
+      "lng": 100.36705
+     },
+     {
+      "nama": "Masjid Nurul Iman",
+      "lat": -0.95478,
+      "lng": 100.366553
+     },
+     {
+      "nama": "Happy Puppy",
+      "lat": -0.954373,
+      "lng": 100.366056
+     },
+     {
+      "nama": "Kinol",
+      "lat": -0.954014,
+      "lng": 100.36554
+     },
+     {
+      "nama": "HOS Cokroaminoto",
+      "lat": -0.953963,
+      "lng": 100.364902
+     },
+     {
+      "nama": "SMP 4",
+      "lat": -0.954255,
+      "lng": 100.364403
+     },
+     {
+      "nama": "SMP 3",
+      "lat": -0.954623,
+      "lng": 100.363893
+     },
+     {
+      "nama": "Kemenpu Muaro",
+      "lat": -0.954961,
+      "lng": 100.363347
+     },
+     {
+      "nama": "Kantor Kesyahbandaran Muaro",
+      "lat": -0.955299,
+      "lng": 100.362801
+     },
+     {
+      "nama": "LP Muaro",
+      "lat": -0.955637,
+      "lng": 100.362255
+     },
+     {
+      "nama": "Plan B",
+      "lat": -0.955514,
+      "lng": 100.361954
+     },
+     {
+      "nama": "Mr. DIY",
+      "lat": -0.954953,
+      "lng": 100.362266
+     },
+     {
+      "nama": "Alam Indah Granite",
+      "lat": -0.954392,
+      "lng": 100.362578
+     },
+     {
+      "nama": "Simpang Jaya",
+      "lat": -0.95383,
+      "lng": 100.362889
+     },
+     {
+      "nama": "Simp. Dobi",
+      "lat": -0.953269,
+      "lng": 100.363201
+     },
+     {
+      "nama": "Imam Bonjol",
+      "lat": -0.952708,
+      "lng": 100.363513
+     }
+    ]
+   }
+  }
+ },
+ "K3": {
+  "arah": {
+   "pergi": {
+    "label": "Ruas Hasanuddin → Taman Digital / Balai Kota",
+    "halte": [
+     {
+      "nama": "Ruas Hasanuddin",
+      "lat": -0.950226,
+      "lng": 100.352127
+     },
+     {
+      "nama": "Pasar Raya",
+      "lat": -0.950226,
+      "lng": 100.352127
+     },
+     {
+      "nama": "Simp. Dobi",
+      "lat": -0.950226,
+      "lng": 100.352127
+     },
+     {
+      "nama": "Museum Adityawarman",
+      "lat": -0.950226,
+      "lng": 100.352127
+     },
+     {
+      "nama": "Mr. DIY",
+      "lat": -0.950226,
+      "lng": 100.352127
+     },
+     {
+      "nama": "Plan B",
+      "lat": -0.950226,
+      "lng": 100.352127
+     },
+     {
+      "nama": "Masjid Al Hakim",
+      "lat": -0.950226,
+      "lng": 100.352127
+     },
+     {
+      "nama": "Gedung Joang 45",
+      "lat": -0.950226,
+      "lng": 100.352127
+     },
+     {
+      "nama": "Taman Budaya",
+      "lat": -0.950226,
+      "lng": 100.352127
+     },
+     {
+      "nama": "SDN 14 Olo Ladang",
+      "lat": -0.947382,
+      "lng": 100.351839
+     },
+     {
+      "nama": "SDN 27 Olo Ladang",
+      "lat": -0.944533,
+      "lng": 100.351591
+     },
+     {
+      "nama": "Rusunawa Purus",
+      "lat": -0.937259,
+      "lng": 100.351099
+     },
+     {
+      "nama": "Pantai Puruih",
+      "lat": -0.933089,
+      "lng": 100.350652
+     },
+     {
+      "nama": "Pantai Muaro Lasak",
+      "lat": -0.928923,
+      "lng": 100.350276
+     },
+     {
+      "nama": "Hotel Pangeran Beach",
+      "lat": -0.923748,
+      "lng": 100.351015
+     },
+     {
+      "nama": "Simpang Lolong",
+      "lat": -0.920612,
+      "lng": 100.350657
+     },
+     {
+      "nama": "Simpang Belanti",
+      "lat": -0.917472,
+      "lng": 100.350344
+     },
+     {
+      "nama": "SMA 1",
+      "lat": -0.914326,
+      "lng": 100.350103
+     },
+     {
+      "nama": "Simpang Belanti",
+      "lat": -0.912448,
+      "lng": 100.349946
+     },
+     {
+      "nama": "Univ. Metamedia",
+      "lat": -0.91075,
+      "lng": 100.350386
+     },
+     {
+      "nama": "Hermina",
+      "lat": -0.909484,
+      "lng": 100.351781
+     },
+     {
+      "nama": "Univ. Alifah",
+      "lat": -0.908242,
+      "lng": 100.353199
+     },
+     {
+      "nama": "Transmart",
+      "lat": -0.90681,
+      "lng": 100.352344
+     },
+     {
+      "nama": "Elang Perkasa",
+      "lat": -0.90723,
+      "lng": 100.352878
+     },
+     {
+      "nama": "RM VII Koto Talago",
+      "lat": -0.907396,
+      "lng": 100.354138
+     },
+     {
+      "nama": "SJS Plaza",
+      "lat": -0.904802,
+      "lng": 100.357927
+     },
+     {
+      "nama": "Kampus ITP / SMPN 12",
+      "lat": -0.902153,
+      "lng": 100.362282
+     },
+     {
+      "nama": "Jembatan Baru Siteba",
+      "lat": -0.899653,
+      "lng": 100.363261
+     },
+     {
+      "nama": "Simpang Berok",
+      "lat": -0.896455,
+      "lng": 100.363191
+     },
+     {
+      "nama": "Simp. Perum Surau Gadang",
+      "lat": -0.894858,
+      "lng": 100.364428
+     },
+     {
+      "nama": "Simp. Tiga Kurao Pagang",
+      "lat": -0.896929,
+      "lng": 100.366791
+     },
+     {
+      "nama": "SDN 15 Surau Gadang",
+      "lat": -0.898546,
+      "lng": 100.369545
+     },
+     {
+      "nama": "SMPN 22",
+      "lat": -0.898988,
+      "lng": 100.372585
+     },
+     {
+      "nama": "Poltekkes Siteba",
+      "lat": -0.897324,
+      "lng": 100.375257
+     },
+     {
+      "nama": "Camat Nanggalo",
+      "lat": -0.89669,
+      "lng": 100.377951
+     },
+     {
+      "nama": "Masjid An-Nur",
+      "lat": -0.898271,
+      "lng": 100.386375
+     },
+     {
+      "nama": "TK Aisyiah Lolongkaran",
+      "lat": -0.899359,
+      "lng": 100.391109
+     },
+     {
+      "nama": "Simpang Balai Baru",
+      "lat": -0.899968,
+      "lng": 100.393886
+     },
+     {
+      "nama": "Baznas",
+      "lat": -0.894669,
+      "lng": 100.394826
+     },
+     {
+      "nama": "Universitas Terbuka",
+      "lat": -0.887074,
+      "lng": 100.393525
+     },
+     {
+      "nama": "Simpang Diklat RSUD",
+      "lat": -0.886207,
+      "lng": 100.393019
+     },
+     {
+      "nama": "FKG Baiturrahmah",
+      "lat": -0.880732,
+      "lng": 100.389564
+     },
+     {
+      "nama": "Pusat Pemerintahan",
+      "lat": -0.877125,
+      "lng": 100.386933
+     },
+     {
+      "nama": "RS Siti Rahmah",
+      "lat": -0.871082,
+      "lng": 100.382369
+     },
+     {
+      "nama": "Taman Digital / Balai Kota",
+      "lat": -0.871082,
+      "lng": 100.382369
+     }
+    ]
+   },
+   "pulang": {
+    "label": "Ruas Hasanuddin ← Taman Digital / Balai Kota",
+    "halte": [
+     {
+      "nama": "Taman Digital / Balai Kota",
+      "lat": -0.871082,
+      "lng": 100.382369
+     },
+     {
+      "nama": "RS Siti Rahmah",
+      "lat": -0.871082,
+      "lng": 100.382369
+     },
+     {
+      "nama": "Pusat Pemerintahan",
+      "lat": -0.877099,
+      "lng": 100.386979
+     },
+     {
+      "nama": "FKG Baiturrahmah",
+      "lat": -0.880588,
+      "lng": 100.389529
+     },
+     {
+      "nama": "SDN 43 Sungai Sapih",
+      "lat": -0.882199,
+      "lng": 100.390552
+     },
+     {
+      "nama": "RSUD dr. Rasidin",
+      "lat": -0.88381,
+      "lng": 100.391576
+     },
+     {
+      "nama": "Simpang Diklat RSUD",
+      "lat": -0.885427,
+      "lng": 100.392589
+     },
+     {
+      "nama": "Universitas Terbuka",
+      "lat": -0.887055,
+      "lng": 100.393584
+     },
+     {
+      "nama": "Baznas",
+      "lat": -0.892421,
+      "lng": 100.394554
+     },
+     {
+      "nama": "Simpang Balai Baru",
+      "lat": -0.897839,
+      "lng": 100.395085
+     },
+     {
+      "nama": "TK Aisyiah Lolongkaran",
+      "lat": -0.899359,
+      "lng": 100.391109
+     },
+     {
+      "nama": "Masjid An-Nur",
+      "lat": -0.899717,
+      "lng": 100.392997
+     },
+     {
+      "nama": "Camat Nanggalo",
+      "lat": -0.896519,
+      "lng": 100.377463
+     },
+     {
+      "nama": "Poltekkes Siteba",
+      "lat": -0.897676,
+      "lng": 100.374894
+     },
+     {
+      "nama": "KF Siteba",
+      "lat": -0.899166,
+      "lng": 100.372122
+     },
+     {
+      "nama": "Pegadaian Siteba",
+      "lat": -0.898345,
+      "lng": 100.369105
+     },
+     {
+      "nama": "BRI Siteba",
+      "lat": -0.896768,
+      "lng": 100.366632
+     },
+     {
+      "nama": "Klinik Armina",
+      "lat": -0.897176,
+      "lng": 100.363858
+     },
+     {
+      "nama": "Kampus ITP / SMPN 12",
+      "lat": -0.899764,
+      "lng": 100.363295
+     },
+     {
+      "nama": "SJS Plaza",
+      "lat": -0.903936,
+      "lng": 100.359503
+     },
+     {
+      "nama": "RM VII Koto Talago",
+      "lat": -0.90743,
+      "lng": 100.354149
+     },
+     {
+      "nama": "Elang Perkasa",
+      "lat": -0.909708,
+      "lng": 100.351451
+     },
+     {
+      "nama": "Transmart",
+      "lat": -0.911128,
+      "lng": 100.350121
+     },
+     {
+      "nama": "Univ. Alifah",
+      "lat": -0.914562,
+      "lng": 100.350134
+     },
+     {
+      "nama": "Hermina",
+      "lat": -0.918078,
+      "lng": 100.350457
+     },
+     {
+      "nama": "Masjid Raya Sumbar",
+      "lat": -0.921593,
+      "lng": 100.350796
+     },
+     {
+      "nama": "Telkom",
+      "lat": -0.923973,
+      "lng": 100.351079
+     },
+     {
+      "nama": "GOR",
+      "lat": -0.926347,
+      "lng": 100.35141
+     },
+     {
+      "nama": "BTN",
+      "lat": -0.928655,
+      "lng": 100.352055
+     },
+     {
+      "nama": "SD Percobaan",
+      "lat": -0.930512,
+      "lng": 100.353246
+     },
+     {
+      "nama": "Dinkop Padang",
+      "lat": -0.932704,
+      "lng": 100.354008
+     },
+     {
+      "nama": "Asokatama",
+      "lat": -0.935528,
+      "lng": 100.354533
+     },
+     {
+      "nama": "Masjid Al-Wustha",
+      "lat": -0.938468,
+      "lng": 100.354492
+     },
+     {
+      "nama": "Jl. Purus I",
+      "lat": -0.940405,
+      "lng": 100.354471
+     },
+     {
+      "nama": "STMIKA Jayanusa",
+      "lat": -0.942341,
+      "lng": 100.354492
+     },
+     {
+      "nama": "MDTA Olo Ladang",
+      "lat": -0.944275,
+      "lng": 100.354601
+     },
+     {
+      "nama": "Button Scarves",
+      "lat": -0.945303,
+      "lng": 100.354688
+     },
+     {
+      "nama": "Masjid Al Wustha Purus",
+      "lat": -0.946292,
+      "lng": 100.354877
+     },
+     {
+      "nama": "PT Suka Fajar",
+      "lat": -0.947318,
+      "lng": 100.354982
+     },
+     {
+      "nama": "Plaza Andalas",
+      "lat": -0.948344,
+      "lng": 100.355086
+     },
+     {
+      "nama": "TK Adhiyaksa",
+      "lat": -0.955577,
+      "lng": 100.355401
+     },
+     {
+      "nama": "Kopi Paripurna",
+      "lat": -0.954427,
+      "lng": 100.359637
+     },
+     {
+      "nama": "Gedung Joang 45",
+      "lat": -0.954745,
+      "lng": 100.363629
+     },
+     {
+      "nama": "Masjid Al Hakim",
+      "lat": -0.955383,
+      "lng": 100.362576
+     },
+     {
+      "nama": "Plan B",
+      "lat": -0.955383,
+      "lng": 100.362576
+     },
+     {
+      "nama": "Mr. DIY",
+      "lat": -0.955383,
+      "lng": 100.362576
+     },
+     {
+      "nama": "Museum Adityawarman",
+      "lat": -0.955383,
+      "lng": 100.362576
+     },
+     {
+      "nama": "Simp. Dobi",
+      "lat": -0.955383,
+      "lng": 100.362576
+     },
+     {
+      "nama": "Ruas Hasanuddin",
+      "lat": -0.955383,
+      "lng": 100.362576
+     }
+    ]
+   }
+  }
+ },
+ "K4": {
+  "arah": {
+   "pergi": {
+    "label": "Terminal Anak Air → Bukik Putuih",
+    "halte": [
+     {
+      "nama": "Terminal Anak Air",
+      "lat": -0.82444,
+      "lng": 100.33556
+     },
+     {
+      "nama": "Halte bawah Terminal Anak Air",
+      "lat": -0.825461,
+      "lng": 100.331484
+     },
+     {
+      "nama": "Simp. Brimob",
+      "lat": -0.827216,
+      "lng": 100.332287
+     },
+     {
+      "nama": "Halte Lubuk Buaya",
+      "lat": -0.829391,
+      "lng": 100.335883
+     },
+     {
+      "nama": "Kalumpang",
+      "lat": -0.831566,
+      "lng": 100.339478
+     },
+     {
+      "nama": "Universitas Perintis",
+      "lat": -0.833717,
+      "lng": 100.34302
+     },
+     {
+      "nama": "Simp. Kalumpang Bypass",
+      "lat": -0.835288,
+      "lng": 100.346917
+     },
+     {
+      "nama": "SPBU Anak Air",
+      "lat": -0.836858,
+      "lng": 100.350815
+     },
+     {
+      "nama": "Simpang Koto Tuo",
+      "lat": -0.838429,
+      "lng": 100.354712
+     },
+     {
+      "nama": "Puskesmas Koto Panjang Ikua Koto",
+      "lat": -0.84,
+      "lng": 100.35861
+     },
+     {
+      "nama": "Simpang TVRI",
+      "lat": -0.854115,
+      "lng": 100.369131
+     },
+     {
+      "nama": "Simpang Aia Pacah Permai",
+      "lat": -0.86833,
+      "lng": 100.38027
+     },
+     {
+      "nama": "RS Siti Rahmah",
+      "lat": -0.87194,
+      "lng": 100.38305
+     },
+     {
+      "nama": "Pusat Pemerintahan",
+      "lat": -0.875223,
+      "lng": 100.385412
+     },
+     {
+      "nama": "FKG Baiturrahmah",
+      "lat": -0.878514,
+      "lng": 100.387849
+     },
+     {
+      "nama": "Simpang Diklat RSUD",
+      "lat": -0.881892,
+      "lng": 100.390175
+     },
+     {
+      "nama": "Universitas Terbuka",
+      "lat": -0.88527,
+      "lng": 100.3925
+     },
+     {
+      "nama": "Baznas",
+      "lat": -0.888852,
+      "lng": 100.393858
+     },
+     {
+      "nama": "RM Cik Elok",
+      "lat": -0.892752,
+      "lng": 100.394365
+     },
+     {
+      "nama": "RM Dua Saudara",
+      "lat": -0.896653,
+      "lng": 100.394872
+     },
+     {
+      "nama": "Simpang Pilakut",
+      "lat": -0.900551,
+      "lng": 100.39539
+     },
+     {
+      "nama": "SDN 36 Gunung Sago",
+      "lat": -0.90445,
+      "lng": 100.395906
+     },
+     {
+      "nama": "Raja Minas",
+      "lat": -0.908352,
+      "lng": 100.396404
+     },
+     {
+      "nama": "Basko City Mall",
+      "lat": -0.912253,
+      "lng": 100.396902
+     },
+     {
+      "nama": "Simpang Kalumbuk",
+      "lat": -0.916155,
+      "lng": 100.3974
+     },
+     {
+      "nama": "Polsek Kuranji",
+      "lat": -0.92,
+      "lng": 100.3975
+     },
+     {
+      "nama": "Kayu Gadang",
+      "lat": -0.926511,
+      "lng": 100.398305
+     },
+     {
+      "nama": "Simpang Ketaping",
+      "lat": -0.93305,
+      "lng": 100.39888
+     },
+     {
+      "nama": "RS Semen Padang",
+      "lat": -0.934498,
+      "lng": 100.39879
+     },
+     {
+      "nama": "Simpang Pisang",
+      "lat": -0.93605,
+      "lng": 100.399028
+     },
+     {
+      "nama": "Klinik Umum Fitria",
+      "lat": -0.937603,
+      "lng": 100.399267
+     },
+     {
+      "nama": "Pool ALS",
+      "lat": -0.939155,
+      "lng": 100.399506
+     },
+     {
+      "nama": "PLN Lubuk Begalung",
+      "lat": -0.940556,
+      "lng": 100.399879
+     },
+     {
+      "nama": "Simpang Lubuk Begalung",
+      "lat": -0.94179,
+      "lng": 100.400768
+     },
+     {
+      "nama": "Simpang Beringin",
+      "lat": -0.943123,
+      "lng": 100.401599
+     },
+     {
+      "nama": "Simpang Arai Pinang",
+      "lat": -0.944456,
+      "lng": 100.40243
+     },
+     {
+      "nama": "PT Tazar",
+      "lat": -0.945,
+      "lng": 100.401841
+     },
+     {
+      "nama": "Simpang Pengambiran",
+      "lat": -0.945,
+      "lng": 100.40027
+     },
+     {
+      "nama": "Simpang Pampangan",
+      "lat": -0.969453,
+      "lng": 100.398181
+     },
+     {
+      "nama": "Bukik Putuih",
+      "lat": -0.98972,
+      "lng": 100.38277
+     }
+    ]
+   },
+   "pulang": {
+    "label": "Terminal Anak Air ← Bukik Putuih",
+    "halte": [
+     {
+      "nama": "Bukik Putuih",
+      "lat": -0.98972,
+      "lng": 100.38277
+     },
+     {
+      "nama": "Simpang Pampangan",
+      "lat": -0.969453,
+      "lng": 100.398181
+     },
+     {
+      "nama": "Simpang Pengambiran",
+      "lat": -0.945,
+      "lng": 100.40027
+     },
+     {
+      "nama": "PT Tazar",
+      "lat": -0.945,
+      "lng": 100.401841
+     },
+     {
+      "nama": "Simpang Arai Pinang",
+      "lat": -0.944456,
+      "lng": 100.40243
+     },
+     {
+      "nama": "Simpang Beringin",
+      "lat": -0.943123,
+      "lng": 100.401599
+     },
+     {
+      "nama": "Simpang Lubuk Begalung",
+      "lat": -0.94179,
+      "lng": 100.400768
+     },
+     {
+      "nama": "PLN Lubuk Begalung",
+      "lat": -0.940556,
+      "lng": 100.399879
+     },
+     {
+      "nama": "Pool ALS",
+      "lat": -0.939155,
+      "lng": 100.399506
+     },
+     {
+      "nama": "Klinik Umum Fitria",
+      "lat": -0.937603,
+      "lng": 100.399267
+     },
+     {
+      "nama": "Simpang Pisang",
+      "lat": -0.93605,
+      "lng": 100.399028
+     },
+     {
+      "nama": "RS Semen Padang",
+      "lat": -0.934498,
+      "lng": 100.39879
+     },
+     {
+      "nama": "Simpang Ketaping",
+      "lat": -0.93305,
+      "lng": 100.39888
+     },
+     {
+      "nama": "Kayu Gadang",
+      "lat": -0.926511,
+      "lng": 100.398305
+     },
+     {
+      "nama": "Polsek Kuranji",
+      "lat": -0.92,
+      "lng": 100.3975
+     },
+     {
+      "nama": "Simpang Kalumbuk",
+      "lat": -0.916155,
+      "lng": 100.3974
+     },
+     {
+      "nama": "Basko City Mall",
+      "lat": -0.912253,
+      "lng": 100.396902
+     },
+     {
+      "nama": "Raja Minas",
+      "lat": -0.908352,
+      "lng": 100.396404
+     },
+     {
+      "nama": "SDN 36 Gunung Sago",
+      "lat": -0.90445,
+      "lng": 100.395906
+     },
+     {
+      "nama": "Simpang Pilakut",
+      "lat": -0.900551,
+      "lng": 100.39539
+     },
+     {
+      "nama": "RM Dua Saudara",
+      "lat": -0.896653,
+      "lng": 100.394872
+     },
+     {
+      "nama": "RM Cik Elok",
+      "lat": -0.892752,
+      "lng": 100.394365
+     },
+     {
+      "nama": "Baznas",
+      "lat": -0.888852,
+      "lng": 100.393858
+     },
+     {
+      "nama": "Universitas Terbuka",
+      "lat": -0.88527,
+      "lng": 100.3925
+     },
+     {
+      "nama": "Simpang Diklat RSUD",
+      "lat": -0.883018,
+      "lng": 100.39095
+     },
+     {
+      "nama": "RSUD dr. Rasidin",
+      "lat": -0.880766,
+      "lng": 100.389399
+     },
+     {
+      "nama": "SDN 43 Sungai Sapih",
+      "lat": -0.878514,
+      "lng": 100.387849
+     },
+     {
+      "nama": "FKG Baiturrahmah",
+      "lat": -0.876279,
+      "lng": 100.386279
+     },
+     {
+      "nama": "Pusat Pemerintahan",
+      "lat": -0.874149,
+      "lng": 100.384567
+     },
+     {
+      "nama": "RS Siti Rahmah",
+      "lat": -0.87194,
+      "lng": 100.38305
+     },
+     {
+      "nama": "Simpang Aia Pacah Permai",
+      "lat": -0.86833,
+      "lng": 100.38027
+     },
+     {
+      "nama": "Simpang TVRI",
+      "lat": -0.854115,
+      "lng": 100.369131
+     },
+     {
+      "nama": "Puskesmas Koto Panjang Ikua Koto",
+      "lat": -0.84,
+      "lng": 100.35861
+     },
+     {
+      "nama": "Simpang Koto Tuo",
+      "lat": -0.836466,
+      "lng": 100.34984
+     },
+     {
+      "nama": "SPBU Anak Air",
+      "lat": -0.832815,
+      "lng": 100.341148
+     },
+     {
+      "nama": "Simpang Kalumpang",
+      "lat": -0.82776,
+      "lng": 100.333186
+     },
+     {
+      "nama": "Terminal Anak Air",
+      "lat": -0.82444,
+      "lng": 100.33556
+     }
+    ]
+   }
+  }
+ },
+ "K5": {
+  "arah": {
+   "pergi": {
+    "label": "RTH Imam Bonjol → Indarung",
+    "halte": [
+     {
+      "nama": "RTH Imam Bonjol",
+      "lat": -0.952719,
+      "lng": 100.363636
+     },
+     {
+      "nama": "Jl. Proklamasi",
+      "lat": -0.950929,
+      "lng": 100.36579
+     },
+     {
+      "nama": "Wirabraja / Stasiun Tarandam",
+      "lat": -0.950709,
+      "lng": 100.369248
+     },
+     {
+      "nama": "Asrama Ganting",
+      "lat": -0.949661,
+      "lng": 100.371895
+     },
+     {
+      "nama": "Wisma Kirana",
+      "lat": -0.947955,
+      "lng": 100.37473
+     },
+     {
+      "nama": "dr. Sutomo",
+      "lat": -0.945853,
+      "lng": 100.378424
+     },
+     {
+      "nama": "SMPN 8",
+      "lat": -0.948729,
+      "lng": 100.38306
+     },
+     {
+      "nama": "Polsek Padang Timur",
+      "lat": -0.951609,
+      "lng": 100.387693
+     },
+     {
+      "nama": "Jembatan Marapalam",
+      "lat": -0.953249,
+      "lng": 100.390749
+     },
+     {
+      "nama": "Jl. Aru",
+      "lat": -0.955253,
+      "lng": 100.393666
+     },
+     {
+      "nama": "UPI YPTK",
+      "lat": -0.957142,
+      "lng": 100.39673
+     },
+     {
+      "nama": "Jl. Raya Lubuk Begalung",
+      "lat": -0.957934,
+      "lng": 100.39995
+     },
+     {
+      "nama": "Masjid Tanjung Sabar",
+      "lat": -0.956139,
+      "lng": 100.405821
+     },
+     {
+      "nama": "Jl. Tanah Sirah",
+      "lat": -0.954026,
+      "lng": 100.412577
+     },
+     {
+      "nama": "TK Kartika 1-7",
+      "lat": -0.952498,
+      "lng": 100.419495
+     },
+     {
+      "nama": "Masjid Nurul Hidayah",
+      "lat": -0.951562,
+      "lng": 100.424844
+     },
+     {
+      "nama": "SMP Luki",
+      "lat": -0.950266,
+      "lng": 100.43012
+     },
+     {
+      "nama": "Pasar Banda Buek",
+      "lat": -0.949487,
+      "lng": 100.434356
+     },
+     {
+      "nama": "Masjid Raya Mutathahhirin",
+      "lat": -0.949439,
+      "lng": 100.438531
+     },
+     {
+      "nama": "Simpang Ulu Gadut",
+      "lat": -0.949791,
+      "lng": 100.442777
+     },
+     {
+      "nama": "Simpang Lemdadika Pramuka",
+      "lat": -0.953134,
+      "lng": 100.450327
+     },
+     {
+      "nama": "SDN 12 Padang Besi",
+      "lat": -0.956976,
+      "lng": 100.456542
+     },
+     {
+      "nama": "Simp. Semen Padang",
+      "lat": -0.956425,
+      "lng": 100.467047
+     },
+     {
+      "nama": "Indarung",
+      "lat": -0.956401,
+      "lng": 100.467459
+     }
+    ]
+   },
+   "pulang": {
+    "label": "RTH Imam Bonjol ← Indarung",
+    "halte": [
+     {
+      "nama": "Indarung",
+      "lat": -0.956401,
+      "lng": 100.467459
+     },
+     {
+      "nama": "Simp. Semen Padang",
+      "lat": -0.95803,
+      "lng": 100.461946
+     },
+     {
+      "nama": "SDN 12 Padang Besi",
+      "lat": -0.95707,
+      "lng": 100.456443
+     },
+     {
+      "nama": "Simpang Lemdadika Pramuka",
+      "lat": -0.953592,
+      "lng": 100.451724
+     },
+     {
+      "nama": "Simpang Ulu Gadut",
+      "lat": -0.95063,
+      "lng": 100.445616
+     },
+     {
+      "nama": "Masjid Raya Mutathahhirin",
+      "lat": -0.949649,
+      "lng": 100.438957
+     },
+     {
+      "nama": "Pasar Banda Buek",
+      "lat": -0.94986,
+      "lng": 100.432314
+     },
+     {
+      "nama": "SMP Luki",
+      "lat": -0.950934,
+      "lng": 100.427902
+     },
+     {
+      "nama": "Masjid Nurul Hidayah",
+      "lat": -0.951925,
+      "lng": 100.423471
+     },
+     {
+      "nama": "TK Kartika 1-7",
+      "lat": -0.952676,
+      "lng": 100.418996
+     },
+     {
+      "nama": "Jl. Tanah Sirah",
+      "lat": -0.953822,
+      "lng": 100.413436
+     },
+     {
+      "nama": "Masjid Tanjung Sabar",
+      "lat": -0.955641,
+      "lng": 100.40806
+     },
+     {
+      "nama": "Jl. Raya Lubuk Begalung",
+      "lat": -0.957223,
+      "lng": 100.402608
+     },
+     {
+      "nama": "UPI YPTK",
+      "lat": -0.957624,
+      "lng": 100.397286
+     },
+     {
+      "nama": "Jl. Aru",
+      "lat": -0.955938,
+      "lng": 100.394529
+     },
+     {
+      "nama": "Jembatan Marapalam",
+      "lat": -0.954246,
+      "lng": 100.391775
+     },
+     {
+      "nama": "Polsek Padang Timur",
+      "lat": -0.951803,
+      "lng": 100.387783
+     },
+     {
+      "nama": "SMPN 8",
+      "lat": -0.949295,
+      "lng": 100.383776
+     },
+     {
+      "nama": "dr. Sutomo",
+      "lat": -0.947683,
+      "lng": 100.381172
+     },
+     {
+      "nama": "Wisma Kirana",
+      "lat": -0.946072,
+      "lng": 100.378567
+     },
+     {
+      "nama": "Asrama Ganting",
+      "lat": -0.944572,
+      "lng": 100.37634
+     },
+     {
+      "nama": "Wirabraja / Stasiun Tarandam",
+      "lat": -0.944523,
+      "lng": 100.372547
+     },
+     {
+      "nama": "Jl. Proklamasi",
+      "lat": -0.946019,
+      "lng": 100.368052
+     },
+     {
+      "nama": "Kantor Pos",
+      "lat": -0.946433,
+      "lng": 100.366907
+     },
+     {
+      "nama": "Klinik Al Fatih",
+      "lat": -0.946958,
+      "lng": 100.36581
+     },
+     {
+      "nama": "Simpang Patimura",
+      "lat": -0.947501,
+      "lng": 100.36472
+     },
+     {
+      "nama": "Simpang Damar",
+      "lat": -0.947906,
+      "lng": 100.363694
+     },
+     {
+      "nama": "Plaza Andalas",
+      "lat": -0.948519,
+      "lng": 100.363187
+     },
+     {
+      "nama": "TK Adhiyaksa",
+      "lat": -0.949585,
+      "lng": 100.363481
+     },
+     {
+      "nama": "Museum Adityawarman",
+      "lat": -0.950677,
+      "lng": 100.363656
+     },
+     {
+      "nama": "Simp. Dobi",
+      "lat": -0.951774,
+      "lng": 100.363736
+     },
+     {
+      "nama": "RTH Imam Bonjol",
+      "lat": -0.952719,
+      "lng": 100.363636
+     }
+    ]
+   }
+  }
+ },
+ "K6": {
+  "arah": {
+   "pergi": {
+    "label": "Bioskop Raya → Politeknik Padang",
+    "halte": [
+     {
+      "nama": "Bioskop Raya",
+      "lat": -0.947529,
+      "lng": 100.364584
+     },
+     {
+      "nama": "Damar Plaza",
+      "lat": -0.947529,
+      "lng": 100.364584
+     },
+     {
+      "nama": "Rumah Dinas Wawako",
+      "lat": -0.947529,
+      "lng": 100.364584
+     },
+     {
+      "nama": "Elizabeth",
+      "lat": -0.947529,
+      "lng": 100.364584
+     },
+     {
+      "nama": "SMK 3",
+      "lat": -0.947529,
+      "lng": 100.364584
+     },
+     {
+      "nama": "SMP 1",
+      "lat": -0.947529,
+      "lng": 100.364584
+     },
+     {
+      "nama": "BCA",
+      "lat": -0.947529,
+      "lng": 100.364584
+     },
+     {
+      "nama": "PPC",
+      "lat": -0.945819,
+      "lng": 100.368564
+     },
+     {
+      "nama": "Halte Padang",
+      "lat": -0.94446,
+      "lng": 100.372686
+     },
+     {
+      "nama": "Bank Nagari Andalas",
+      "lat": -0.943125,
+      "lng": 100.376815
+     },
+     {
+      "nama": "Skalau Krui",
+      "lat": -0.940183,
+      "lng": 100.383199
+     },
+     {
+      "nama": "Swalayan Aqlan",
+      "lat": -0.938905,
+      "lng": 100.385508
+     },
+     {
+      "nama": "Masjid Baburrahmah",
+      "lat": -0.937196,
+      "lng": 100.38854
+     },
+     {
+      "nama": "Masjid Kebenaran",
+      "lat": -0.93594,
+      "lng": 100.391681
+     },
+     {
+      "nama": "Klinik Segar",
+      "lat": -0.935148,
+      "lng": 100.394758
+     },
+     {
+      "nama": "Musala Singapura",
+      "lat": -0.934288,
+      "lng": 100.397777
+     },
+     {
+      "nama": "SMP Muhammadiyah 7",
+      "lat": -0.933607,
+      "lng": 100.400562
+     },
+     {
+      "nama": "Balai Pemuda",
+      "lat": -0.933028,
+      "lng": 100.402578
+     },
+     {
+      "nama": "Masjid Jamiak Pauh",
+      "lat": -0.932251,
+      "lng": 100.40778
+     },
+     {
+      "nama": "SMPN 10",
+      "lat": -0.931564,
+      "lng": 100.413602
+     },
+     {
+      "nama": "Simpang Koto Tinggi",
+      "lat": -0.930873,
+      "lng": 100.416821
+     },
+     {
+      "nama": "Sbr. Jl. Kamper Indah",
+      "lat": -0.930294,
+      "lng": 100.420712
+     },
+     {
+      "nama": "Polsek Pauh V",
+      "lat": -0.929837,
+      "lng": 100.425198
+     },
+     {
+      "nama": "Kan Pauh V",
+      "lat": -0.928323,
+      "lng": 100.428802
+     },
+     {
+      "nama": "Simp. Pasia Kapalo Koto",
+      "lat": -0.925748,
+      "lng": 100.436077
+     },
+     {
+      "nama": "Jl. Dr. Moh Hatta",
+      "lat": -0.924133,
+      "lng": 100.441401
+     },
+     {
+      "nama": "Simp. Batu Busuk",
+      "lat": -0.923239,
+      "lng": 100.447564
+     },
+     {
+      "nama": "Gerbang Unand",
+      "lat": -0.920745,
+      "lng": 100.4517
+     },
+     {
+      "nama": "PKM Unand",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Fak. Ekonomi",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Fak. Ekonomi II",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Fak. Pertanian II",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Fak. Pertanian I",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Futsal",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Fak. MIPA",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Gedung I",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Gedung G",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Fak. Farmasi",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Politeknik Padang",
+      "lat": -0.9175,
+      "lng": 100.455394
+     }
+    ]
+   },
+   "pulang": {
+    "label": "Bioskop Raya ← Politeknik Padang",
+    "halte": [
+     {
+      "nama": "Politeknik Padang",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "FIB Unand",
+      "lat": -0.9175,
+      "lng": 100.455394
+     },
+     {
+      "nama": "Fisip Unand",
+      "lat": -0.914412,
+      "lng": 100.456906
+     },
+     {
+      "nama": "Fak. Keperawatan",
+      "lat": -0.91035,
+      "lng": 100.458837
+     },
+     {
+      "nama": "Fak. Kedokteran",
+      "lat": -0.918529,
+      "lng": 100.457875
+     },
+     {
+      "nama": "KliniK Medika",
+      "lat": -0.9165,
+      "lng": 100.457063
+     },
+     {
+      "nama": "RS Unand",
+      "lat": -0.917432,
+      "lng": 100.455546
+     },
+     {
+      "nama": "Simp. Batu Busuk",
+      "lat": -0.923319,
+      "lng": 100.447546
+     },
+     {
+      "nama": "Jl. Dr. Moh Hatta",
+      "lat": -0.924163,
+      "lng": 100.441777
+     },
+     {
+      "nama": "Simp. Pasia Kapalo Koto",
+      "lat": -0.925927,
+      "lng": 100.436374
+     },
+     {
+      "nama": "Kan Pauh V",
+      "lat": -0.92741,
+      "lng": 100.430836
+     },
+     {
+      "nama": "Polsek Pauh V",
+      "lat": -0.929813,
+      "lng": 100.425713
+     },
+     {
+      "nama": "Sbr. Jl. Kamper Indah",
+      "lat": -0.930361,
+      "lng": 100.421262
+     },
+     {
+      "nama": "Simpang Koto Tinggi",
+      "lat": -0.930996,
+      "lng": 100.416823
+     },
+     {
+      "nama": "SMPN 10",
+      "lat": -0.931636,
+      "lng": 100.413324
+     },
+     {
+      "nama": "Masjid Jamiak Pauh",
+      "lat": -0.932086,
+      "lng": 100.409676
+     },
+     {
+      "nama": "Balai Pemuda",
+      "lat": -0.932557,
+      "lng": 100.406022
+     },
+     {
+      "nama": "SMP Muhammadiyah 7",
+      "lat": -0.933254,
+      "lng": 100.402419
+     },
+     {
+      "nama": "Musala Singapura",
+      "lat": -0.934102,
+      "lng": 100.398828
+     },
+     {
+      "nama": "Klinik Segar",
+      "lat": -0.935122,
+      "lng": 100.395282
+     },
+     {
+      "nama": "Masjid Kebenaran",
+      "lat": -0.936079,
+      "lng": 100.391718
+     },
+     {
+      "nama": "Masjid Baburrahmah",
+      "lat": -0.9377,
+      "lng": 100.387769
+     },
+     {
+      "nama": "Swalayan Aqlan",
+      "lat": -0.939815,
+      "lng": 100.383941
+     },
+     {
+      "nama": "Skalau Krui",
+      "lat": -0.941999,
+      "lng": 100.380154
+     },
+     {
+      "nama": "Bank Nagari Andalas",
+      "lat": -0.943124,
+      "lng": 100.376873
+     },
+     {
+      "nama": "Halte Padang",
+      "lat": -0.945759,
+      "lng": 100.355618
+     },
+     {
+      "nama": "PPC",
+      "lat": -0.942797,
+      "lng": 100.359507
+     },
+     {
+      "nama": "BCA",
+      "lat": -0.947529,
+      "lng": 100.364584
+     },
+     {
+      "nama": "Bioskop Raya",
+      "lat": -0.947529,
+      "lng": 100.364584
+     }
+    ]
+   }
+  }
+ }
+}

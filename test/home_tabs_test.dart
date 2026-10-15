@@ -42,14 +42,18 @@ Bus _bus(String number, String corridor, {double lng = 100.30}) => Bus(
       speedKmh: 20,
       lastUpdate: DateTime.now().toUtc(),
     );
-
-List<Override> _overrides(List<Bus> buses) => [
+List<Override> _overrides(List<Bus> buses, {bool outsideHoursStatus = false}) =>
+    [
       settingsStoreProvider.overrideWithValue(SettingsStore(_prefs)),
       halteDatasetProvider.overrideWith((ref) => _dataset()),
       userLocationProvider.overrideWith(
         (ref) => Stream.value(const LatLng(-0.90, 100.30)),
       ),
       busesProvider.overrideWith((ref) => Stream.value(buses)),
+      // Penanda status luar jam operasional (jika true, UI menampilkan
+      // penanda ungu dan menyembunyikan daftar bus; ini independen dari
+      // waktu sebenarnya dan tidak memengaruhi koneksi socket).
+      outsideHoursProvider.overrideWith((ref) => Stream.value(outsideHoursStatus)),
     ];
 
 Widget _app(ProviderContainer container) {
@@ -190,10 +194,10 @@ void main() {
     expect(container.read(selectedCorridorProvider), isNull);
   });
 
-  testWidgets('di luar jam operasional: penanda ungu, bus tetap tampil',
+  testWidgets('di luar jam operasional: penanda ungu, bus tidak tampil',
       (tester) async {
     final container = ProviderContainer(overrides: [
-      ..._overrides([_bus('16', 'K3', lng: 100.3015)]),
+      ..._overrides([_bus('16', 'K3', lng: 100.3015)], outsideHoursStatus: true),
       // Layanan "sedang tidak tersedia" (ungu), namun data bus tetap masuk.
       connectionStatusProvider.overrideWith(
         (ref) => Stream.value(ConnectionStatus.outsideHours),
@@ -210,10 +214,13 @@ void main() {
       AppLocalizations.of(pillContext),
     );
     expect(color, const Color(0xFF7B1FA2));
-    expect(label, 'Layanan sedang tidak tersedia');
-    expect(find.text('Layanan sedang tidak tersedia'), findsOneWidget);
+    expect(label, 'Di luar jam operasional');
+    expect(find.text('Di luar jam operasional'), findsOneWidget);
 
-    // Bus tetap tampil walau layanan tidak tersedia.
-    expect(find.text('Bus 16'), findsOneWidget);
+    // Daftar bus disembunyikan saat layanan tidak melayani penumpang.
+    expect(find.text('Bus 16'), findsNothing);
+
+    // Menampilkan informasi bahwa layanan sedang tidak melayani penumpang.
+    expect(find.text('Sedang tidak melayani penumpang'), findsOneWidget);
   });
 }

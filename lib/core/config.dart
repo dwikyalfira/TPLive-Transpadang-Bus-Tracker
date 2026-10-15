@@ -24,6 +24,15 @@ class AppConfig {
   /// "Layanan sedang tidak tersedia" karena bus tidak beroperasi.
   static const int operationalStartHour = 5; // 05.00
   static const int operationalEndHour = 20; // 20.00 (eksklusif)
+
+  /// Benar bila [time] jatuh di luar jam operasional TransPadang menurut WIB.
+  ///
+  /// Dipakai lapisan tampilan untuk menyembunyikan daftar bus dan menampilkan
+  /// penanda "layanan sedang tidak melayani penumpang" di luar jam operasional.
+  static bool isOutsideOperationalHours(DateTime time) {
+    final wib = time.toUtc().add(const Duration(hours: wibOffsetHours));
+    return wib.hour < operationalStartHour || wib.hour >= operationalEndHour;
+  }
   
 
   /// Mode pengembangan (data bus palsu) kini **preferensi pengguna**, bukan
@@ -50,6 +59,29 @@ class AppConfig {
   /// Kotak pembatas wilayah Padang (left,top,right,bottom = lon,lat,lon,lat),
   /// agar hasil pencarian dibatasi di sekitar Padang.
   static const String padangViewbox = '100.25,-0.75,100.45,-1.05';
+
+  // --- Pencarian tujuan (Mapbox Search Box API) ---
+
+  /// Host Search Box API Mapbox (mengembalikan POI seperti kafe/toko).
+  static const String mapboxSearchHost = 'api.mapbox.com';
+
+  /// Access token Mapbox. Diisi saat build:
+  ///   flutter build apk --dart-define=MAPBOX_TOKEN=pk.xxxx
+  /// Bila kosong, pencarian otomatis memakai Nominatim (OpenStreetMap).
+  static const String mapboxToken = String.fromEnvironment('MAPBOX_TOKEN');
+
+  /// Kotak pembatas wilayah Padang untuk Mapbox
+  /// (minLon,minLat,maxLon,maxLat — urutan berbeda dari Nominatim).
+  static const String padangBbox = '100.25,-1.05,100.45,-0.75';
+
+  /// Pusat Padang (lon,lat) untuk membiasakan (bias) hasil pencarian.
+  static const String padangProximity = '100.35,-0.95';
+
+  /// Bahasa hasil pencarian Mapbox.
+  static const String mapboxLanguage = 'id';
+
+  /// Kode negara (ISO 3166 alpha 2) untuk membatasi hasil.
+  static const String mapboxCountry = 'id';
 
   /// Kecepatan berjalan kaki (km/j) untuk estimasi waktu jalan.
   static const double walkSpeedKmh = 4.5;

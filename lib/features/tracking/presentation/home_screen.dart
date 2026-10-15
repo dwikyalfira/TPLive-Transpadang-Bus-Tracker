@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config.dart';
 import '../../../core/follow_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../settings/presentation/settings_screen.dart';
@@ -174,6 +175,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Hitung langsung apakah di luar jam operasional (05:00-20:00 WIB).
+    // Pendekatan ini deterministik berdasarkan waktu current; bagi update real-time
+    // across hour boundaries, dapat ditambahkan periodic timer di kemudian hari.
+    final isOutsideHours = AppConfig.isOutsideOperationalHours(DateTime.now());
+    if (isOutsideHours) return _OutsideHoursView();
     final status = ref.watch(connectionStatusProvider).valueOrNull;
     final locationAsync = ref.watch(userLocationProvider);
     final nearby = ref.watch(nearbyBusesProvider);
@@ -379,7 +385,9 @@ class _BusListView extends ConsumerStatefulWidget {
 class _BusListViewState extends ConsumerState<_BusListView>
     with SingleTickerProviderStateMixin {
   /// Tab: indeks 0 = "Semua", lalu K1, K2, ... sesuai [widget.corridors].
-  late final TabController _tabs;
+  /// Tidak `final`: controller dibangun ulang di [didUpdateWidget] saat daftar
+  /// koridor berubah (mis. bus pertama kali masuk dari WebSocket).
+  late TabController _tabs;
 
   @override
   void initState() {
@@ -720,6 +728,49 @@ class _EmptyState extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Tampilan penuh saat layanan sedang tidak melayani penumpang (di luar jam
+/// operasional). Daftar bus sengaja tidak ditampilkan; pengguna hanya melihat
+/// informasi jam operasional.
+class _OutsideHoursView extends StatelessWidget {
+  const _OutsideHoursView();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.nightlight_round,
+              size: 64,
+              color: const Color(0xFF7B1FA2).withOpacity(0.8),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.outsideHoursTitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.outsideHoursMessage,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyLarge
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

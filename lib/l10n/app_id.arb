@@ -17,6 +17,7 @@
   "reloading": "Memuat ulang data bus…",
 
   "searchDestinationHint": "Cari tujuan…",
+  "outsideHoursTitle": "Sedang tidak melayani penumpang",
   "outsideHoursMessage": "TransPadang beroperasi pukul 05.00–20.00 WIB.",
   "noBusesMessage": "Belum ada bus terdeteksi di sekitar Anda.",
   "gettingLocation": "Mendapatkan lokasi…",

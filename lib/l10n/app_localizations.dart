@@ -177,6 +177,12 @@ abstract class AppLocalizations {
   /// **'Cari tujuan…'**
   String get searchDestinationHint;
 
+  /// No description provided for @outsideHoursTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sedang tidak melayani penumpang'**
+  String get outsideHoursTitle;
+
   /// No description provided for @outsideHoursMessage.
   ///
   /// In id, this message translates to:

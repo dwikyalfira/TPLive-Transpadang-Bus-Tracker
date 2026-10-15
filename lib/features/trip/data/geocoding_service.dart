@@ -37,6 +37,36 @@ class GeocodingResult {
       ),
     );
   }
+
+  /// Memetakan satu fitur GeoJSON dari Mapbox Search Box API.
+  factory GeocodingResult.fromMapboxJson(Map<String, dynamic> feature) {
+    final geometry = feature['geometry'];
+    final rawProps = feature['properties'];
+    final props =
+        rawProps is Map<String, dynamic> ? rawProps : const <String, dynamic>{};
+
+    var lon = 0.0;
+    var lat = 0.0;
+    final coordinates =
+        geometry is Map<String, dynamic> ? geometry['coordinates'] : null;
+    if (coordinates is List && coordinates.length >= 2) {
+      lon = (coordinates[0] as num?)?.toDouble() ?? 0;
+      lat = (coordinates[1] as num?)?.toDouble() ?? 0;
+    }
+
+    final rawName = (props['name'] ?? '').toString().trim();
+    final fullAddress = (props['full_address'] ?? '').toString().trim();
+    final placeFormatted = (props['place_formatted'] ?? '').toString().trim();
+    final display = fullAddress.isNotEmpty
+        ? fullAddress
+        : (placeFormatted.isNotEmpty ? placeFormatted : rawName);
+
+    return GeocodingResult(
+      name: rawName.isEmpty ? display : rawName,
+      displayName: display,
+      pos: LatLng(lat, lon),
+    );
+  }
 }
 
 /// Kesalahan geocoding dengan pesan ramah pengguna.

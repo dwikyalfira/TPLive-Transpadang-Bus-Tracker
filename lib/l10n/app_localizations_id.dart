@@ -47,6 +47,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get searchDestinationHint => 'Cari tujuan…';
 
   @override
+  String get outsideHoursTitle => 'Sedang tidak melayani penumpang';
+
+  @override
   String get outsideHoursMessage => 'TransPadang beroperasi pukul 05.00–20.00 WIB.';
 
   @override

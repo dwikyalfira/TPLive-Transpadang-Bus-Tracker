@@ -42,7 +42,7 @@ class LiveStatusPill extends StatefulWidget {
       case ConnectionStatus.reconnecting:
         return (l10n.statusReconnecting, const Color(0xFFF9A825));
       case ConnectionStatus.outsideHours:
-        return (l10n.statusPillOutsideHours, const Color(0xFF7B1FA2));
+        return (l10n.statusOutsideHoursShort, const Color(0xFF7B1FA2));
       case ConnectionStatus.disconnected:
         return (l10n.statusPillDisconnected, const Color(0xFFC62828));
       case null:

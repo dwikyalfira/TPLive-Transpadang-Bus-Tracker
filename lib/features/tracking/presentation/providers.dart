@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../core/config.dart';
 import '../data/bus_model.dart';
 import '../data/bus_source.dart';
 import '../data/halte_data.dart';
@@ -44,6 +47,17 @@ final busesProvider = StreamProvider<List<Bus>>((ref) {
 /// Aliran status koneksi.
 final connectionStatusProvider = StreamProvider<ConnectionStatus>((ref) {
   return ref.watch(busSourceProvider).statusStream;
+});
+
+/// Benar bila saat ini di luar jam operasional TransPadang (WIB).
+///
+/// Jam operasional didefinisikan pada [AppConfig]. Nilai dihitung ulang tiap
+/// menit agar penanda status ikut berubah begitu jam berganti tanpa perlu
+/// membuka ulang aplikasi.
+final outsideHoursProvider = StreamProvider<bool>((ref) async* {
+  bool compute() => AppConfig.isOutsideOperationalHours(DateTime.now());
+  yield compute();
+  yield* Stream.periodic(const Duration(minutes: 1), (_) => compute());
 });
 
 /// Koridor tab yang sedang dipilih di layar utama (null = tab "Semua").

@@ -24,12 +24,34 @@ void main() {
       (tester) async {
     await tester.pumpWidget(_app(ConnectionStatus.reconnecting));
     await tester.pumpAndSettle();
-    expect(_labelOpacity(tester, 'Menyambung ulang…'), closeTo(1.0, 0.02));
+    expect(_labelOpacity(tester, 'Menyambung ulang'), closeTo(1.0, 0.02));
 
     // Lewati durasi auto-hide — status abnormal harus tetap terlihat.
     await tester.pump(const Duration(seconds: 6));
     await tester.pumpAndSettle();
-    expect(_labelOpacity(tester, 'Menyambung ulang…'), closeTo(1.0, 0.02));
+    expect(_labelOpacity(tester, 'Menyambung ulang'), closeTo(1.0, 0.02));
+  });
+
+  testWidgets('connecting: keterangan tetap tampil (tidak auto-hide)',
+      (tester) async {
+    await tester.pumpWidget(_app(ConnectionStatus.connecting));
+    await tester.pumpAndSettle();
+    expect(_labelOpacity(tester, 'Menyambung'), closeTo(1.0, 0.02));
+
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
+    expect(_labelOpacity(tester, 'Menyambung'), closeTo(1.0, 0.02));
+  });
+
+  testWidgets('disconnected: keterangan tetap tampil (tidak auto-hide)',
+      (tester) async {
+    await tester.pumpWidget(_app(ConnectionStatus.disconnected));
+    await tester.pumpAndSettle();
+    expect(_labelOpacity(tester, 'Tidak terhubung'), closeTo(1.0, 0.02));
+
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
+    expect(_labelOpacity(tester, 'Tidak terhubung'), closeTo(1.0, 0.02));
   });
 
   testWidgets('connected: keterangan auto-hide setelah beberapa saat',
@@ -49,7 +71,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 6));
     await tester.pumpAndSettle();
-    expect(_labelOpacity(tester, 'Menyambung ulang…'), closeTo(1.0, 0.02));
+    expect(_labelOpacity(tester, 'Menyambung ulang'), closeTo(1.0, 0.02));
 
     // Berubah menjadi connected → label tampil lalu auto-hide.
     await tester.pumpWidget(_app(ConnectionStatus.connected));

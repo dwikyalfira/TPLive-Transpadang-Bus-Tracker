@@ -9,9 +9,15 @@ import '../../data/trans_ws_datasource.dart';
 /// Penanda status di AppBar ("TPLive").
 ///
 /// Menampilkan sebuah titik berwarna sesuai status, disertai keterangan
-/// singkat yang tampil lalu menyusut menjadi titik saja. Transisi muncul/
-/// menyusut memakai **simulasi pegas (SpringSimulation)** agar terasa natural:
-/// saat muncul sedikit memantul, saat menyusut meredam tanpa berkedip.
+/// singkat. Keterangan **hanya** menyembunyikan diri otomatis pada status
+/// normal [ConnectionStatus.connected]; status lain (menunggu, menyambung,
+/// menyambung ulang, di luar jam, terputus) dibiarkan tetap tampil karena
+/// butuh perhatian. Keterangan yang berakhiran "…" (menunggu/menyambung/
+/// menyambung ulang) menampilkan titik-titik beranimasi.
+///
+/// Transisi muncul/menyusut memakai **simulasi pegas (SpringSimulation)** agar
+/// terasa natural: saat muncul sedikit memantul, saat menyusut meredam tanpa
+/// berkedip.
 ///
 /// [onTap] dipanggil saat pengguna menekan pill. Ketika ditekan, keterangan
 /// akan tampil dan akan menyembunyikan diri setelah durasi `tapLabelVisibleFor`.
@@ -71,6 +77,12 @@ class _LiveStatusPillState extends State<LiveStatusPill>
   static const SpringDescription _hideSpring =
       SpringDescription(mass: 1, stiffness: 480, damping: 46);
 
+  static const TextStyle _labelStyle = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w800,
+    letterSpacing: 0.4,
+  );
+
   @override
   void initState() {
     super.initState();
@@ -93,17 +105,15 @@ class _LiveStatusPillState extends State<LiveStatusPill>
   void _scheduleHide() {
     _hideTimer?.cancel();
     _animateLabel(1);
-    // Hanya status "connected" (kondisi normal) yang menyembunyikan label
-    // secara otomatis agar tidak mengganggu. Status lain (menunggu, menyambung,
-    // menyambung ulang, di luar jam, terputus) adalah kondisi yang perlu
-    // perhatian, sehingga labelnya dibiarkan tetap terlihat.
     if (!_shouldAutoHide(widget.status)) return;
     _hideTimer = Timer(LiveStatusPill.labelVisibleFor, () {
       if (mounted) _animateLabel(0);
     });
   }
 
-  /// Apakah label boleh menyusut sendiri (auto-hide) untuk [status] ini.
+  /// Hanya status normal ([ConnectionStatus.connected]) yang boleh menyusut
+  /// sendiri. Status connecting/disconnected (dan status perlu-perhatian lain)
+  /// dibiarkan tetap tampil.
   static bool _shouldAutoHide(ConnectionStatus? status) =>
       status == ConnectionStatus.connected;
 
@@ -138,10 +148,15 @@ class _LiveStatusPillState extends State<LiveStatusPill>
 
   @override
   Widget build(BuildContext context) {
-    final (label, color) = LiveStatusPill.describe(
+    final (rawLabel, color) = LiveStatusPill.describe(
       widget.status,
       AppLocalizations.of(context),
     );
+    // Label berakhiran "…" menampilkan titik animasi; teks dasarnya dipisah
+    // agar titik-titiknya bisa beranimasi (efek mengetik) tanpa mengubah teks.
+    final hasEllipsis = rawLabel.endsWith('…');
+    final baseLabel =
+        hasEllipsis ? rawLabel.substring(0, rawLabel.length - 1) : rawLabel;
 
     final dot = AnimatedContainer(
       duration: const Duration(milliseconds: 350),
@@ -154,9 +169,9 @@ class _LiveStatusPillState extends State<LiveStatusPill>
     return GestureDetector(
       onTap: widget.onTap != null ? _onTap : null,
       child: Tooltip(
-        message: label,
+        message: rawLabel,
         child: Semantics(
-          label: label,
+          label: rawLabel,
           child: AnimatedBuilder(
             animation: _label,
             builder: (context, _) {
@@ -185,14 +200,18 @@ class _LiveStatusPillState extends State<LiveStatusPill>
                           padding: const EdgeInsets.only(left: 6),
                           child: Opacity(
                             opacity: t,
-                            child: Text(
-                              label,
-                              style: TextStyle(
-                                color: color,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.4,
-                              ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  baseLabel,
+                                  style: _labelStyle.copyWith(color: color),
+                                ),
+                                if (hasEllipsis)
+                                  _AnimatedEllipsis(
+                                    style: _labelStyle.copyWith(color: color),
+                                  ),
+                              ],
                             ),
                           ),
                         ),
@@ -205,6 +224,55 @@ class _LiveStatusPillState extends State<LiveStatusPill>
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Tiga titik yang tampil bergantian (efek mengetik) untuk label yang berakhir
+/// "…". Ketiga titik selalu dirender (yang tersembunyi hanya transparan) supaya
+/// lebar label tidak bergetar saat animasi berjalan.
+class _AnimatedEllipsis extends StatefulWidget {
+  final TextStyle style;
+
+  const _AnimatedEllipsis({required this.style});
+
+  @override
+  State<_AnimatedEllipsis> createState() => _AnimatedEllipsisState();
+}
+
+class _AnimatedEllipsisState extends State<_AnimatedEllipsis> {
+  static const int _dots = 3;
+  static const Duration _step = Duration(milliseconds: 400);
+
+  Timer? _timer;
+  int _phase = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(_step, (_) {
+      if (!mounted) return;
+      setState(() => _phase = _phase % _dots + 1);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < _dots; i++)
+          Opacity(
+            opacity: i < _phase ? 1.0 : 0.0,
+            child: Text('.', style: widget.style),
+          ),
+      ],
     );
   }
 }

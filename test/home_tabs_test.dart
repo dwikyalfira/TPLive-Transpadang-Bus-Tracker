@@ -80,13 +80,13 @@ ProviderContainer _container(List<Bus> buses) {
 Finder _corridorIcon(String corridor) => find.ancestor(
       of: find.text(corridor, skipOffstage: false),
       matching: find.byWidgetPredicate(
-        (widget) => widget is AnimatedContainer && widget.constraints?.maxWidth == 40,
+        (widget) => widget is Container && widget.constraints?.maxWidth == 40,
       ),
     );
 
 /// Warna latar ikon bulat koridor pada baris pemilih.
 Color? _iconColor(WidgetTester tester, String corridor) =>
-    (tester.widget<AnimatedContainer>(
+    (tester.widget<Container>(
       _corridorIcon(corridor),
     ).decoration as BoxDecoration)
         .color;

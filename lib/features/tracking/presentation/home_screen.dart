@@ -536,22 +536,29 @@ class _GroupedBusList extends StatelessWidget {
       groups.putIfAbsent(dest, () => <BusWithDistance>[]).add(b);
     }
 
-    final children = <Widget>[];
+    // Ratakan menjadi baris (judul tujuan = [String], bus = [BusWithDistance])
+    // lalu bangun memakai [ListView.builder] agar item di luar layar tidak ikut
+    // dibangun — penting supaya geseran antar tab tetap mulus saat bus banyak.
+    final rows = <Object>[];
     groups.forEach((dest, list) {
-      children.add(_DestinationHeader(destination: dest));
-      for (final b in list) {
-        children.add(BusTile(
+      rows.add(dest);
+      rows.addAll(list);
+    });
+
+    return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(top: 4, bottom: 24),
+      itemCount: rows.length,
+      itemBuilder: (context, index) {
+        final row = rows[index];
+        if (row is String) return _DestinationHeader(destination: row);
+        final b = row as BusWithDistance;
+        return BusTile(
           item: b,
           showDestination: false,
           onTap: () => showBusTimeline(context, b),
-        ));
-      }
-    });
-
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(top: 4, bottom: 24),
-      children: children,
+        );
+      },
     );
   }
 }
@@ -601,44 +608,70 @@ class _CorridorTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+
     // Sorotan tidak lagi menunggu tab benar-benar berganti (index hanya berubah
-    // setelah geseran selesai = terasa telat). Sebagai gantinya, posisi tab
-    // dibaca kontinu dari [TabController.animation] yang ikut ter-update pada
-    // setiap frame geseran, sehingga ikon menyorot mulus mengikuti jari.
+    // setelah geseran selesai = terasa telat). Posisi tab dibaca kontinu dari
+    // [TabController.animation] yang ikut ter-update pada setiap frame geseran,
+    // sehingga ikon menyorot mulus mengikuti jari.
     final animation =
         controller.animation ?? const AlwaysStoppedAnimation<double>(0);
+
+    // Hitung warna tiap koridor SEKALI di sini, bukan tiap frame geseran:
+    // perhitungan kontras warna relatif mahal dan hasilnya tetap selama geseran.
+    final accents = <Color>[];
+    final mutedAccents = <Color>[];
+    final mutedFgs = <Color>[];
+    final litFgs = <Color>[];
+    for (final corridor in corridors) {
+      final base = corridorAccent(corridor, theme);
+      final muted = base.withOpacity(0.35);
+      final mutedBg = Color.alphaBlend(muted, theme.colorScheme.surface);
+      accents.add(base);
+      mutedAccents.add(muted);
+      mutedFgs.add(corridorOnBackground(corridor, mutedBg));
+      litFgs.add(onCorridorColor(corridor));
+    }
+    final borderColor = theme.colorScheme.primary;
+
     return SizedBox(
       height: 52,
-      child: AnimatedBuilder(
-        animation: animation,
-        builder: (context, _) {
-          final position = controller.animation?.value ?? controller.index.toDouble();
-          return ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            children: [
-              _chip(
-                context,
-                label: AppLocalizations.of(context).filterAll,
-                selFactor: (1.0 - position).clamp(0.0, 1.0),
-                onTap: () => _goTo(0),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        children: [
+          // Tiap ikon dibungkus [AnimatedBuilder] sendiri supaya hanya ikon itu
+          // yang dibangun ulang tiap frame geseran, bukan seluruh baris.
+          AnimatedBuilder(
+            animation: animation,
+            builder: (context, _) => _chip(
+              label: l10n.filterAll,
+              selFactor: (1.0 - animation.value).clamp(0.0, 1.0),
+              onTap: () => _goTo(0),
+            ),
+          ),
+          for (var i = 0; i < corridors.length; i++)
+            AnimatedBuilder(
+              animation: animation,
+              builder: (context, _) => _corridorButton(
+                corridor: corridors[i],
+                accent: accents[i],
+                mutedAccent: mutedAccents[i],
+                mutedFg: mutedFgs[i],
+                litFg: litFgs[i],
+                borderColor: borderColor,
+                selFactor:
+                    (1.0 - (animation.value - (i + 1)).abs()).clamp(0.0, 1.0),
+                onTap: () => _goTo(i + 1),
               ),
-              for (var i = 0; i < corridors.length; i++)
-                _corridorButton(
-                  context,
-                  corridor: corridors[i],
-                  selFactor: (1.0 - (position - (i + 1)).abs()).clamp(0.0, 1.0),
-                  onTap: () => _goTo(i + 1),
-                ),
-            ],
-          );
-        },
+            ),
+        ],
       ),
     );
   }
 
-  Widget _chip(
-    BuildContext context, {
+  Widget _chip({
     required String label,
     required double selFactor,
     required VoidCallback onTap,
@@ -653,23 +686,19 @@ class _CorridorTabs extends StatelessWidget {
     );
   }
 
-  Widget _corridorButton(
-    BuildContext context, {
+  Widget _corridorButton({
     required String corridor,
+    required Color accent,
+    required Color mutedAccent,
+    required Color mutedFg,
+    required Color litFg,
+    required Color borderColor,
     required double selFactor,
     required VoidCallback onTap,
   }) {
-    final theme = Theme.of(context);
-    final base = corridorAccent(corridor, theme);
-    final unselectedBg =
-        Color.alphaBlend(base.withOpacity(0.35), theme.colorScheme.surface);
     final t = selFactor.clamp(0.0, 1.0);
-    final bg = Color.lerp(base.withOpacity(0.35), base, t)!;
-    final fg = Color.lerp(
-      corridorOnBackground(corridor, unselectedBg),
-      onCorridorColor(corridor),
-      t,
-    )!;
+    final bg = Color.lerp(mutedAccent, accent, t)!;
+    final fg = Color.lerp(mutedFg, litFg, t)!;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: InkWell(
@@ -677,18 +706,17 @@ class _CorridorTabs extends StatelessWidget {
         customBorder: const CircleBorder(),
         child: Transform.scale(
           scale: 1 + 0.06 * t,
-          child: AnimatedContainer(
-            // Sorotan sudah dipandu tiap frame lewat [AnimatedBuilder]; durasi
-            // nol menghindari penundaan ganda.
-            duration: Duration.zero,
-            width: 40,
-            height: 40,
+          child: Container(
+            // Sorotan sudah dipandu tiap frame lewat [AnimatedBuilder]; pakai
+            // Container biasa (bukan AnimatedContainer) agar tidak memicu
+            // animasi implisit tambahan di setiap frame geseran.
+            constraints: const BoxConstraints.tightFor(width: 40, height: 40),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: bg,
               shape: BoxShape.circle,
               border: Border.all(
-                color: theme.colorScheme.primary.withOpacity(t),
+                color: borderColor.withOpacity(t),
                 width: 2 * t,
               ),
             ),

@@ -79,6 +79,28 @@ void main() {
     expect(reloaded.read(appSettingsProvider).themeMode, ThemeMode.dark);
   });
 
+  testWidgets('kontrol tetap rapi di layar sempit (tidak overflow/mengecil)',
+      (tester) async {
+    final container = await _container();
+    tester.view.physicalSize = const Size(320 * 3, 800 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(_app(container));
+    await tester.pumpAndSettle();
+
+    // Tidak boleh ada overflow saat layar sempit.
+    expect(tester.takeException(), isNull);
+    expect(find.text('Terang'), findsOneWidget);
+    expect(find.text('English'), findsOneWidget);
+
+    // Memilih tetap berfungsi.
+    await tester.tap(find.text('Gelap'));
+    await tester.pumpAndSettle();
+    expect(container.read(appSettingsProvider).themeMode, ThemeMode.dark);
+  });
+
   testWidgets('bahasa & warna dinamis tersimpan', (tester) async {
     final container = await _container();
     await tester.pumpWidget(_app(container));

@@ -111,6 +111,189 @@ class _CardDivider extends StatelessWidget {
   }
 }
 
+/// Satu pilihan pada [_ChoiceField].
+class _Choice<T> {
+  const _Choice({required this.value, required this.label, this.icon});
+
+  final T value;
+  final String label;
+  final IconData? icon;
+}
+
+/// Kontrol pilihan yang menyesuaikan lebar layar.
+///
+/// - Bila semua pilihan muat, dipakai [SegmentedButton] **selebar penuh** dengan
+///   segmen sama besar (sehingga tidak menyusut di layar sempit).
+/// - Ikon dilepas otomatis bila lebar tidak cukup untuk ikon + label.
+/// - Bila teks pun tidak muat berdampingan, kontrol berubah menjadi daftar
+///   bertumpuk (vertikal) yang tetap ukuran penuh.
+class _ChoiceField<T> extends StatelessWidget {
+  const _ChoiceField({
+    required this.choices,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final List<_Choice<T>> choices;
+  final T selected;
+  final ValueChanged<T> onSelected;
+
+  static const double _minSegmentHeight = 44;
+  static const double _hPadding = 10;
+  static const double _iconWidth = 18;
+  static const double _iconGap = 8;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final labelStyle =
+        theme.textTheme.labelLarge ?? const TextStyle(fontSize: 14);
+    final scaler = MediaQuery.textScalerOf(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final available = constraints.maxWidth;
+        final perSegment = available / choices.length;
+
+        final withIconsFit =
+            _fits(perSegment, labelStyle, scaler, includeIcons: true);
+        final labelsOnlyFit =
+            _fits(perSegment, labelStyle, scaler, includeIcons: false);
+
+        // Layar terlalu sempit untuk tombol berjajar → tumpuk vertikal.
+        if (!labelsOnlyFit) {
+          return _vertical(context);
+        }
+
+        return SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<T>(
+            showSelectedIcon: false,
+            style: SegmentedButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.symmetric(horizontal: _hPadding),
+              minimumSize: const Size(0, _minSegmentHeight),
+            ),
+            segments: [
+              for (final choice in choices)
+                ButtonSegment<T>(
+                  value: choice.value,
+                  icon: (withIconsFit && choice.icon != null)
+                      ? Icon(choice.icon, size: _iconWidth)
+                      : null,
+                  label: Text(
+                    choice.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+            selected: {selected},
+            onSelectionChanged: (selection) => onSelected(selection.first),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Apakah semua label (beserta ikon, bila [includeIcons]) muat di dalam
+  /// lebar satu segmen.
+  bool _fits(
+    double perSegment,
+    TextStyle style,
+    TextScaler scaler, {
+    required bool includeIcons,
+  }) {
+    const buffer = 4.0;
+    return choices.every((choice) {
+      var need = _textWidth(choice.label, style, scaler) + _hPadding * 2;
+      if (includeIcons && choice.icon != null) {
+        need += _iconWidth + _iconGap;
+      }
+      return need + buffer <= perSegment;
+    });
+  }
+
+  static double _textWidth(String text, TextStyle style, TextScaler scaler) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    return painter.width;
+  }
+
+  Widget _vertical(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < choices.length; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
+          _ChoiceButton<T>(
+            choice: choices[i],
+            selected: choices[i].value == selected,
+            onTap: () => onSelected(choices[i].value),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Satu baris pilihan bergaya M3 untuk tumpukan vertikal [ _ChoiceField ].
+class _ChoiceButton<T> extends StatelessWidget {
+  const _ChoiceButton({
+    required this.choice,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final _Choice<T> choice;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final foreground =
+        selected ? scheme.onSecondaryContainer : scheme.onSurface;
+
+    return Material(
+      color: selected ? scheme.secondaryContainer : scheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: selected ? Colors.transparent : scheme.outlineVariant,
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          child: Row(
+            children: [
+              if (choice.icon != null) ...[
+                Icon(choice.icon, size: 18, color: foreground),
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                child: Text(
+                  choice.label,
+                  style: theme.textTheme.labelLarge?.copyWith(color: foreground),
+                ),
+              ),
+              if (selected) Icon(Icons.check, size: 18, color: foreground),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // --- Class SettingsScreen ---
 
 class SettingsScreen extends ConsumerWidget {
@@ -132,29 +315,26 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               _OptionBlock(
                 title: l10n.themeModeTitle,
-                child: SegmentedButton<ThemeMode>(
-                  showSelectedIcon: false,
-                  style: _segmentStyle,
-                  segments: [
-                    ButtonSegment(
+                child: _ChoiceField<ThemeMode>(
+                  choices: [
+                    _Choice(
                       value: ThemeMode.system,
-                      icon: const Icon(Icons.brightness_auto_outlined),
-                      label: Text(l10n.themeSystem),
+                      label: l10n.themeSystem,
+                      icon: Icons.brightness_auto_outlined,
                     ),
-                    ButtonSegment(
+                    _Choice(
                       value: ThemeMode.light,
-                      icon: const Icon(Icons.light_mode_outlined),
-                      label: Text(l10n.themeLight),
+                      label: l10n.themeLight,
+                      icon: Icons.light_mode_outlined,
                     ),
-                    ButtonSegment(
+                    _Choice(
                       value: ThemeMode.dark,
-                      icon: const Icon(Icons.dark_mode_outlined),
-                      label: Text(l10n.themeDark),
+                      label: l10n.themeDark,
+                      icon: Icons.dark_mode_outlined,
                     ),
                   ],
-                  selected: {settings.themeMode},
-                  onSelectionChanged: (selection) =>
-                      notifier.setThemeMode(selection.first),
+                  selected: settings.themeMode,
+                  onSelected: notifier.setThemeMode,
                 ),
               ),
               const _CardDivider(),
@@ -172,27 +352,24 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               _OptionBlock(
                 title: l10n.languageTitle,
-                child: SegmentedButton<_LanguageChoice>(
-                  showSelectedIcon: false,
-                  style: _segmentStyle,
-                  segments: [
-                    ButtonSegment(
+                child: _ChoiceField<_LanguageChoice>(
+                  choices: [
+                    _Choice(
                       value: _LanguageChoice.system,
-                      icon: const Icon(Icons.settings_suggest_outlined),
-                      label: Text(l10n.languageSystem),
+                      label: l10n.languageSystem,
+                      icon: Icons.settings_suggest_outlined,
                     ),
-                    ButtonSegment(
+                    _Choice(
                       value: _LanguageChoice.indonesian,
-                      label: Text(l10n.languageIndonesian),
+                      label: l10n.languageIndonesian,
                     ),
-                    ButtonSegment(
+                    _Choice(
                       value: _LanguageChoice.english,
-                      label: Text(l10n.languageEnglish),
+                      label: l10n.languageEnglish,
                     ),
                   ],
-                  selected: {_LanguageChoice.of(settings.locale)},
-                  onSelectionChanged: (selection) =>
-                      notifier.setLocale(selection.first.locale),
+                  selected: _LanguageChoice.of(settings.locale),
+                  onSelected: (choice) => notifier.setLocale(choice.locale),
                 ),
               ),
             ],
@@ -203,11 +380,6 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
   }
-
-  ButtonStyle get _segmentStyle => SegmentedButton.styleFrom(
-        visualDensity: VisualDensity.compact,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-      );
 }
 
 /// Kartu "Tentang": logo aplikasi, nama, versi, dan deskripsi singkat.

@@ -836,9 +836,9 @@ class _LocationErrorState extends StatelessWidget {
   }
 }
 
-/// Tombol "Muat ulang" di AppBar. Saat ditekan, ikon [Icons.refresh] berputar
-/// sebagai umpan balik visual hingga pemuatan selesai (minimal satu putaran
-/// penuh), lalu mulus kembali ke posisi awal.
+/// Tombol "Muat ulang" di AppBar. Setiap kali diklik, ikon [Icons.refresh]
+/// berputar **satu kali** sebagai umpan balik, lalu berhenti (tidak berputar
+/// terus-menerus selama pemuatan berlangsung).
 class _ReloadButton extends StatefulWidget {
   final String tooltip;
   final Future<void> Function() onPressed;
@@ -851,17 +851,23 @@ class _ReloadButton extends StatefulWidget {
 
 class _ReloadButtonState extends State<_ReloadButton>
     with SingleTickerProviderStateMixin {
-  /// Cara kerja: 0..1 = satu putaran penuh ikon.
   late final AnimationController _spin;
-  bool _busy = false;
 
   @override
   void initState() {
     super.initState();
     _spin = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
+      duration: const Duration(milliseconds: 700),
+    )..addStatusListener(_onSpinStatus);
+  }
+
+  void _onSpinStatus(AnimationStatus status) {
+    // Kembalikan ke posisi awal setelah satu putaran agar idle lagi
+    // (0 dan 1 putaran identik, jadi tidak terlihat melompat).
+    if (status == AnimationStatus.completed) {
+      _spin.value = 0;
+    }
   }
 
   @override
@@ -870,30 +876,12 @@ class _ReloadButtonState extends State<_ReloadButton>
     super.dispose();
   }
 
-  Future<void> _handle() async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    _spin.repeat();
-
-    final started = DateTime.now();
-    try {
-      await widget.onPressed();
-    } finally {
-      // Jeda minimal supaya putaran tidak terasa terpotong saat pemuatan
-      // selesai hampir seketika.
-      const minimum = Duration(milliseconds: 650);
-      final elapsed = DateTime.now().difference(started);
-      if (elapsed < minimum) {
-        await Future<void>.delayed(minimum - elapsed);
-      }
+  void _handle() {
+    // Berputar sekali tiap klik — tidak terus-menerus selama pemuatan.
+    if (!_spin.isAnimating) {
+      _spin.forward(from: 0);
     }
-    if (!mounted) return;
-    // Selesaikan ke satu putaran penuh lalu reset — nilai 0 dan 1 identik,
-    // jadi ikon tidak terlihat melompat.
-    await _spin.animateTo(1.0, duration: const Duration(milliseconds: 160));
-    if (!mounted) return;
-    _spin.value = 0;
-    setState(() => _busy = false);
+    unawaited(widget.onPressed());
   }
 
   @override

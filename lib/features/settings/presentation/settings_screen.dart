@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/settings.dart';
 import '../../../l10n/app_localizations.dart';
@@ -36,7 +37,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+      padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
       child: Text(
         text,
         style: theme.textTheme.titleSmall?.copyWith(
@@ -112,8 +113,6 @@ class _CardDivider extends StatelessWidget {
 
 // --- Class SettingsScreen ---
 
-/// Halaman preferensi aplikasi bergaya Material 3: mode tampilan, warna
-/// dinamis, bahasa.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -158,9 +157,16 @@ class SettingsScreen extends ConsumerWidget {
                       notifier.setThemeMode(selection.first),
                 ),
               ),
+              const _CardDivider(),
+              SwitchListTile(
+                secondary: const Icon(Icons.palette_outlined),
+                title: Text(l10n.dynamicColorTitle),
+                subtitle: Text(l10n.dynamicColorSubtitle),
+                value: settings.useDynamicColor,
+                onChanged: notifier.setUseDynamicColor,
+              ),
             ],
           ),
-          _CardDivider(),
           _SectionLabel(text: l10n.sectionLanguage),
           _SettingsCard(
             children: [
@@ -191,29 +197,99 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          _CardDivider(),
           _SectionLabel(text: l10n.sectionAbout),
-          _SettingsCard(
-            children: [
-              _OptionBlock(
-                title: l10n.aboutTitle,
-                child: ListTile(
-                  leading: const Icon(Icons.info_outline),
-                  title: const Text('TPLive'),
-                  subtitle: Text(l10n.aboutAppDescription),
-                  isThreeLine: true,
-                ),
-              ),
-              const _CardDivider(),
-            ],
-          ),
+          const _AboutCard(),
         ],
       ),
     );
   }
 
   ButtonStyle get _segmentStyle => SegmentedButton.styleFrom(
-      visualDensity: VisualDensity.compact,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+      );
+}
+
+/// Kartu "Tentang": logo aplikasi, nama, versi, dan deskripsi singkat.
+class _AboutCard extends StatelessWidget {
+  const _AboutCard();
+
+  static const _logoAsset = 'assets/logo/tpl_logo_original.png';
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    return _SettingsCard(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(
+                  _logoAsset,
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'TPLive',
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 2),
+                    const _AppVersionText(),
+                    const SizedBox(height: 10),
+                    Text(
+                      l10n.aboutAppDescription,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
+  }
+}
+
+/// Menampilkan versi aplikasi (mis. "Versi 1.0.0 (1)") dari paket.
+class _AppVersionText extends StatelessWidget {
+  const _AppVersionText();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final style = theme.textTheme.bodySmall
+        ?.copyWith(color: theme.colorScheme.onSurfaceVariant);
+
+    return FutureBuilder<PackageInfo>(
+      future: PackageInfo.fromPlatform(),
+      builder: (context, snapshot) {
+        final info = snapshot.data;
+        if (info == null) {
+          return Text('', style: style);
+        }
+        return Text(
+          l10n.aboutVersion('${info.version} (${info.buildNumber})'),
+          style: style,
+        );
+      },
+    );
+  }
 }

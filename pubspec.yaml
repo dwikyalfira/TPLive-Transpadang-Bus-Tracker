@@ -57,6 +57,7 @@ dependencies:
 
   # Material You / dynamic color (mengikuti warna wallpaper Android 12+)
   dynamic_color: 1.6.8
+  package_info_plus: ^8.0.2
 
 dev_dependencies:
   flutter_test:

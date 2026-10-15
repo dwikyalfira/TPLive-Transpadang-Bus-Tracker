@@ -458,6 +458,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get aboutTitle => 'Tentang Aplikasi';
 
   @override
+  String aboutVersion(String version) {
+    return 'Versi $version';
+  }
+
+  @override
   String get aboutAppDescription => 'TPLive menampilkan posisi bus TransPadang secara real-time.';
 
   @override

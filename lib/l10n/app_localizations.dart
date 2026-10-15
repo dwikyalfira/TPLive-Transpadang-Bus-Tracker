@@ -867,6 +867,12 @@ abstract class AppLocalizations {
   /// **'Tentang Aplikasi'**
   String get aboutTitle;
 
+  /// No description provided for @aboutVersion.
+  ///
+  /// In id, this message translates to:
+  /// **'Versi {version}'**
+  String aboutVersion(String version);
+
   /// No description provided for @aboutAppDescription.
   ///
   /// In id, this message translates to:

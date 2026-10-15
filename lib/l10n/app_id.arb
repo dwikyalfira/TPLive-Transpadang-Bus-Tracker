@@ -323,6 +323,14 @@
   "languageEnglish": "English",
   "sectionAbout": "Tentang",
   "aboutTitle": "Tentang Aplikasi",
+  "aboutVersion": "Versi {version}",
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "aboutAppDescription": "TPLive menampilkan posisi bus TransPadang secara real-time.",
   "demoModeTitle": "Mode demo",
   "demoModeSubtitle": "Gunakan data bus palsu untuk pengembangan"

@@ -141,6 +141,14 @@
   "languageEnglish": "English",
   "sectionAbout": "About",
   "aboutTitle": "About App",
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "aboutAppDescription": "TPLive shows TransPadang bus positions in real time.",
   "demoModeTitle": "Demo mode",
   "demoModeSubtitle": "Use fake bus data for development"

@@ -458,6 +458,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutTitle => 'About App';
 
   @override
+  String aboutVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
   String get aboutAppDescription => 'TPLive shows TransPadang bus positions in real time.';
 
   @override

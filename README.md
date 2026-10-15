@@ -44,8 +44,10 @@ Selain pelacakan, tersedia **perencana perjalanan** yang menghitung rute TransPa
 dari titik asal ke tujuan, termasuk opsi **langsung** maupun **1 kali transit**
 (pindah koridor), lengkap dengan estimasi waktu tempuh dan waktu jalan kaki.
 
-Data posisi bus berasal langsung dari server resmi TransPadang (tanpa autentikasi),
-sedangkan pencarian tempat memakai layanan geocoding Nominatim (OpenStreetMap).
+> **Penafian:** TPLive **bukan aplikasi resmi TransPadang** dan **tidak memiliki
+> afiliasi** apa pun dengan TransPadang maupun Pemerintah Kota Padang. Aplikasi ini
+> dibuat murni untuk memudahkan pengguna TransPadang dalam memantau bus dan
+> merencanakan perjalanan.
 
 ### Fitur
 
@@ -303,8 +305,9 @@ Beyond tracking, users get a **trip planner** that computes TransPadang routes f
 origin to a destination, including **direct** and **one-transfer** options (corridor
 changes), with estimated travel and walking times.
 
-Bus positions come straight from the official TransPadang server (no authentication),
-while place search uses the Nominatim geocoding service (OpenStreetMap).
+> **Disclaimer:** TPLive is **not an official TransPadang app** and has **no
+> affiliation** with TransPadang or the Padang City Government. It was built purely to
+> make it easier for TransPadang riders to track buses and plan their trips.
 
 ### Features
 

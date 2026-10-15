@@ -40,8 +40,22 @@ final busSourceProvider = Provider<BusSource>((ref) {
   return source;
 });
 
+/// Benar bila saat ini di luar jam operasional TransPadang (boolean). Memakai
+/// `select` agar konsumen hanya dihitung ulang saat nilainya benar-benar
+/// berubah, bukan tiap menit saat [outsideHoursProvider] memperbarui diri.
+final isOutsideHoursProvider = Provider<bool>((ref) {
+  return ref.watch(
+    outsideHoursProvider.select((async) => async.valueOrNull ?? false),
+  );
+});
+
 /// Aliran daftar bus terbaru.
+///
+/// Di luar jam operasional selalu kosong, walaupun server tetap mengirim posisi
+/// bus. Ini menjadi satu gerbang agar tidak ada informasi bus live yang tampil
+/// (hitungan bus aktif, kartu pinned, kartu bus di rute, dan notifikasi follow).
 final busesProvider = StreamProvider<List<Bus>>((ref) {
+  if (ref.watch(isOutsideHoursProvider)) return Stream.value(const <Bus>[]);
   return ref.watch(busSourceProvider).busStream;
 });
 
@@ -129,6 +143,15 @@ final availableCorridorsProvider = Provider<List<String>>((ref) {
   };
   final sorted = corridors.toList()..sort();
   return sorted;
+});
+
+/// Seluruh koridor dari dataset halte bawaan (K1–K6, terurut). Dipakai sebagai
+/// sumber tab saat di luar jam operasional, agar pengguna tetap bisa membuka
+/// info tiap koridor walau tidak ada bus yang beroperasi.
+final allCorridorsProvider = Provider<List<String>>((ref) {
+  final dataset = ref.watch(halteDatasetProvider).valueOrNull;
+  if (dataset == null) return const [];
+  return dataset.corridors.keys.toList()..sort();
 });
 
 /// Daftar bus terdekat: terurut berdasarkan jarak.

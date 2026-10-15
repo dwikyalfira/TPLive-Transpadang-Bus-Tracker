@@ -297,6 +297,12 @@ abstract class AppLocalizations {
   /// **'Ikuti bus ini'**
   String get tooltipFollow;
 
+  /// No description provided for @tooltipClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get tooltipClose;
+
   /// No description provided for @notifPermissionDenied.
   ///
   /// In id, this message translates to:

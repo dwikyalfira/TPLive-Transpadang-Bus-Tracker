@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/ui/constrained_content.dart';
+import '../../../core/ui/fade_through_route.dart';
+import '../../../core/ui/state_views.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../tracking/domain/bus_with_distance.dart';
 import '../../tracking/presentation/providers.dart';
+import '../../tracking/presentation/widgets/corridor_badge.dart';
 import '../../tracking/presentation/widgets/follow_bus_button.dart';
 import '../../tracking/presentation/widgets/format.dart';
 import '../../tracking/presentation/widgets/halte_timeline_sheet.dart';
@@ -24,19 +28,21 @@ class TripScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context).searchDestinationTitle)),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-            child: _RouteField(
-              origin: origin,
-              destination: destination,
-              onTapOrigin: () => _pickOrigin(context, ref),
-              onTapDestination: () => _pickDestination(context, ref),
+      body: ConstrainedContent(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+              child: _RouteField(
+                origin: origin,
+                destination: destination,
+                onTapOrigin: () => _pickOrigin(context, ref),
+                onTapDestination: () => _pickDestination(context, ref),
+              ),
             ),
-          ),
-          const Expanded(child: _PlanArea()),
-        ],
+            const Expanded(child: _PlanArea()),
+          ],
+        ),
       ),
     );
   }
@@ -63,31 +69,9 @@ class TripScreen extends ConsumerWidget {
     }
   }
 
-  /// Transisi halus (fade-through) menuju pemilih asal/tujuan: halaman baru
-  /// memudar masuk sambil meluncur naik tipis. Dipakai untuk tombol "Dari" & "Ke".
+  /// Transisi halus (fade-through Material 3) menuju pemilih asal/tujuan.
   Route<TripEndpoint> _pickerRoute(Widget screen) {
-    return PageRouteBuilder<TripEndpoint>(
-      transitionDuration: const Duration(milliseconds: 300),
-      reverseTransitionDuration: const Duration(milliseconds: 260),
-      pageBuilder: (_, __, ___) => screen,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.03),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
-          ),
-        );
-      },
-    );
+    return fadeThroughRoute<TripEndpoint>(builder: (_) => screen);
   }
 }
 
@@ -279,7 +263,7 @@ class _PlanArea extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final destination = ref.watch(tripDestinationEndpointProvider);
     if (destination == null) {
-      return _CenteredHint(
+      return EmptyStateView(
         icon: Icons.route,
         message: l10n.planChooseDestination,
       );
@@ -287,7 +271,7 @@ class _PlanArea extends ConsumerWidget {
 
     final origin = ref.watch(tripOriginEndpointProvider);
     if (origin.isGps && ref.watch(userLocationProvider).valueOrNull == null) {
-      return _CenteredHint(
+      return EmptyStateView(
         icon: Icons.my_location,
         message: l10n.planWaitingLocation,
       );
@@ -295,13 +279,13 @@ class _PlanArea extends ConsumerWidget {
 
     final plan = ref.watch(tripPlanProvider);
     if (plan == null) {
-      return _CenteredHint(
+      return EmptyStateView(
         icon: Icons.hourglass_empty,
         message: l10n.planCalculating,
       );
     }
     if (!plan.hasOptions) {
-      return _CenteredHint(
+      return EmptyStateView(
         icon: Icons.directions_bus_outlined,
         message: l10n.planNoRoute,
       );
@@ -340,7 +324,11 @@ class _OptionCard extends ConsumerWidget {
                     in option.legs.map((l) => l.corridor).toSet())
                   Padding(
                     padding: const EdgeInsets.only(right: 6),
-                    child: _CorridorBadge(corridor: corridor),
+                    child: CorridorBadge(
+                      corridor: corridor,
+                      size: 30,
+                      fontSize: 11,
+                    ),
                   ),
                 const Spacer(),
                 Text(
@@ -651,7 +639,7 @@ class _TripBusCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 0,
-      color: theme.colorScheme.surfaceVariant.withOpacity(0.35),
+      color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -670,7 +658,11 @@ class _TripBusCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
           child: Row(
             children: [
-              _CorridorBadge(corridor: bus.corridor),
+              CorridorBadge(
+                corridor: bus.corridor,
+                size: 30,
+                fontSize: 11,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -724,60 +716,6 @@ class _TripBusCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _CorridorBadge extends StatelessWidget {
-  final String corridor;
-
-  const _CorridorBadge({required this.corridor});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = corridorAccent(corridor, Theme.of(context));
-    return Container(
-      width: 30,
-      height: 30,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-      child: Text(
-        corridor,
-        style: TextStyle(
-          color: onColor(color),
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
-
-class _CenteredHint extends StatelessWidget {
-  final IconData icon;
-  final String message;
-
-  const _CenteredHint({required this.icon, required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
-      child: Column(
-        children: [
-          Icon(icon, size: 56, color: theme.colorScheme.onSurfaceVariant),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge,
-          ),
-        ],
       ),
     );
   }

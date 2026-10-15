@@ -52,10 +52,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Latar putih mengikuti native splash (nilai `color` pada
-    // flutter_native_splash) supaya peralihan terasa mulus tanpa kedipan.
+    // Latar mengikuti tema (Material 3) supaya tidak ada kedipan terang saat
+    // aplikasi dibuka dalam mode gelap; tetap netral terhadap warna dinamis.
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: Image.asset(
           'assets/logo/tpl_logo_original.png',

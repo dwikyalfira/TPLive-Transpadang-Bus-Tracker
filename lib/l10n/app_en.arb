@@ -39,6 +39,7 @@
 
   "tooltipUnfollow": "Stop following",
   "tooltipFollow": "Follow this bus",
+  "tooltipClose": "Close",
   "notifPermissionDenied": "Notification permission denied. Allow notifications to follow a bus.",
   "followFailed": "Failed to follow bus: {message}",
   "followUnavailable": "Follow service unavailable.",

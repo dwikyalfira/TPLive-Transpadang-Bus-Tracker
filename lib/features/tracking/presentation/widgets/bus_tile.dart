@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/bus_with_distance.dart';
+import 'corridor_badge.dart';
 import 'format.dart';
 
 /// Kartu satu bus pada daftar bus terdekat.
@@ -26,25 +27,35 @@ class BusTile extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final nowUtc = DateTime.now().toUtc();
-    final accent = corridorAccent(bus.corridor, theme);
+
+    // Latar kartu memakai resep yang sama dengan kartu "Info Koridor" per
+    // koridor (tint aksen di atas [surface]) supaya keduanya menyatu. Warna
+    // teks/ikon di atasnya memakai [corridorOnBackground] agar tetap kontras
+    // (mis. amber K2).
+    final cardColor = corridorSurfaceTint(
+      bus.corridor,
+      theme,
+      base: theme.colorScheme.surface,
+    );
+    final onCardAccent = corridorOnBackground(bus.corridor, cardColor);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       elevation: 0,
-      color: theme.colorScheme.surfaceVariant.withOpacity(0.35),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: cardColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _CorridorBadge(corridor: bus.corridor),
+                  CorridorBadge(corridor: bus.corridor),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -64,8 +75,7 @@ class BusTile extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Icon(Icons.navigation,
-                                    size: 14,
-                                    color: theme.colorScheme.primary),
+                                    size: 14, color: onCardAccent),
                               ),
                               const SizedBox(width: 4),
                               Expanded(
@@ -107,7 +117,7 @@ class BusTile extends StatelessWidget {
                         ? l10n.etaApprox(item.etaMinutes!)
                         : l10n.etaUnknown,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: accent,
+                      color: onCardAccent,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -115,34 +125,6 @@ class BusTile extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CorridorBadge extends StatelessWidget {
-  final String corridor;
-
-  const _CorridorBadge({required this.corridor});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = corridorAccent(corridor, Theme.of(context));
-    return Container(
-      width: 44,
-      height: 44,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-      child: Text(
-        corridor.isEmpty ? '?' : corridor,
-        style: TextStyle(
-          color: onColor(color),
-          fontWeight: FontWeight.bold,
-          fontSize: 15,
         ),
       ),
     );

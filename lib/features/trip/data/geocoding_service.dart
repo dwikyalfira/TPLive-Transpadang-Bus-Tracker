@@ -79,10 +79,12 @@ class GeocodingException implements Exception {
   String toString() => message;
 }
 
-/// Klien pencarian tempat berbasis Nominatim (OpenStreetMap).
+/// Klien pencarian tempat.
 ///
-/// Mengikuti kebijakan penggunaan Nominatim: satu permintaan pada satu waktu,
-/// User-Agent jelas, tanpa pemanggilan berlebihan.
+/// Memakai **Mapbox Search Box API** bila [AppConfig.mapboxToken] tersedia
+/// (di-set saat build lewat `--dart-define=MAPBOX_TOKEN=...`). Bila token
+/// kosong, otomatis jatuh ke **Nominatim (OpenStreetMap)** yang mengikuti
+/// kebijakan penggunaannya: satu permintaan pada satu waktu, User-Agent jelas.
 class GeocodingService {
   final HttpClient _client;
 
@@ -93,10 +95,48 @@ class GeocodingService {
     String query, {
     int limit = 6,
     Duration timeout = const Duration(seconds: 12),
-  }) async {
+  }) {
     final q = query.trim();
-    if (q.isEmpty) return const [];
+    if (q.isEmpty) return Future.value(const []);
+    return AppConfig.mapboxToken.isEmpty
+        ? _searchNominatim(q, limit: limit, timeout: timeout)
+        : _searchMapbox(q, limit: limit, timeout: timeout);
+  }
 
+  /// Pencarian via Mapbox Search Box "forward" (kaya POI: kafe, toko, dll).
+  Future<List<GeocodingResult>> _searchMapbox(
+    String q, {
+    required int limit,
+    required Duration timeout,
+  }) async {
+    final uri = Uri.https(AppConfig.mapboxSearchHost, '/search/searchbox/v1/forward', {
+      'q': q,
+      'access_token': AppConfig.mapboxToken,
+      'limit': '$limit',
+      'language': AppConfig.mapboxLanguage,
+      'country': AppConfig.mapboxCountry,
+      'bbox': AppConfig.padangBbox,
+      'proximity': AppConfig.padangProximity,
+      'types': 'poi,address,place,street,locality,neighborhood',
+    });
+
+    final decoded = await _getJson(uri, timeout: timeout);
+    final features =
+        decoded is Map<String, dynamic> ? decoded['features'] : null;
+    if (features is! List) return const [];
+    return features
+        .whereType<Map<String, dynamic>>()
+        .map(GeocodingResult.fromMapboxJson)
+        .where((r) => r.pos.latitude != 0 || r.pos.longitude != 0)
+        .toList(growable: false);
+  }
+
+  /// Pencarian cadangan via Nominatim (dipakai bila token Mapbox kosong).
+  Future<List<GeocodingResult>> _searchNominatim(
+    String q, {
+    required int limit,
+    required Duration timeout,
+  }) async {
     final uri = Uri.https(AppConfig.geocoderHost, '/search', {
       'q': q,
       'format': 'jsonv2',
@@ -109,10 +149,30 @@ class GeocodingService {
       'dedupe': '1',
     });
 
+    final decoded = await _getJson(
+      uri,
+      timeout: timeout,
+      headers: {HttpHeaders.userAgentHeader: AppConfig.geocoderUserAgent},
+    );
+    if (decoded is! List) return const [];
+    return decoded
+        .whereType<Map<String, dynamic>>()
+        .map(GeocodingResult.fromJson)
+        .where((r) => r.pos.latitude != 0 || r.pos.longitude != 0)
+        .toList(growable: false);
+  }
+
+  /// GET [uri] lalu mengembalikan JSON hasil decode. Kesalahan jaringan
+  /// diterjemahkan menjadi [GeocodingException] dengan pesan ramah pengguna.
+  Future<dynamic> _getJson(
+    Uri uri, {
+    required Duration timeout,
+    Map<String, String>? headers,
+  }) async {
     try {
       final request = await _client.getUrl(uri).timeout(timeout);
-      request.headers.set(HttpHeaders.userAgentHeader, AppConfig.geocoderUserAgent);
       request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+      headers?.forEach((name, value) => request.headers.set(name, value));
       final response = await request.close().timeout(timeout);
       final body = await response.transform(utf8.decoder).join().timeout(timeout);
 
@@ -121,14 +181,7 @@ class GeocodingService {
           'Pencarian gagal (HTTP ${response.statusCode}). Coba lagi nanti.',
         );
       }
-
-      final decoded = jsonDecode(body);
-      if (decoded is! List) return const [];
-      return decoded
-          .whereType<Map<String, dynamic>>()
-          .map(GeocodingResult.fromJson)
-          .where((r) => r.pos.latitude != 0 || r.pos.longitude != 0)
-          .toList(growable: false);
+      return jsonDecode(body);
     } on TimeoutException {
       throw const GeocodingException(
         'Pencarian memakan waktu terlalu lama. Periksa koneksi internet.',

@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/ui/constrained_content.dart';
+import '../../../core/ui/state_views.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../tracking/domain/geo_utils.dart' as geo;
 import '../../tracking/presentation/providers.dart';
+import '../../tracking/presentation/widgets/corridor_badge.dart';
 import '../../tracking/presentation/widgets/format.dart';
 import '../data/geocoding_service.dart';
 import '../domain/trip_endpoint.dart';
@@ -36,6 +41,10 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen>
   String _query = '';
   int _tabIndex = 0;
 
+  /// Menunda pencarian tempat saat mengetik agar tidak memanggil API tiap
+  /// ketukan tombol.
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +61,7 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen>
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _controller.dispose();
     _tabs.dispose();
     super.dispose();
@@ -59,9 +69,22 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen>
 
   bool get _isPlace => _tabIndex == 1;
 
+  void _onQueryChanged(String value) {
+    setState(() => _query = value);
+    if (!_isPlace) return;
+    // Pencarian "live" di tab Tempat: perlahan saat mengetik, tanpa perlu
+    // menekan tombol cari.
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 350), () {
+      if (!mounted) return;
+      ref.read(destinationQueryProvider.notifier).state = value.trim();
+    });
+  }
+
   void _submitPlaceSearch() {
     if (!_isPlace) return;
     FocusScope.of(context).unfocus();
+    _debounce?.cancel();
     ref.read(destinationQueryProvider.notifier).state = _query.trim();
   }
 
@@ -88,32 +111,34 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen>
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-            child: _SearchField(
-              controller: _controller,
-              isPlace: _isPlace,
-              onChanged: (value) => setState(() => _query = value),
-              onSearch: _submitPlaceSearch,
+      body: ConstrainedContent(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+              child: _SearchField(
+                controller: _controller,
+                isPlace: _isPlace,
+                onChanged: _onQueryChanged,
+                onSearch: _submitPlaceSearch,
+              ),
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabs,
-              children: [
-                _HalteTab(
-                  query: _query,
-                  includeGps: widget.includeGps,
-                  onGps: _chooseGps,
-                  onSelect: _chooseHalte,
-                ),
-                _PlaceTab(onSelect: _choosePlace),
-              ],
+            Expanded(
+              child: TabBarView(
+                controller: _tabs,
+                children: [
+                  _HalteTab(
+                    query: _query,
+                    includeGps: widget.includeGps,
+                    onGps: _chooseGps,
+                    onSelect: _chooseHalte,
+                  ),
+                  _PlaceTab(onSelect: _choosePlace),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -215,7 +240,7 @@ class _HalteTab extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final entries = ref.watch(halteEntriesProvider);
     if (entries.isEmpty) {
-      return _CenteredHint(
+      return EmptyStateView(
         icon: Icons.hourglass_empty,
         message: l10n.loadingHalteData,
       );
@@ -228,7 +253,7 @@ class _HalteTab extends ConsumerWidget {
       final filtered =
           entries.where((e) => e.name.toLowerCase().contains(q)).toList();
       if (filtered.isEmpty) {
-        return _CenteredHint(
+        return EmptyStateView(
           icon: Icons.search_off,
           message: l10n.halteNotFound,
         );
@@ -448,7 +473,7 @@ class _HalteTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final corridor in corridors) ...[
-            _CorridorDot(corridor: corridor),
+            CorridorBadge(corridor: corridor, size: 24, fontSize: 10),
             if (corridor != corridors.last) const SizedBox(width: 4),
           ],
         ],
@@ -478,7 +503,7 @@ class _PlaceTab extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final query = ref.watch(destinationQueryProvider);
     if (query.trim().length < 3) {
-      return _CenteredHint(
+      return EmptyStateView(
         icon: Icons.travel_explore,
         message: l10n.placeMinChars,
       );
@@ -487,7 +512,7 @@ class _PlaceTab extends ConsumerWidget {
     final results = ref.watch(destinationResultsProvider);
     return results.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => _ErrorState(
+      error: (error, _) => ErrorStateView(
         message: error is GeocodingException
             ? error.message
             : l10n.placeSearchError,
@@ -495,7 +520,7 @@ class _PlaceTab extends ConsumerWidget {
       ),
       data: (items) {
         if (items.isEmpty) {
-          return _CenteredHint(
+          return EmptyStateView(
             icon: Icons.search_off,
             message: l10n.placeNotFound,
           );
@@ -522,86 +547,3 @@ class _PlaceTab extends ConsumerWidget {
   }
 }
 
-class _CorridorDot extends StatelessWidget {
-  final String corridor;
-
-  const _CorridorDot({required this.corridor});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = corridorAccent(corridor, Theme.of(context));
-    return Container(
-      width: 24,
-      height: 24,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-      child: Text(
-        corridor,
-        style: TextStyle(
-          color: onColor(color),
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
-
-class _CenteredHint extends StatelessWidget {
-  final IconData icon;
-  final String message;
-
-  const _CenteredHint({required this.icon, required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
-      child: Column(
-        children: [
-          Icon(icon, size: 56, color: theme.colorScheme.onSurfaceVariant),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorState({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 56),
-            const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: Text(AppLocalizations.of(context).retry),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

@@ -94,6 +94,26 @@ Color corridorAccent(String corridor, ThemeData theme) {
   return ensureContrast(base, theme.colorScheme.surface, minRatio: 3.0);
 }
 
+/// Intensitas tint latar kartu koridor ringkas (info koridor & daftar bus).
+/// Nilainya sama agar warna kartu bus menyatu dengan kartu "Info Koridor".
+const double kCorridorCardTintOpacity = 0.06;
+
+/// Tint latar kartu bus yang di-pin; lebih tegas agar kartu melayang menonjol.
+const double kCorridorPinnedTintOpacity = 0.14;
+
+/// Latar kartu bernuansa koridor: warna aksen koridor di atas [base], dengan
+/// kepekatan [opacity] (default [kCorridorCardTintOpacity]).
+Color corridorSurfaceTint(
+  String corridor,
+  ThemeData theme, {
+  required Color base,
+  double opacity = kCorridorCardTintOpacity,
+}) =>
+    Color.alphaBlend(
+      corridorAccent(corridor, theme).withOpacity(opacity),
+      base,
+    );
+
 /// Deskripsi status koneksi untuk UI: (label, warna, ikon).
 (String, Color, IconData) describeStatus(
   ConnectionStatus? status,

@@ -11,6 +11,7 @@ import '../../domain/halte_tracker.dart';
 import '../../../trip/domain/trip_planner.dart';
 import '../../../trip/presentation/trip_providers.dart';
 import '../providers.dart';
+import 'corridor_badge.dart';
 import 'follow_bus_button.dart';
 import 'format.dart';
 
@@ -352,68 +353,54 @@ child: _BusPositionMarker(
 }
 
 /// Data yang dibutuhkan untuk fitur "ikuti bus" (diteruskan ke tombol header).
-class _Header extends StatelessWidget {
-  final Bus bus;
-  final String? origin;
-  final String? destination;
-  final String fallback;
-  final FollowPayload follow;
+  class _Header extends StatelessWidget {
+    final Bus bus;
+    final String? origin;
+    final String? destination;
+    final String fallback;
+    final FollowPayload follow;
+    final bool showStartEnd; // BARU: tampilkan badge Awal/Akhir di timeline
 
-  const _Header({
-    required this.bus,
-    required this.origin,
-    required this.destination,
-    required this.fallback,
-    required this.follow,
-  });
+    const _Header({
+      required this.bus,
+      required this.origin,
+      required this.destination,
+      required this.fallback,
+      required this.follow,
+      this.showStartEnd = false, // DEFAULT: false
+    });
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = corridorAccent(bus.corridor, theme);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              bus.corridor.isEmpty ? '?' : bus.corridor,
-              style: TextStyle(
-                color: onColor(color),
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
+    @override
+    Widget build(BuildContext context) {
+      final theme = Theme.of(context);
+      final color = corridorAccent(bus.corridor, theme);
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CorridorBadge(corridor: bus.corridor),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context).busLabel(bus.number),
+                    style: theme.textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 2),
+                  _subtitle(theme),
+                ],
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context).busLabel(bus.number),
-                  style: theme.textTheme.titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 2),
-                _subtitle(theme),
-              ],
-            ),
-          ),
-          const SizedBox(width: 4),
-          FollowBusButton(bus: bus, payload: follow, activeColor: color),
-        ],
-      ),
-    );
-  }
+            const SizedBox(width: 4),
+            FollowBusButton(bus: bus, payload: follow, activeColor: color),
+          ],
+        ),
+      );
+    }
 
   Widget _subtitle(ThemeData theme) {
     // Tampilkan kedua terminus rute (asal ⇄ tujuan). Tujuan yang sedang
@@ -655,8 +642,8 @@ class _HalteRow extends StatelessWidget {
 
     // Baris di luar segmen naik→turun diredupkan agar fokus pada perjalanan
     // pengguna; konteks arah tetap terbaca dari rel.
-    final dimColor = theme.colorScheme.onSurfaceVariant.withOpacity(0.35);
-    final textColor = theme.colorScheme.onSurfaceVariant.withOpacity(0.5);
+    final dimColor = theme.colorScheme.onSurfaceVariant.withOpacity(0.55);
+    final textColor = theme.colorScheme.onSurfaceVariant.withOpacity(0.75);
 
     final IconData icon;
     final Color color;
@@ -752,27 +739,27 @@ class _HalteRow extends StatelessWidget {
                         ),
                       ),
                       if (isOrigin)
-                        _EdgeBadge(
+                        EdgeBadge(
                           label: l10n.badgeBoard,
                           icon: Icons.lens,
                           color: corridorColor,
                           filled: true,
                         )
                       else if (isFirst)
-                        _EdgeBadge(
+                        EdgeBadge(
                           label: l10n.badgeStart,
                           icon: Icons.trip_origin,
                           color: corridorColor,
                         ),
                       if (isDestination)
-                        _EdgeBadge(
+                        EdgeBadge(
                           label: l10n.badgeAlight,
                           icon: Icons.place,
                           color: corridorColor,
                           filled: true,
                         )
                       else if (isLast)
-                        _EdgeBadge(
+                        EdgeBadge(
                           label: l10n.badgeEnd,
                           icon: Icons.flag,
                           color: corridorColor,
@@ -828,52 +815,6 @@ class _BusPositionMarker extends StatelessWidget {
   }
 }
 
-class _EdgeBadge extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final Color color;
-
-  /// Bila benar, pill terisi penuh warna koridor (untuk penanda Naik/Turun
-  /// pengguna) supaya jelas berbeda dari penanda terminus Awal/Akhir yang
-  /// transparan (samar).
-  final bool filled;
-
-  const _EdgeBadge({
-    required this.label,
-    required this.icon,
-    required this.color,
-    this.filled = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final onColor2 = onColor(color);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(
-        color: filled ? color : color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 11, color: filled ? onColor2 : color),
-          const SizedBox(width: 3),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: filled ? onColor2 : color,
-              fontWeight: FontWeight.w700,
-              height: 1.1,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _Unavailable extends StatelessWidget {
   final Bus bus;
 
@@ -881,17 +822,22 @@ class _Unavailable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListView(
       children: [
         const SizedBox(height: 40),
-        const Icon(Icons.route_outlined, size: 56, color: Colors.grey),
+        Icon(
+          Icons.route_outlined,
+          size: 56,
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
         const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Text(
             AppLocalizations.of(context).halteUnavailable(bus.corridor),
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
+            style: theme.textTheme.bodyLarge,
           ),
         ),
       ],

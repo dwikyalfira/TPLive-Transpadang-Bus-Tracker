@@ -119,6 +119,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get tooltipFollow => 'Ikuti bus ini';
 
   @override
+  String get tooltipClose => 'Tutup';
+
+  @override
   String get notifPermissionDenied => 'Izin notifikasi ditolak. Izinkan notifikasi untuk mengikuti bus.';
 
   @override

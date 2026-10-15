@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/settings.dart';
+import '../../../core/ui/constrained_content.dart';
 import '../../../l10n/app_localizations.dart';
 
 // --- Enum & Widget helper (di luar class SettingsScreen) ---
@@ -307,9 +308,10 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-        children: [
+      body: ConstrainedContent(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+          children: [
           _SectionLabel(text: l10n.sectionAppearance),
           _SettingsCard(
             children: [
@@ -376,7 +378,8 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _SectionLabel(text: l10n.sectionAbout),
           const _AboutCard(),
-        ],
+          ],
+        ),
       ),
     );
   }

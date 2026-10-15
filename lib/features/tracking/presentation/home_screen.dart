@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/follow_service.dart';
+import '../../../core/ui/constrained_content.dart';
+import '../../../core/ui/fade_through_route.dart';
+import '../../../core/ui/state_views.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../trip/presentation/trip_providers.dart';
@@ -49,15 +52,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (buses == null || ref.read(followedBusProvider) == null) return;
       _evaluateFollowAlerts(buses);
     });
+    // Di luar jam operasional, hentikan follow agar tidak ada notifikasi /
+    // kartu pinned yang menampilkan bus yang sebenarnya tidak beroperasi.
+    ref.listenManual(isOutsideHoursProvider, (_, next) {
+      if (next) _stopFollowForOffHours();
+    });
   }
 
   /// Memulihkan indikator "mengikuti" bila foreground service masih aktif
-  /// (mis. setelah aplikasi dibuka ulang).
+  /// (mis. setelah aplikasi dibuka ulang). Tidak dipulihkan di luar jam
+  /// operasional.
   Future<void> _restoreFollow() async {
+    if (ref.read(isOutsideHoursProvider)) return;
     final followed = await FollowService.getFollowed();
     if (!mounted || followed == null) return;
     ref.read(followedBusProvider.notifier).state =
         busFollowKey(followed.corridor, followed.busNumber);
+  }
+
+  /// Menghentikan sesi "ikuti bus" (indikator + foreground service native).
+  void _stopFollowForOffHours() {
+    if (ref.read(followedBusProvider) == null) return;
+    ref.read(followedBusProvider.notifier).state = null;
+    unawaited(FollowService.stopFollow());
   }
 
   void _onBusPinned(String key) {
@@ -175,16 +192,42 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // Di luar jam operasional (05:00-20:00 WIB) dihitung oleh provider yang
-    // diperbarui tiap menit sehingga penanda ikut berubah tanpa membuka ulang
-    // aplikasi. Saat true, AppBar tetap tampil (penanda status ungu), namun
-    // daftar bus disembunyikan dan diganti info jam operasional.
-    final isOutsideHours =
-        ref.watch(outsideHoursProvider).valueOrNull ?? false;
+    // Di luar jam operasional (05:00-20:00 WIB) dihitung provider yang
+    // diperbarui tiap menit. Saat true, bilah pencarian & info koridor tetap
+    // tampil, tetapi daftar bus diganti info jam operasional (lihat
+    // [_BusListView.isOutsideHours]).
+    final isOutsideHours = ref.watch(isOutsideHoursProvider);
     final status = ref.watch(connectionStatusProvider).valueOrNull;
     final locationAsync = ref.watch(userLocationProvider);
     final nearby = ref.watch(nearbyBusesProvider);
-    final corridors = ref.watch(availableCorridorsProvider);
+    // Di luar jam: pakai seluruh koridor dari dataset agar info tiap koridor
+    // tetap bisa dibuka walau tidak ada bus beroperasi.
+    final corridors = ref.watch(
+      isOutsideHours ? allCorridorsProvider : availableCorridorsProvider,
+    );
+
+    final listView = _BusListView(
+      isOutsideHours: isOutsideHours,
+      status: status,
+      nearby: nearby,
+      corridors: corridors,
+      onSearchTap: () => _openTripSearch(context),
+      onRefresh: _refresh,
+    );
+
+    final Widget body;
+    if (isOutsideHours) {
+      body = ConstrainedContent(child: listView);
+    } else if (locationAsync.hasError) {
+      body = ErrorStateView(
+        message: locationAsync.error.toString(),
+        onRetry: () => ref.invalidate(userLocationProvider),
+      );
+    } else if (locationAsync.isLoading || !locationAsync.hasValue) {
+      body = LoadingStateView(message: l10n.gettingLocation);
+    } else {
+      body = ConstrainedContent(child: listView);
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -200,7 +243,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 10),
-            LiveStatusPill(status: status, onTap: () {}),
+            LiveStatusPill(
+              status:
+                  isOutsideHours ? ConnectionStatus.outsideHours : status,
+              onTap: () {},
+            ),
           ],
         ),
         actions: [
@@ -216,22 +263,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
-      body: isOutsideHours
-          ? const _OutsideHoursView()
-          : locationAsync.hasError
-              ? _LocationErrorState(
-                  message: locationAsync.error.toString(),
-                  onRetry: () => ref.invalidate(userLocationProvider),
-                )
-              : locationAsync.isLoading || !locationAsync.hasValue
-                  ? _LoadingState(message: l10n.gettingLocation)
-                  : _BusListView(
-                      status: status,
-                      nearby: nearby,
-                      corridors: corridors,
-                      onSearchTap: () => _openTripSearch(context),
-                      onRefresh: _refresh,
-                    ),
+      body: body,
     );
   }
 
@@ -258,63 +290,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     Navigator.of(context).push(_settingsRoute());
   }
 
-  /// Transisi halus menuju layar Pengaturan: memudar masuk sambil meluncur
-  /// naik tipis (fade-through), selaras dengan transisi pencarian perjalanan.
-  Route<void> _settingsRoute() {
-    return PageRouteBuilder<void>(
-      transitionDuration: const Duration(milliseconds: 320),
-      reverseTransitionDuration: const Duration(milliseconds: 260),
-      pageBuilder: (_, __, ___) => const SettingsScreen(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.03),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
-          ),
-        );
-      },
-    );
-  }
+  /// Transisi halus menuju layar Pengaturan: fade-through Material 3.
+  Route<void> _settingsRoute() =>
+      fadeThroughRoute<void>(builder: (_) => const SettingsScreen());
 
   void _openTripSearch(BuildContext context) {
     Navigator.of(context).push(_tripSearchRoute());
   }
 
-  /// Transisi halus menuju layar "Cari tujuan": fade-through — halaman baru
-  /// memudar masuk sambil meluncur naik sedikit (efek search → hasil).
-  Route<void> _tripSearchRoute() {
-    return PageRouteBuilder<void>(
-      transitionDuration: const Duration(milliseconds: 320),
-      reverseTransitionDuration: const Duration(milliseconds: 260),
-      pageBuilder: (_, __, ___) => const TripScreen(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.035),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
-          ),
-        );
-      },
-    );
-  }
+  /// Transisi halus menuju layar "Cari tujuan": fade-through Material 3.
+  Route<void> _tripSearchRoute() =>
+      fadeThroughRoute<void>(builder: (_) => const TripScreen());
 }
 
 /// Bilah "Cari tujuan" di bagian atas daftar bus. Diketuk untuk membuka
@@ -329,7 +315,7 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
       child: Material(
         color: Color.alphaBlend(
           theme.colorScheme.primary.withOpacity(0.05),
@@ -370,6 +356,11 @@ class _BusListView extends ConsumerStatefulWidget {
   final ConnectionStatus? status;
   final List<BusWithDistance> nearby;
   final List<String> corridors;
+
+  /// Bila benar, area daftar tiap tab diganti info jam operasional (daftar bus
+  /// disembunyikan) sementara bilah pencarian, tab koridor, dan kartu info
+  /// koridor tetap tampil.
+  final bool isOutsideHours;
   final VoidCallback onSearchTap;
   final Future<void> Function() onRefresh;
 
@@ -377,6 +368,7 @@ class _BusListView extends ConsumerStatefulWidget {
     required this.status,
     required this.nearby,
     required this.corridors,
+    this.isOutsideHours = false,
     required this.onSearchTap,
     required this.onRefresh,
   });
@@ -480,20 +472,24 @@ class _BusListViewState extends ConsumerState<_BusListView>
             .toList(growable: false);
     final key = ValueKey<String>(corridor ?? '__all__');
 
-    final content = buses.isEmpty
-        ? _EmptyState(key: key, status: widget.status)
-        : corridor == null
-            ? _FlatBusList(key: key, buses: buses)
-            : _GroupedBusList(key: key, buses: buses);
+    final content = widget.isOutsideHours
+        ? const _OutsideHoursView()
+        : buses.isEmpty
+            ? _EmptyState(key: key, status: widget.status)
+            : corridor == null
+                ? _FlatBusList(key: key, buses: buses)
+                : _GroupedBusList(key: key, buses: buses);
 
     return Column(
       children: [
         CorridorInfoHeader(corridor: corridor),
         Expanded(
-          child: RefreshIndicator(
-            onRefresh: widget.onRefresh,
-            child: content,
-          ),
+          child: widget.isOutsideHours
+              ? content
+              : RefreshIndicator(
+                  onRefresh: widget.onRefresh,
+                  child: content,
+                ),
         ),
       ],
     );
@@ -636,10 +632,10 @@ class _CorridorTabs extends StatelessWidget {
     final borderColor = theme.colorScheme.primary;
 
     return SizedBox(
-      height: 52,
+      height: 56,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         children: [
           // Tiap ikon dibungkus [AnimatedBuilder] sendiri supaya hanya ikon itu
           // yang dibangun ulang tiap frame geseran, bukan seluruh baris.
@@ -701,31 +697,40 @@ class _CorridorTabs extends StatelessWidget {
     final fg = Color.lerp(mutedFg, litFg, t)!;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: Transform.scale(
-          scale: 1 + 0.06 * t,
-          child: Container(
-            // Sorotan sudah dipandu tiap frame lewat [AnimatedBuilder]; pakai
-            // Container biasa (bukan AnimatedContainer) agar tidak memicu
-            // animasi implisit tambahan di setiap frame geseran.
-            constraints: const BoxConstraints.tightFor(width: 40, height: 40),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: bg,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: borderColor.withOpacity(t),
-                width: 2 * t,
-              ),
-            ),
-            child: Text(
-              corridor,
-              style: TextStyle(
-                color: fg,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
+      // Area sentuh minimal 48dp (pedoman Material 3); lingkaran visual tetap
+      // 40dp sehingga tampilan tidak berubah.
+      child: SizedBox(
+        width: 48,
+        height: 48,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Center(
+            child: Transform.scale(
+              scale: 1 + 0.06 * t,
+              child: Container(
+                // Sorotan sudah dipandu tiap frame lewat [AnimatedBuilder]; pakai
+                // Container biasa (bukan AnimatedContainer) agar tidak memicu
+                // animasi implisit tambahan di setiap frame geseran.
+                constraints:
+                    const BoxConstraints.tightFor(width: 40, height: 40),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: bg,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: borderColor.withOpacity(t),
+                    width: 2 * t,
+                  ),
+                ),
+                child: Text(
+                  corridor,
+                  style: TextStyle(
+                    color: fg,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ),
           ),
@@ -750,20 +755,10 @@ class _EmptyState extends StatelessWidget {
     final icon =
         isOutsideHours ? Icons.schedule : Icons.directions_bus_outlined;
 
-    return ListView(
-      children: [
-        const SizedBox(height: 120),
-        Icon(icon, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Text(
-            message,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ),
-      ],
+    return EmptyStateView(
+      icon: icon,
+      message: message,
+      scrollable: true,
     );
   }
 }
@@ -803,60 +798,6 @@ class _OutsideHoursView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyLarge
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LoadingState extends StatelessWidget {
-  final String message;
-
-  const _LoadingState({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16),
-          Text(message),
-        ],
-      ),
-    );
-  }
-}
-
-class _LocationErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _LocationErrorState({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.location_off_outlined, size: 64),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: Text(AppLocalizations.of(context).retry),
             ),
           ],
         ),

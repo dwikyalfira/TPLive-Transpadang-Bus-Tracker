@@ -65,10 +65,15 @@ class AppConfig {
   /// Host Search Box API Mapbox (mengembalikan POI seperti kafe/toko).
   static const String mapboxSearchHost = 'api.mapbox.com';
 
-  /// Access token Mapbox. Diisi saat build:
-  ///   flutter build apk --dart-define=MAPBOX_TOKEN=pk.xxxx
-  /// Bila kosong, pencarian otomatis memakai Nominatim (OpenStreetMap).
-  static const String mapboxToken = String.fromEnvironment('MAPBOX_TOKEN');
+  /// Access token Mapbox (public token — memang untuk disertakan di aplikasi
+  /// klien). Nilai default disertakan agar pencarian tempat langsung berfungsi;
+  /// dapat ditimpa saat build: `--dart-define=MAPBOX_TOKEN=pk.xxxx`. Bila
+  /// dikosongkan lewat dart-define, pencarian jatuh ke Nominatim (OpenStreetMap).
+  static const String mapboxToken = String.fromEnvironment(
+    'MAPBOX_TOKEN',
+    defaultValue:
+        'pk.eyJ1IjoiZHdpa3lhbGZpcmEiLCJhIjoiY212N3FyMGtoMDF2czJ4b25wN2sweHRvYiJ9.RaXtez6i-paIJxOCpJhcKg',
+  );
 
   /// Kotak pembatas wilayah Padang untuk Mapbox
   /// (minLon,minLat,maxLon,maxLat — urutan berbeda dari Nominatim).

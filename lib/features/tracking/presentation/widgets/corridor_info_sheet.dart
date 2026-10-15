@@ -5,6 +5,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../data/halte_data.dart';
 import '../../domain/corridor_info.dart';
 import '../providers.dart';
+import 'corridor_badge.dart';
 import 'format.dart';
 
 /// Menampilkan detail info sebuah koridor dalam bottom sheet berjenjang.
@@ -265,20 +266,7 @@ class _Header extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
-                child: Text(
-                  info.code,
-                  style: TextStyle(
-                    color: onColor(accent),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-              ),
+              CorridorBadge(corridor: info.code),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -547,18 +535,16 @@ class _HalteRow extends StatelessWidget {
             ),
           ),
           if (isFirst)
-            _EdgeBadge(
+            EdgeBadge(
               label: l10n.badgeStart,
               icon: Icons.trip_origin,
               color: accent,
-              theme: theme,
             ),
           if (isLast)
-            _EdgeBadge(
+            EdgeBadge(
               label: l10n.badgeEnd,
               icon: Icons.flag,
               color: accent,
-              theme: theme,
             ),
         ],
       ),
@@ -566,42 +552,3 @@ class _HalteRow extends StatelessWidget {
   }
 }
 
-class _EdgeBadge extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final Color color;
-  final ThemeData theme;
-
-  const _EdgeBadge({
-    required this.label,
-    required this.icon,
-    required this.color,
-    required this.theme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 11, color: color),
-          const SizedBox(width: 3),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-              height: 1.1,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

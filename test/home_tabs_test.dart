@@ -232,6 +232,45 @@ void main() {
     expect(find.text('Sedang tidak melayani penumpang'), findsOneWidget);
   });
 
+  testWidgets(
+      'di luar jam: pencarian & info koridor tetap tampil, daftar bus disembunyikan',
+      (tester) async {
+    final container = ProviderContainer(overrides: [
+      ..._overrides(
+        [_bus('16', 'K3', lng: 100.3015)],
+        outsideHoursStatus: true,
+      ),
+    ]);
+    addTearDown(container.dispose);
+    await tester.pumpWidget(_app(container));
+    await tester.pumpAndSettle();
+
+    // Bilah pencarian tetap tampil.
+    expect(find.textContaining('Cari tujuan'), findsOneWidget);
+
+    // Tab koridor tetap tampil (dari dataset K1 & K3), walau tidak ada bus live.
+    expect(find.widgetWithText(ChoiceChip, 'Semua'), findsOneWidget);
+    expect(_corridorIcon('K1'), findsOneWidget);
+    expect(_corridorIcon('K3'), findsOneWidget);
+
+    // Kartu info koridor (tab "Semua") tetap tampil.
+    expect(find.text('Info Jaringan TransPadang'), findsOneWidget);
+
+    // Penanda status ungu + keterangan "Di luar jam operasional".
+    final pillContext = tester.element(find.byType(LiveStatusPill));
+    final (label, color) = LiveStatusPill.describe(
+      ConnectionStatus.outsideHours,
+      AppLocalizations.of(pillContext),
+    );
+    expect(color, const Color(0xFF7B1FA2));
+    expect(label, 'Di luar jam operasional');
+    expect(find.text('Di luar jam operasional'), findsOneWidget);
+
+    // Daftar bus disembunyikan, diganti info jam operasional.
+    expect(find.text('Bus 16'), findsNothing);
+    expect(find.text('Sedang tidak melayani penumpang'), findsOneWidget);
+  });
+
   testWidgets('tombol muat ulang berputar saat ditekan', (tester) async {
     final container = _container([_bus('11', 'K1', lng: 100.3005)]);
     await tester.pumpWidget(_app(container));

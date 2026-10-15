@@ -119,6 +119,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tooltipFollow => 'Follow this bus';
 
   @override
+  String get tooltipClose => 'Close';
+
+  @override
   String get notifPermissionDenied => 'Notification permission denied. Allow notifications to follow a bus.';
 
   @override

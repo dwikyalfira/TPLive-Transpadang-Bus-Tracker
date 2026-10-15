@@ -182,7 +182,7 @@ class _Shell extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
       child: Material(
         color: Color.alphaBlend(
-          accent.withOpacity(0.06),
+          accent.withOpacity(kCorridorCardTintOpacity),
           theme.colorScheme.surface,
         ),
         borderRadius: BorderRadius.circular(16),

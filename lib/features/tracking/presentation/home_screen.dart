@@ -204,14 +204,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
         actions: [
-          _ReloadButton(
+          _SpinIconButton(
             tooltip: l10n.tooltipReload,
+            icon: Icons.refresh,
             onPressed: _refresh,
           ),
-          IconButton(
+          _SpinIconButton(
             tooltip: l10n.settingsTooltip,
+            icon: Icons.settings_outlined,
             onPressed: () => _openSettings(context),
-            icon: const Icon(Icons.settings_outlined),
           ),
         ],
       ),
@@ -836,20 +837,24 @@ class _LocationErrorState extends StatelessWidget {
   }
 }
 
-/// Tombol "Muat ulang" di AppBar. Setiap kali diklik, ikon [Icons.refresh]
-/// berputar **satu kali** sebagai umpan balik, lalu berhenti (tidak berputar
-/// terus-menerus selama pemuatan berlangsung).
-class _ReloadButton extends StatefulWidget {
+/// Tombol ikon di AppBar. Setiap kali diklik, ikonnya berputar **satu kali**
+/// sebagai umpan balik, lalu berhenti (tidak berputar terus-menerus).
+class _SpinIconButton extends StatefulWidget {
   final String tooltip;
-  final Future<void> Function() onPressed;
+  final IconData icon;
+  final VoidCallback onPressed;
 
-  const _ReloadButton({required this.tooltip, required this.onPressed});
+  const _SpinIconButton({
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+  });
 
   @override
-  State<_ReloadButton> createState() => _ReloadButtonState();
+  State<_SpinIconButton> createState() => _SpinIconButtonState();
 }
 
-class _ReloadButtonState extends State<_ReloadButton>
+class _SpinIconButtonState extends State<_SpinIconButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _spin;
 
@@ -877,11 +882,11 @@ class _ReloadButtonState extends State<_ReloadButton>
   }
 
   void _handle() {
-    // Berputar sekali tiap klik — tidak terus-menerus selama pemuatan.
+    // Berputar sekali tiap klik — tidak terus-menerus.
     if (!_spin.isAnimating) {
       _spin.forward(from: 0);
     }
-    unawaited(widget.onPressed());
+    widget.onPressed();
   }
 
   @override
@@ -891,7 +896,7 @@ class _ReloadButtonState extends State<_ReloadButton>
       onPressed: _handle,
       icon: RotationTransition(
         turns: _spin,
-        child: const Icon(Icons.refresh),
+        child: Icon(widget.icon),
       ),
     );
   }

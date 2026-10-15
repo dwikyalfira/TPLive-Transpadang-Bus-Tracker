@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transpadang_live/core/settings.dart';
 import 'package:transpadang_live/features/tracking/data/bus_model.dart';
@@ -98,6 +99,13 @@ void main() {
   setUpAll(() async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     _prefs = await SharedPreferences.getInstance();
+    PackageInfo.setMockInitialValues(
+      appName: 'TPLive',
+      packageName: 'id.dwiky.transpadang_live',
+      version: '1.0.0',
+      buildNumber: '1',
+      buildSignature: '',
+    );
   });
 
   testWidgets('mode pengembangan default mati', (tester) async {
@@ -249,5 +257,40 @@ void main() {
     // Selesai: kembali berhenti di posisi awal.
     await tester.pumpAndSettle();
     expect(turns(), 0.0);
+  });
+
+  testWidgets('tombol pengaturan berputar saat ditekan', (tester) async {
+    final container = _container([_bus('11', 'K1', lng: 100.3005)]);
+    await tester.pumpWidget(_app(container));
+    await tester.pumpAndSettle();
+
+    // Home menjadi offstage setelah layar Pengaturan terbuka, jadi cari tanpa
+    // melewati widget offstage.
+    final settingsIcon =
+        find.byIcon(Icons.settings_outlined, skipOffstage: false);
+    final settingsButton = find.ancestor(
+      of: settingsIcon,
+      matching: find.byType(IconButton, skipOffstage: false),
+    );
+    final spin = find.ancestor(
+      of: settingsIcon,
+      matching: find.byType(RotationTransition, skipOffstage: false),
+    );
+
+    double turns() => tester.widget<RotationTransition>(spin).turns.value;
+
+    expect(turns(), 0.0);
+
+    await tester.tap(settingsButton);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // Ikon pengaturan sedang berputar.
+    expect(turns(), greaterThan(0.0));
+
+    // Selesai: layar Pengaturan terbuka (spin dijeda saat route menjadi
+    // offstage, jadi perilaku reset tidak diperiksa di sini).
+    await tester.pumpAndSettle();
+    expect(find.text('Terang'), findsOneWidget);
   });
 }

@@ -223,4 +223,31 @@ void main() {
     // Menampilkan informasi bahwa layanan sedang tidak melayani penumpang.
     expect(find.text('Sedang tidak melayani penumpang'), findsOneWidget);
   });
+
+  testWidgets('tombol muat ulang berputar saat ditekan', (tester) async {
+    final container = _container([_bus('11', 'K1', lng: 100.3005)]);
+    await tester.pumpWidget(_app(container));
+    await tester.pumpAndSettle();
+
+    final reloadButton = find.widgetWithIcon(IconButton, Icons.refresh);
+    final spin = find.descendant(
+      of: reloadButton,
+      matching: find.byType(RotationTransition),
+    );
+
+    double turns() => tester.widget<RotationTransition>(spin).turns.value;
+
+    expect(turns(), 0.0);
+
+    await tester.tap(reloadButton);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // Ikon sedang berputar.
+    expect(turns(), greaterThan(0.0));
+
+    // Selesai: kembali berhenti di posisi awal.
+    await tester.pumpAndSettle();
+    expect(turns(), 0.0);
+  });
 }

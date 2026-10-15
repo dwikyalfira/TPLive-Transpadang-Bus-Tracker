@@ -204,10 +204,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
         actions: [
-          IconButton(
+          _ReloadButton(
             tooltip: l10n.tooltipReload,
             onPressed: _refresh,
-            icon: const Icon(Icons.refresh),
           ),
           IconButton(
             tooltip: l10n.settingsTooltip,
@@ -832,6 +831,79 @@ class _LocationErrorState extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Tombol "Muat ulang" di AppBar. Saat ditekan, ikon [Icons.refresh] berputar
+/// sebagai umpan balik visual hingga pemuatan selesai (minimal satu putaran
+/// penuh), lalu mulus kembali ke posisi awal.
+class _ReloadButton extends StatefulWidget {
+  final String tooltip;
+  final Future<void> Function() onPressed;
+
+  const _ReloadButton({required this.tooltip, required this.onPressed});
+
+  @override
+  State<_ReloadButton> createState() => _ReloadButtonState();
+}
+
+class _ReloadButtonState extends State<_ReloadButton>
+    with SingleTickerProviderStateMixin {
+  /// Cara kerja: 0..1 = satu putaran penuh ikon.
+  late final AnimationController _spin;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _spin = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+  }
+
+  @override
+  void dispose() {
+    _spin.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handle() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    _spin.repeat();
+
+    final started = DateTime.now();
+    try {
+      await widget.onPressed();
+    } finally {
+      // Jeda minimal supaya putaran tidak terasa terpotong saat pemuatan
+      // selesai hampir seketika.
+      const minimum = Duration(milliseconds: 650);
+      final elapsed = DateTime.now().difference(started);
+      if (elapsed < minimum) {
+        await Future<void>.delayed(minimum - elapsed);
+      }
+    }
+    if (!mounted) return;
+    // Selesaikan ke satu putaran penuh lalu reset — nilai 0 dan 1 identik,
+    // jadi ikon tidak terlihat melompat.
+    await _spin.animateTo(1.0, duration: const Duration(milliseconds: 160));
+    if (!mounted) return;
+    _spin.value = 0;
+    setState(() => _busy = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: widget.tooltip,
+      onPressed: _handle,
+      icon: RotationTransition(
+        turns: _spin,
+        child: const Icon(Icons.refresh),
       ),
     );
   }

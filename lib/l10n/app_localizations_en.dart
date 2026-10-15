@@ -11,6 +11,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusLive => 'Live';
 
   @override
+  String get statusConnectedShort => 'Connected';
+
+  @override
   String get statusConnecting => 'Connecting…';
 
   @override
@@ -234,6 +237,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String halteRemaining(int count) {
     return '$count stops left';
   }
+
+  @override
+  String get infoNetworkTitle => 'TransPadang network info';
+
+  @override
+  String get infoStatNoActiveBuses => 'No active buses';
+
+  @override
+  String infoStatActiveBuses(int count) {
+    return '$count active buses';
+  }
+
+  @override
+  String infoStatCorridors(int count) {
+    return '$count corridors';
+  }
+
+  @override
+  String infoStatHaltes(int count) {
+    return '$count stops';
+  }
+
+  @override
+  String infoCorridorTitleCode(String code) {
+    return 'Corridor $code';
+  }
+
+  @override
+  String get infoOperationalHours => 'Operating hours 05.00–20.00 WIB';
+
+  @override
+  String get infoDataDisclaimer => 'Stop data may differ from current conditions on the ground.';
+
+  @override
+  String get infoActiveBusesLabel => 'Active buses';
+
+  @override
+  String get infoTotalStopsLabel => 'Total stops';
+
+  @override
+  String get infoUniqueStopsLabel => 'Unique stops';
+
+  @override
+  String get infoDirectionPergi => 'Outbound';
+
+  @override
+  String get infoDirectionPulang => 'Return';
 
   @override
   String get searchDestinationTitle => 'Search destination';

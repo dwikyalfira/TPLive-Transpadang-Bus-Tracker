@@ -47,7 +47,8 @@ class CorridorInfoHeader extends ConsumerWidget {
       );
     }
 
-    final info = ref.watch(corridorInfoProvider.select((m) => m[corridor]));
+    final info =
+        ref.watch(corridorInfoProvider.select((m) => m[corridor!.toUpperCase()]));
     if (info == null) return const SizedBox.shrink();
     final accent = corridorAccent(corridor!, theme);
 

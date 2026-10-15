@@ -54,7 +54,8 @@ class _CorridorInfoSheetState extends ConsumerState<CorridorInfoSheet> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final accent = corridorAccent(widget.corridor, theme);
-    final info = ref.watch(corridorInfoProvider.select((m) => m[widget.corridor]));
+    final info = ref
+        .watch(corridorInfoProvider.select((m) => m[widget.corridor.toUpperCase()]));
     final datasetAsync = ref.watch(halteDatasetProvider);
 
     return DraggableScrollableSheet(

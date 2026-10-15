@@ -10,6 +10,7 @@ import '../data/bus_source.dart';
 import '../data/halte_data.dart';
 import '../data/trans_ws_datasource.dart';
 import '../domain/bus_with_distance.dart';
+import '../domain/corridor_info.dart';
 import '../domain/halte_tracker.dart';
 import '../domain/heading_tracker.dart';
 
@@ -172,5 +173,79 @@ final nearbyBusesProvider = Provider<List<BusWithDistance>>((ref) {
   }
 
   result.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
+  return result;
+});
+
+/// Ringkasan info seluruh jaringan TransPadang untuk tab "Semua": jumlah bus
+/// aktif, jumlah koridor, serta jumlah halte (total & unik) pada dataset.
+final networkInfoProvider = Provider<NetworkInfo>((ref) {
+  final buses = ref.watch(busesProvider).valueOrNull ?? const <Bus>[];
+  final dataset = ref.watch(halteDatasetProvider).valueOrNull;
+  final nowUtc = DateTime.now().toUtc();
+
+  final activeBuses = buses.where((bus) => !bus.isStale(nowUtc)).length;
+
+  final corridors = <String>{
+    ...?dataset?.corridors.keys,
+    for (final bus in buses)
+      if (bus.corridor.isNotEmpty) bus.corridor.toUpperCase(),
+  };
+
+  var totalStops = 0;
+  final unique = <String>{};
+  final allStops = dataset?.corridors.values ?? const <CorridorStops>[];
+  for (final stops in allStops) {
+    for (final direction in stops.arah.values) {
+      totalStops += direction.halte.length;
+      for (final halte in direction.halte) {
+        final name = halte.nama.trim().toLowerCase();
+        if (name.isNotEmpty) unique.add(name);
+      }
+    }
+  }
+
+  return NetworkInfo(
+    activeBuses: activeBuses,
+    corridorCount: corridors.length,
+    totalStops: totalStops,
+    uniqueStops: unique.length,
+  );
+});
+
+/// Ringkasan info per koridor (kunci = kode koridor huruf besar, mis. `K3`).
+///
+/// Menggabungkan jumlah bus aktif terkini (dari WebSocket, bus kedaluwarsa
+/// diabaikan) dengan jumlah halte & terminus dari dataset statis. Dipakai oleh
+/// [CorridorInfoHeader] dan bottom sheet detail koridor.
+final corridorInfoProvider = Provider<Map<String, CorridorInfo>>((ref) {
+  final buses = ref.watch(busesProvider).valueOrNull ?? const <Bus>[];
+  final dataset = ref.watch(halteDatasetProvider).valueOrNull;
+  final nowUtc = DateTime.now().toUtc();
+
+  final activeByCorridor = <String, int>{};
+  final routeByCorridor = <String, String>{};
+  for (final bus in buses) {
+    if (bus.corridor.isEmpty || bus.isStale(nowUtc)) continue;
+    final code = bus.corridor.toUpperCase();
+    activeByCorridor[code] = (activeByCorridor[code] ?? 0) + 1;
+    if (bus.route.isNotEmpty) {
+      routeByCorridor.putIfAbsent(code, () => bus.route);
+    }
+  }
+
+  final codes = <String>{
+    ...?dataset?.corridors.keys,
+    ...activeByCorridor.keys,
+  };
+
+  final result = <String, CorridorInfo>{};
+  for (final code in codes) {
+    result[code] = CorridorInfo.of(
+      code,
+      dataset?.forCorridor(code),
+      activeByCorridor[code] ?? 0,
+      routeName: routeByCorridor[code],
+    );
+  }
   return result;
 });

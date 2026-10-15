@@ -3,6 +3,7 @@
 
   "statusDemo": "Development mode",
   "statusLive": "Live",
+  "statusConnectedShort": "Connected",
   "statusConnecting": "Connecting…",
   "statusReconnecting": "Reconnecting…",
   "statusPillOutsideHours": "Service currently unavailable",
@@ -71,6 +72,20 @@
   "arrivedDestination": "Arrived at destination",
   "lastHalte": "Last stop",
   "halteRemaining": "{count} stops left",
+
+  "infoNetworkTitle": "TransPadang network info",
+  "infoStatNoActiveBuses": "No active buses",
+  "infoStatActiveBuses": "{count} active buses",
+  "infoStatCorridors": "{count} corridors",
+  "infoStatHaltes": "{count} stops",
+  "infoCorridorTitleCode": "Corridor {code}",
+  "infoOperationalHours": "Operating hours 05.00–20.00 WIB",
+  "infoDataDisclaimer": "Stop data may differ from current conditions on the ground.",
+  "infoActiveBusesLabel": "Active buses",
+  "infoTotalStopsLabel": "Total stops",
+  "infoUniqueStopsLabel": "Unique stops",
+  "infoDirectionPergi": "Outbound",
+  "infoDirectionPulang": "Return",
 
   "searchDestinationTitle": "Search destination",
   "pickOriginTitle": "Choose origin",

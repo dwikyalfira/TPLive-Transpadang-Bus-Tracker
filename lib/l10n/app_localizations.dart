@@ -105,6 +105,12 @@ abstract class AppLocalizations {
   /// **'Live'**
   String get statusLive;
 
+  /// No description provided for @statusConnectedShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Terhubung'**
+  String get statusConnectedShort;
+
   /// No description provided for @statusConnecting.
   ///
   /// In id, this message translates to:
@@ -470,6 +476,84 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'{count} halte lagi'**
   String halteRemaining(int count);
+
+  /// No description provided for @infoNetworkTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Info Jaringan TransPadang'**
+  String get infoNetworkTitle;
+
+  /// No description provided for @infoStatNoActiveBuses.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada bus aktif'**
+  String get infoStatNoActiveBuses;
+
+  /// No description provided for @infoStatActiveBuses.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} bus aktif'**
+  String infoStatActiveBuses(int count);
+
+  /// No description provided for @infoStatCorridors.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} koridor'**
+  String infoStatCorridors(int count);
+
+  /// No description provided for @infoStatHaltes.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} halte'**
+  String infoStatHaltes(int count);
+
+  /// No description provided for @infoCorridorTitleCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Koridor {code}'**
+  String infoCorridorTitleCode(String code);
+
+  /// No description provided for @infoOperationalHours.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam operasional 05.00–20.00 WIB'**
+  String get infoOperationalHours;
+
+  /// No description provided for @infoDataDisclaimer.
+  ///
+  /// In id, this message translates to:
+  /// **'Data halte dapat berbeda dengan kondisi terkini di lapangan.'**
+  String get infoDataDisclaimer;
+
+  /// No description provided for @infoActiveBusesLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus aktif'**
+  String get infoActiveBusesLabel;
+
+  /// No description provided for @infoTotalStopsLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Total halte'**
+  String get infoTotalStopsLabel;
+
+  /// No description provided for @infoUniqueStopsLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Halte unik'**
+  String get infoUniqueStopsLabel;
+
+  /// No description provided for @infoDirectionPergi.
+  ///
+  /// In id, this message translates to:
+  /// **'Pergi'**
+  String get infoDirectionPergi;
+
+  /// No description provided for @infoDirectionPulang.
+  ///
+  /// In id, this message translates to:
+  /// **'Pulang'**
+  String get infoDirectionPulang;
 
   /// No description provided for @searchDestinationTitle.
   ///

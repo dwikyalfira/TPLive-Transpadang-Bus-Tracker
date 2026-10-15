@@ -11,6 +11,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get statusLive => 'Live';
 
   @override
+  String get statusConnectedShort => 'Terhubung';
+
+  @override
   String get statusConnecting => 'Menyambung…';
 
   @override
@@ -234,6 +237,53 @@ class AppLocalizationsId extends AppLocalizations {
   String halteRemaining(int count) {
     return '$count halte lagi';
   }
+
+  @override
+  String get infoNetworkTitle => 'Info Jaringan TransPadang';
+
+  @override
+  String get infoStatNoActiveBuses => 'Tidak ada bus aktif';
+
+  @override
+  String infoStatActiveBuses(int count) {
+    return '$count bus aktif';
+  }
+
+  @override
+  String infoStatCorridors(int count) {
+    return '$count koridor';
+  }
+
+  @override
+  String infoStatHaltes(int count) {
+    return '$count halte';
+  }
+
+  @override
+  String infoCorridorTitleCode(String code) {
+    return 'Koridor $code';
+  }
+
+  @override
+  String get infoOperationalHours => 'Jam operasional 05.00–20.00 WIB';
+
+  @override
+  String get infoDataDisclaimer => 'Data halte dapat berbeda dengan kondisi terkini di lapangan.';
+
+  @override
+  String get infoActiveBusesLabel => 'Bus aktif';
+
+  @override
+  String get infoTotalStopsLabel => 'Total halte';
+
+  @override
+  String get infoUniqueStopsLabel => 'Halte unik';
+
+  @override
+  String get infoDirectionPergi => 'Pergi';
+
+  @override
+  String get infoDirectionPulang => 'Pulang';
 
   @override
   String get searchDestinationTitle => 'Cari tujuan';

@@ -36,7 +36,7 @@ class LiveStatusPill extends StatefulWidget {
   ) {
     switch (status) {
       case ConnectionStatus.connected:
-        return (l10n.statusLive, const Color(0xFF2E7D32));
+        return (l10n.statusConnectedShort, const Color(0xFF2E7D32));
       case ConnectionStatus.connecting:
         return (l10n.statusConnecting, const Color(0xFFF9A825));
       case ConnectionStatus.reconnecting:
@@ -75,10 +75,22 @@ class _LiveStatusPillState extends State<LiveStatusPill> {
 
   void _scheduleHide() {
     _hideTimer?.cancel();
+    // Hanya status "connected" (kondisi normal) yang menyembunyikan label
+    // secara otomatis agar tidak mengganggu. Status lain (menunggu, menyambung,
+    // menyambung ulang, di luar jam, terputus) adalah kondisi yang perlu
+    // perhatian, sehingga labelnya dibiarkan tetap terlihat.
+    if (!_shouldAutoHide(widget.status)) {
+      if (!_showLabel) setState(() => _showLabel = true);
+      return;
+    }
     _hideTimer = Timer(LiveStatusPill.labelVisibleFor, () {
       if (mounted) setState(() => _showLabel = false);
     });
   }
+
+  /// Apakah label boleh menyusut sendiri (auto-hide) untuk [status] ini.
+  static bool _shouldAutoHide(ConnectionStatus? status) =>
+      status == ConnectionStatus.connected;
 
   void _scheduleHideAfterTap() {
     _hideTimer?.cancel();
@@ -146,13 +158,16 @@ class _LiveStatusPillState extends State<LiveStatusPill> {
                     heightFactor: _showLabel ? 1.0 : 0.0,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 6),
-                      child: Text(
-                        label,
-                        style: TextStyle(
-                          color: color,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.4,
+                      child: Opacity(
+                        opacity: _showLabel ? 1.0 : 0.0,
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            color: color,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.4,
+                          ),
                         ),
                       ),
                     ),

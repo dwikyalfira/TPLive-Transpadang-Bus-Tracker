@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/config.dart';
 import '../../../core/follow_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../settings/presentation/settings_screen.dart';
@@ -175,11 +174,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // Hitung langsung apakah di luar jam operasional (05:00-20:00 WIB).
-    // Pendekatan ini deterministik berdasarkan waktu current; bagi update real-time
-    // across hour boundaries, dapat ditambahkan periodic timer di kemudian hari.
-    final isOutsideHours = AppConfig.isOutsideOperationalHours(DateTime.now());
-    if (isOutsideHours) return _OutsideHoursView();
+    // Di luar jam operasional (05:00-20:00 WIB) dihitung oleh provider yang
+    // diperbarui tiap menit sehingga penanda ikut berubah tanpa membuka ulang
+    // aplikasi. Saat true, AppBar tetap tampil (penanda status ungu), namun
+    // daftar bus disembunyikan dan diganti info jam operasional.
+    final isOutsideHours =
+        ref.watch(outsideHoursProvider).valueOrNull ?? false;
     final status = ref.watch(connectionStatusProvider).valueOrNull;
     final locationAsync = ref.watch(userLocationProvider);
     final nearby = ref.watch(nearbyBusesProvider);
@@ -215,20 +215,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
-      body: locationAsync.hasError
-          ? _LocationErrorState(
-              message: locationAsync.error.toString(),
-              onRetry: () => ref.invalidate(userLocationProvider),
-            )
-          : locationAsync.isLoading || !locationAsync.hasValue
-              ? _LoadingState(message: l10n.gettingLocation)
-              : _BusListView(
-                  status: status,
-                  nearby: nearby,
-                  corridors: corridors,
-                  onSearchTap: () => _openTripSearch(context),
-                  onRefresh: _refresh,
-                ),
+      body: isOutsideHours
+          ? const _OutsideHoursView()
+          : locationAsync.hasError
+              ? _LocationErrorState(
+                  message: locationAsync.error.toString(),
+                  onRetry: () => ref.invalidate(userLocationProvider),
+                )
+              : locationAsync.isLoading || !locationAsync.hasValue
+                  ? _LoadingState(message: l10n.gettingLocation)
+                  : _BusListView(
+                      status: status,
+                      nearby: nearby,
+                      corridors: corridors,
+                      onSearchTap: () => _openTripSearch(context),
+                      onRefresh: _refresh,
+                    ),
     );
   }
 

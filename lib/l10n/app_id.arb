@@ -3,6 +3,7 @@
 
   "statusDemo": "Mode pengembangan",
   "statusLive": "Live",
+  "statusConnectedShort": "Terhubung",
   "statusConnecting": "Menyambung…",
   "statusReconnecting": "Menyambung ulang…",
   "statusPillOutsideHours": "Layanan sedang tidak tersedia",
@@ -185,6 +186,40 @@
       "count": {"type": "int"}
     }
   },
+
+  "infoNetworkTitle": "Info Jaringan TransPadang",
+  "infoStatNoActiveBuses": "Tidak ada bus aktif",
+  "infoStatActiveBuses": "{count} bus aktif",
+  "@infoStatActiveBuses": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "infoStatCorridors": "{count} koridor",
+  "@infoStatCorridors": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "infoStatHaltes": "{count} halte",
+  "@infoStatHaltes": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "infoCorridorTitleCode": "Koridor {code}",
+  "@infoCorridorTitleCode": {
+    "placeholders": {
+      "code": {"type": "String"}
+    }
+  },
+  "infoOperationalHours": "Jam operasional 05.00–20.00 WIB",
+  "infoDataDisclaimer": "Data halte dapat berbeda dengan kondisi terkini di lapangan.",
+  "infoActiveBusesLabel": "Bus aktif",
+  "infoTotalStopsLabel": "Total halte",
+  "infoUniqueStopsLabel": "Halte unik",
+  "infoDirectionPergi": "Pergi",
+  "infoDirectionPulang": "Pulang",
 
   "searchDestinationTitle": "Cari tujuan",
   "pickOriginTitle": "Pilih asal",

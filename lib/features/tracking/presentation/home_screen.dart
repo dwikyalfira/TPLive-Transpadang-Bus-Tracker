@@ -588,60 +588,51 @@ class _DestinationHeader extends StatelessWidget {
 /// koridor. Terhubung ke [TabController] yang sama dengan [TabBarView], jadi
 /// ikon bisa diketuk untuk pindah halaman dan sorotannya ikut bergerak ketika
 /// pengguna menggeser layar.
-class _CorridorTabs extends StatefulWidget {
+class _CorridorTabs extends StatelessWidget {
   final TabController controller;
   final List<String> corridors;
 
   const _CorridorTabs({required this.controller, required this.corridors});
 
-  @override
-  State<_CorridorTabs> createState() => _CorridorTabsState();
-}
-
-class _CorridorTabsState extends State<_CorridorTabs> {
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.addListener(_onIndexChanged);
-  }
-
-  @override
-  void dispose() {
-    widget.controller.removeListener(_onIndexChanged);
-    super.dispose();
-  }
-
-  void _onIndexChanged() => setState(() {});
-
   void _goTo(int index) {
-    if (widget.controller.index == index) return;
-    widget.controller.animateTo(index);
+    if (controller.index == index) return;
+    controller.animateTo(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    final selected = widget.controller.index;
-
+    // Sorotan tidak lagi menunggu tab benar-benar berganti (index hanya berubah
+    // setelah geseran selesai = terasa telat). Sebagai gantinya, posisi tab
+    // dibaca kontinu dari [TabController.animation] yang ikut ter-update pada
+    // setiap frame geseran, sehingga ikon menyorot mulus mengikuti jari.
+    final animation =
+        controller.animation ?? const AlwaysStoppedAnimation<double>(0);
     return SizedBox(
       height: 52,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        children: [
-          _chip(
-            context,
-            label: AppLocalizations.of(context).filterAll,
-            isSelected: selected == 0,
-            onTap: () => _goTo(0),
-          ),
-          for (final corridor in widget.corridors)
-            _corridorButton(
-              context,
-              corridor: corridor,
-              isSelected: selected == widget.corridors.indexOf(corridor) + 1,
-              onTap: () => _goTo(widget.corridors.indexOf(corridor) + 1),
-            ),
-        ],
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, _) {
+          final position = controller.animation?.value ?? controller.index.toDouble();
+          return ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            children: [
+              _chip(
+                context,
+                label: AppLocalizations.of(context).filterAll,
+                selFactor: (1.0 - position).clamp(0.0, 1.0),
+                onTap: () => _goTo(0),
+              ),
+              for (var i = 0; i < corridors.length; i++)
+                _corridorButton(
+                  context,
+                  corridor: corridors[i],
+                  selFactor: (1.0 - (position - (i + 1)).abs()).clamp(0.0, 1.0),
+                  onTap: () => _goTo(i + 1),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -649,14 +640,14 @@ class _CorridorTabsState extends State<_CorridorTabs> {
   Widget _chip(
     BuildContext context, {
     required String label,
-    required bool isSelected,
+    required double selFactor,
     required VoidCallback onTap,
   }) {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
         label: Text(label),
-        selected: isSelected,
+        selected: selFactor > 0.5,
         onSelected: (_) => onTap(),
       ),
     );
@@ -665,38 +656,49 @@ class _CorridorTabsState extends State<_CorridorTabs> {
   Widget _corridorButton(
     BuildContext context, {
     required String corridor,
-    required bool isSelected,
+    required double selFactor,
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
     final base = corridorAccent(corridor, theme);
     final unselectedBg =
         Color.alphaBlend(base.withOpacity(0.35), theme.colorScheme.surface);
+    final t = selFactor.clamp(0.0, 1.0);
+    final bg = Color.lerp(base.withOpacity(0.35), base, t)!;
+    final fg = Color.lerp(
+      corridorOnBackground(corridor, unselectedBg),
+      onCorridorColor(corridor),
+      t,
+    )!;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: InkWell(
         onTap: onTap,
         customBorder: const CircleBorder(),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          width: 40,
-          height: 40,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isSelected ? base : base.withOpacity(0.35),
-            shape: BoxShape.circle,
-            border: isSelected
-                ? Border.all(color: theme.colorScheme.primary, width: 2)
-                : null,
-          ),
-          child: Text(
-            corridor,
-            style: TextStyle(
-              color: isSelected
-                  ? onCorridorColor(corridor)
-                  : corridorOnBackground(corridor, unselectedBg),
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+        child: Transform.scale(
+          scale: 1 + 0.06 * t,
+          child: AnimatedContainer(
+            // Sorotan sudah dipandu tiap frame lewat [AnimatedBuilder]; durasi
+            // nol menghindari penundaan ganda.
+            duration: Duration.zero,
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: bg,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: theme.colorScheme.primary.withOpacity(t),
+                width: 2 * t,
+              ),
+            ),
+            child: Text(
+              corridor,
+              style: TextStyle(
+                color: fg,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ),

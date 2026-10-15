@@ -16,6 +16,7 @@ import '../domain/follow_alert_engine.dart';
 import '../domain/halte_tracker.dart';
 import 'providers.dart';
 import 'widgets/bus_tile.dart';
+import 'widgets/corridor_info_header.dart';
 import 'widgets/format.dart';
 import 'widgets/halte_timeline_sheet.dart';
 import 'widgets/live_status_pill.dart';
@@ -453,23 +454,14 @@ class _BusListViewState extends ConsumerState<_BusListView>
       children: [
         _SearchBar(onTap: widget.onSearchTap),
         if (corridors.isEmpty)
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: widget.onRefresh,
-              child: _page(null),
-            ),
-          )
+          Expanded(child: _page(null))
         else ...[
           _CorridorTabs(controller: _tabs, corridors: corridors),
           Expanded(
             child: TabBarView(
               controller: _tabs,
               children: [
-                for (final corridor in [null, ...corridors])
-                  RefreshIndicator(
-                    onRefresh: widget.onRefresh,
-                    child: _page(corridor),
-                  ),
+                for (final corridor in [null, ...corridors]) _page(corridor),
               ],
             ),
           ),
@@ -478,7 +470,8 @@ class _BusListViewState extends ConsumerState<_BusListView>
     );
   }
 
-  /// Isi satu halaman tab: daftar bus milik koridor [corridor] (null = semua).
+  /// Isi satu halaman tab: kartu "Info Koridor" di atas, lalu daftar bus
+  /// milik koridor [corridor] (null = semua koridor).
   Widget _page(String? corridor) {
     final buses = corridor == null
         ? widget.nearby
@@ -487,12 +480,23 @@ class _BusListViewState extends ConsumerState<_BusListView>
             .toList(growable: false);
     final key = ValueKey<String>(corridor ?? '__all__');
 
-    if (buses.isEmpty) {
-      return _EmptyState(key: key, status: widget.status);
-    }
-    return corridor == null
-        ? _FlatBusList(key: key, buses: buses)
-        : _GroupedBusList(key: key, buses: buses);
+    final content = buses.isEmpty
+        ? _EmptyState(key: key, status: widget.status)
+        : corridor == null
+            ? _FlatBusList(key: key, buses: buses)
+            : _GroupedBusList(key: key, buses: buses);
+
+    return Column(
+      children: [
+        CorridorInfoHeader(corridor: corridor),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: widget.onRefresh,
+            child: content,
+          ),
+        ),
+      ],
+    );
   }
 }
 

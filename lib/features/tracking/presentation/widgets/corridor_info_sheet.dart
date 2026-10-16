@@ -62,7 +62,9 @@ class _CorridorInfoSheetState extends ConsumerState<CorridorInfoSheet> {
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.5,
-      minChildSize: 0.25,
+      // 0.0 agar menarik turun (gulir ke bawah) dapat langsung mengecilkan
+      // sheet hingga menutup tanpa terhenti di titik minimum lama (0.25).
+      minChildSize: 0.0,
       maxChildSize: 1.0,
       snap: true,
       builder: (context, scrollController) {

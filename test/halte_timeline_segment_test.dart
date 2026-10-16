@@ -34,6 +34,16 @@ HalteDataset _dataset() {
   return HalteDataset({'K3': k3});
 }
 
+/// Koridor dengan banyak halte agar timeline bisa benar-benar digulir.
+HalteDataset _bigDataset() {
+  final pergi = [for (var i = 0; i < 12; i++) _h(-0.90, 100.30 + i * 0.01, 'Halte $i')];
+  final k3 = CorridorStops(kode: 'K3', arah: {
+    'pergi': CorridorDirection(label: 'D - A', halte: pergi),
+    'pulang': CorridorDirection(label: 'A - D', halte: pergi.reversed.toList()),
+  });
+  return HalteDataset({'K3': k3});
+}
+
 Bus _pinnedBus() => Bus(
       number: '57',
       lat: -0.90,
@@ -51,9 +61,10 @@ TripEndpoint _halteEndpoint(String nama, double lat, double lng) =>
 List<Override> _overrides({
   TripEndpoint? origin,
   TripEndpoint? destination,
+  HalteDataset? dataset,
 }) => [
   busesProvider.overrideWith((ref) => Stream.value([_pinnedBus()])),
-  halteDatasetProvider.overrideWith((ref) => _dataset()),
+  halteDatasetProvider.overrideWith((ref) => dataset ?? _dataset()),
   userLocationProvider.overrideWith(
     (ref) => Stream.value(const LatLng(-0.90, 100.30)),
   ),
@@ -133,5 +144,106 @@ void main() {
     expect(find.text('Naik'), findsOneWidget);
     expect(find.text('Turun'), findsOneWidget);
     expect(find.textContaining('dari 4 halte'), findsOneWidget);
+  });
+
+  testWidgets('detail bus adalah sheet berjenjang & menutup saat timeline '
+      'ditarik turun', (tester) async {
+    await tester.pumpWidget(_app(_overrides()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    final sheet = tester.widget<DraggableScrollableSheet>(
+      find.byType(DraggableScrollableSheet),
+    );
+    expect(sheet.initialChildSize, 0.9);
+    expect(sheet.minChildSize, 0.0);
+
+    // Menarik timeline turun mengecilkan sheet hingga menutup tanpa jeda.
+    await tester.drag(find.byType(ListView), const Offset(0, 700));
+    await tester.pumpAndSettle();
+    expect(find.byType(DraggableScrollableSheet), findsNothing);
+  });
+
+  testWidgets('detail bus menutup saat header di luar timeline ditarik turun',
+      (tester) async {
+    await tester.pumpWidget(_app(_overrides()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('busSheetHeader')), findsOneWidget);
+
+    // Menarik turun pada area header (di luar timeline) juga menutup sheet.
+    await tester.drag(find.byKey(const Key('busSheetHeader')), const Offset(0, 700));
+    await tester.pumpAndSettle();
+    expect(find.byType(DraggableScrollableSheet), findsNothing);
+  });
+
+  testWidgets('detail bus tidak meluber saat sheet mengecil drastis',
+      (tester) async {
+    await tester.pumpWidget(_app(_overrides()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    // Tarik turun bertahap di atas daftar; tiap langkah sheet mengecil. Konten
+    // berada dalam satu scrollable sehingga harus ter-clip, bukan memicu
+    // RenderFlex overflow ("overflowed by N pixels on the bottom").
+    final gesture =
+        await tester.startGesture(tester.getCenter(find.byType(ListView)));
+    for (var i = 0; i < 10; i++) {
+      await gesture.moveBy(const Offset(0, 40));
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(tester.takeException(), isNull);
+    }
+    await gesture.up();
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('header tetap di atas saat timeline digulir', (tester) async {
+    await tester.pumpWidget(_app(_overrides(dataset: _bigDataset())));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    final header = find.byKey(const Key('busSheetHeader'));
+    final before = tester.getTopLeft(header).dy;
+
+    // Gulir timeline ke atas (menampilkan halte berikutnya) — header yang dipin
+    // harus tetap pada posisinya, hanya daftar halte yang bergerak.
+    await tester.drag(find.byType(ListView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+
+    expect(tester.getTopLeft(header).dy, closeTo(before, 0.5));
+  });
+
+  testWidgets('detail bus tidak tergeser ke bawah saat ada system insets',
+      (tester) async {
+    // Simulasikan status bar & navigation bar perangkat.
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 2.75;
+    tester.view.padding = const FakeViewPadding(
+      top: 24 * 2.75,
+      bottom: 48 * 2.75,
+    );
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(_app(_overrides()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    // Sheet harus menempati 90% dari tinggi penuh layar (menempel ke bawah)
+    // dan tidak tergeser turun oleh SafeArea status bar.
+    final size = tester.view.physicalSize / tester.view.devicePixelRatio;
+    final sheet = tester.getRect(find.byType(DraggableScrollableSheet));
+    expect(sheet.bottom, closeTo(size.height, 1));
+    expect(sheet.top, lessThan(size.height * 0.1 + 6));
   });
 }

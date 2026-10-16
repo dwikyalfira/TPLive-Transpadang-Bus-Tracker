@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_motion.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/bus_model.dart';
 import '../../domain/bus_with_distance.dart';
@@ -14,6 +16,11 @@ import '../providers.dart';
 import 'corridor_badge.dart';
 import 'follow_bus_button.dart';
 import 'format.dart';
+
+/// Tinggi maksimum sheet detail bus sebagai fraksi tinggi layar. Dipakai oleh
+/// [DraggableScrollableSheet] (ukuran awal & maksimum) dan [_DismissDragRegion]
+/// agar konsisten.
+const double _busSheetMaxSize = 0.9;
 
 /// Menentukan rentang halte naik→turun pada [progress] dari rencana
 /// perjalanan aktif ([plan]). Segmen hanya berlaku bila koridor dan arah
@@ -56,8 +63,14 @@ Future<void> showBusTimeline(BuildContext context, BusWithDistance item) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    showDragHandle: true,
+    // Drag & handle ditangani sendiri oleh [DraggableScrollableSheet] agar
+    // tidak bentrok dengan gestur modal (menarik timeline turun menutup sheet).
+    showDragHandle: false,
+    enableDrag: false,
     backgroundColor: Theme.of(context).colorScheme.surface,
+    // Sudut atas membulat (radius dari tema, selaras Info Koridor & M3).
+    shape: const RoundedRectangleBorder(borderRadius: AppShape.topExtraLarge),
+    clipBehavior: Clip.antiAlias,
     builder: (_) => HalteTimelineSheet(item: item),
   ).whenComplete(() {
     container
@@ -66,72 +79,206 @@ Future<void> showBusTimeline(BuildContext context, BusWithDistance item) {
   });
 }
 
-class HalteTimelineSheet extends ConsumerWidget {
+class HalteTimelineSheet extends ConsumerStatefulWidget {
   final BusWithDistance item;
 
   const HalteTimelineSheet({super.key, required this.item});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HalteTimelineSheet> createState() =>
+      _HalteTimelineSheetState();
+}
+
+class _HalteTimelineSheetState extends ConsumerState<HalteTimelineSheet> {
+  /// Controller sheet dipakai agar header yang dipin (di luar daftar scroll)
+  /// tetap dapat ditarik turun untuk menutup sheet lewat [_DismissDragRegion].
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
+
+  @override
+  void dispose() {
+    _sheetController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final datasetAsync = ref.watch(halteDatasetProvider);
     final live = _resolveLive(ref.watch(nearbyBusesProvider));
 
-    // Tinggi tetap: sheet langsung tampil 90% layar & tidak perlu di-scroll
-    // untuk membukanya. Hanya timeline di dalamnya yang dapat di-scroll.
-    // Kurangi tinggi drag handle (kMinInteractiveDimension) karena modal
-    // menambahkan padding tersebut di atas konten.
-    final height =
-        MediaQuery.sizeOf(context).height * 0.9 - kMinInteractiveDimension;
-
-    return SizedBox(
-      height: height,
-      child: datasetAsync.when(
-        loading: () => const Padding(
-          padding: EdgeInsets.all(32),
-          child: Center(child: CircularProgressIndicator()),
-        ),
-        error: (e, _) => Padding(
-          padding: const EdgeInsets.all(32),
-          child: Center(
-            child: Text(
-              AppLocalizations.of(context).halteDataLoadFailed('$e'),
-            ),
+    // Sheet berjenjang: terbuka 90% layar & tidak bisa diperbesar. Header
+    // (handle + kartu) dipin di atas; HANYA daftar halte yang bergerak. Menarik
+    // turun dari area mana pun (header maupun daftar) menutup sheet.
+    return DraggableScrollableSheet(
+      controller: _sheetController,
+      expand: false,
+      initialChildSize: _busSheetMaxSize,
+      minChildSize: 0.0,
+      maxChildSize: _busSheetMaxSize,
+      builder: (context, scrollController) {
+        return datasetAsync.when(
+          loading: () => _sheetList(
+            scrollController,
+            const [
+              SizedBox(height: 160),
+              Center(child: CircularProgressIndicator()),
+            ],
           ),
-        ),
-        data: (dataset) {
-          final progress = HalteTracker.track(
-            live.bus,
-            dataset,
-            estimatedHeading: live.resolvedHeading,
-          );
-          if (progress == null) {
-            return _Unavailable(bus: live.bus);
-          }
+          error: (e, _) => _sheetList(
+            scrollController,
+            [
+              const SizedBox(height: 160),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Text(
+                    AppLocalizations.of(context).halteDataLoadFailed('$e'),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          data: (dataset) {
+            final progress = HalteTracker.track(
+              live.bus,
+              dataset,
+              estimatedHeading: live.resolvedHeading,
+            );
+            if (progress == null) {
+              return _sheetList(scrollController, [_Unavailable(bus: live.bus)]);
+            }
 
-          // Bila rencana perjalanan aktif (asal & turun ditetapkan), sorot
-          // segmen naik→turun; halte di luar segmen diredupkan.
-          final plan = ref.watch(tripPlanProvider);
-          final segment = _segmentFromPlan(plan, live.bus, progress);
+            // Bila rencana perjalanan aktif (asal & turun ditetapkan), sorot
+            // segmen naik→turun; halte di luar segmen diredupkan.
+            final plan = ref.watch(tripPlanProvider);
+            final segment = _segmentFromPlan(plan, live.bus, progress);
 
-          return _Timeline(
-            bus: live.bus,
-            progress: progress,
-            segment: segment,
-          );
-        },
-      ),
+            return _Timeline(
+              bus: live.bus,
+              progress: progress,
+              segment: segment,
+              scrollController: scrollController,
+              sheetController: _sheetController,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// Daftar standar sheet: bilah handle di atas lalu [children]. Dipakai pada
+  /// state loading/error/halte-tak-tersedia agar sheet tetap dapat ditutup
+  /// dengan menarik turun—dan tidak meluber saat sheet mengecil (ter-clip).
+  Widget _sheetList(ScrollController controller, List<Widget> children) {
+    return ListView(
+      controller: controller,
+      padding: const EdgeInsets.only(bottom: 24),
+      children: [const _SheetDragHandle(), ...children],
     );
   }
 
   /// Mengambil data bus terbaru yang cocok; fallback ke data awal.
   BusWithDistance _resolveLive(List<BusWithDistance> list) {
     for (final b in list) {
-      if (b.bus.corridor == item.bus.corridor &&
-          b.bus.number == item.bus.number) {
+      if (b.bus.corridor == widget.item.bus.corridor &&
+          b.bus.number == widget.item.bus.number) {
         return b;
       }
     }
-    return item;
+    return widget.item;
+  }
+}
+
+/// Membungkus area sheet yang **tidak** dapat di-scroll agar dapat ditarik
+/// turun untuk mengubah tinggi sheet—dan menutupnya saat mencapai minimum.
+///
+/// Dipakai pada header yang dipin di atas daftar halte.
+class _DismissDragRegion extends StatefulWidget {
+  final DraggableScrollableController controller;
+
+  final Widget child;
+
+  const _DismissDragRegion({
+    super.key,
+    required this.controller,
+    required this.child,
+  });
+
+  @override
+  State<_DismissDragRegion> createState() => _DismissDragRegionState();
+}
+
+class _DismissDragRegionState extends State<_DismissDragRegion> {
+  double _startSize = 0;
+  double _accumulatedDy = 0;
+
+  void _onStart(DragStartDetails _) {
+    _accumulatedDy = 0;
+    _startSize = widget.controller.isAttached
+        ? widget.controller.size
+        : _busSheetMaxSize;
+  }
+
+  void _onUpdate(DragUpdateDetails d) {
+    if (!widget.controller.isAttached) return;
+    _accumulatedDy += d.delta.dy;
+    final target =
+        (_startSize - widget.controller.pixelsToSize(_accumulatedDy))
+            .clamp(0.0, _busSheetMaxSize);
+    widget.controller.jumpTo(target);
+  }
+
+  void _onEnd(DragEndDetails _) {
+    if (!widget.controller.isAttached) return;
+    // Lewati ambang tengah → tutup (mencapai minExtent memicu modal menutup);
+    // sebaliknya kembalikan ke tinggi semula.
+    final closing = widget.controller.size < _busSheetMaxSize * 0.5;
+    widget.controller.animateTo(
+      closing ? 0.0 : _busSheetMaxSize,
+      duration: closing ? AppMotion.medium2 : AppMotion.medium4,
+      curve: closing
+          ? AppMotion.emphasizedAccelerate
+          : AppMotion.emphasizedDecelerate,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onVerticalDragStart: _onStart,
+      onVerticalDragUpdate: _onUpdate,
+      onVerticalDragEnd: _onEnd,
+      child: widget.child,
+    );
+  }
+}
+
+/// Bilah pegangan (visual) di bagian atas sheet detail bus.
+///
+/// Berada di dalam header yang dipin; menarik turun dari sini mengecilkan dan
+/// menutup sheet lewat [_DismissDragRegion].
+class _SheetDragHandle extends StatelessWidget {
+  const _SheetDragHandle();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      height: 48,
+      child: Align(
+        alignment: Alignment.center,
+        child: Container(
+          width: 36,
+          height: 4,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -143,10 +290,20 @@ class _Timeline extends StatefulWidget {
   /// [_resolveSegment]); `null` = tampilkan seluruh lintasan normal.
   final ({int origin, int destination})? segment;
 
+  /// Controller dari [DraggableScrollableSheet]; ditempel ke daftar halte
+  /// sehingga menarik turun saat sudah di puncak mengecilkan & menutup sheet.
+  final ScrollController scrollController;
+
+  /// Controller sheet yang sama; dipakai [_DismissDragRegion] pada header yang
+  /// dipin agar menarik turun header pun menutup sheet.
+  final DraggableScrollableController sheetController;
+
   const _Timeline({
     required this.bus,
     required this.progress,
     this.segment,
+    required this.scrollController,
+    required this.sheetController,
   });
 
   @override
@@ -156,7 +313,6 @@ class _Timeline extends StatefulWidget {
 class _TimelineState extends State<_Timeline> {
   /// Kunci untuk baris posisi bus saat ini agar bisa dipusatkan.
   final GlobalKey _focusKey = GlobalKey();
-  final ScrollController _listController = ScrollController();
   int _focusedIndex = -1;
   bool _didInitialCenter = false;
 
@@ -165,31 +321,50 @@ class _TimelineState extends State<_Timeline> {
   static const double _rowHeight = 52;
 
   /// Offset scroll timeline saat ini (untuk menggeser penanda bus bersama
-  /// konten saat ListView di-scroll).
-  double _scrollOffset = 0;
+  /// konten saat ListView di-scroll). Diambil dari notifikasi scroll ListView
+  /// yang menempel pada controller sheet. Dipakai lewat [ValueNotifier] agar
+  /// hanya penanda bus yang di-rebuild tiap frame — bukan seluruh daftar halte
+  /// (menjaga scroll tetap ringan).
+  final ValueNotifier<double> _scrollOffset = ValueNotifier<double>(0);
+
+  /// Kunci untuk blok header (bilah handle + kartu + rincian) yang dipin di
+  /// atas daftar. Tingginya diukur untuk dua hal: menyamakan padding-atas daftar
+  /// halte (agar baris pertama mulai tepat di bawah header) dan menghitung
+  /// posisi penanda bus pada koordinat viewport.
+  final GlobalKey _headerKey = GlobalKey();
+
+  /// Tinggi blok header yang telah diukur (offset baris halte pertama).
+  double _headerExtent = 0;
 
   int get _centerIndex =>
       widget.progress.currentIndex ?? widget.progress.nextIndex;
 
-  @override
-  void initState() {
-    super.initState();
-    _listController.addListener(_onListScroll);
+  void _onScrollNotification(ScrollNotification n) {
+    final pixels = n.metrics.pixels;
+    if ((pixels - _scrollOffset.value).abs() > 0.5) {
+      _scrollOffset.value = pixels;
+    }
+  }
+
+  /// Mengukur tinggi header setelah layout; memperbarui penanda bus bila
+  /// berubah (mis. label halte membungkus ke baris kedua).
+  void _measureHeader() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final ro = _headerKey.currentContext?.findRenderObject();
+      if (ro is RenderBox && ro.hasSize) {
+        final h = ro.size.height;
+        if ((h - _headerExtent).abs() > 0.5) {
+          setState(() => _headerExtent = h);
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
-    _listController
-      ..removeListener(_onListScroll)
-      ..dispose();
+    _scrollOffset.dispose();
     super.dispose();
-  }
-
-  void _onListScroll() {
-    final offset = _listController.hasClients ? _listController.offset : 0.0;
-    if ((offset - _scrollOffset).abs() > 0.5) {
-      setState(() => _scrollOffset = offset);
-    }
   }
 
   void _scheduleCenter() {
@@ -225,13 +400,6 @@ class _TimelineState extends State<_Timeline> {
     return t.clamp(0.0, 1.0);
   }
 
-  /// Posisi vertikal tengah penanda bus relatif Stack di atas viewport list.
-  double _busCenterY() {
-    final cur = widget.progress.currentIndex;
-    final base = (cur ?? 0).toDouble();
-    return (base + 0.5 + _busGapFraction()) * _rowHeight - _scrollOffset;
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -250,82 +418,120 @@ class _TimelineState extends State<_Timeline> {
       _scheduleCenter();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    // Posisi dasar penanda bus relatif terhadap baris halte pertama (sebelum
+    // dikurangi offset scroll & tinggi header). Dihitung sekali per build—bukan
+    // tiap frame—karena tidak bergantung pada scroll.
+    final markerBaseY =
+        ((progress.currentIndex ?? 0) + 0.5 + _busGapFraction()) * _rowHeight;
+
+    _measureHeader();
+
+    // Header (handle + kartu) dipin di atas lewat Stack sehingga TIDAK ikut
+    // ter-scroll—hanya daftar halte yang bergerak. Daftar diberi padding-atas
+    // setinggi header agar baris pertama mulai tepat di bawahnya, dan ikut
+    // ter-clip saat sheet mengecil (tanpa overflow). Penanda bus digambar di
+    // lapisan daftar (di bawah header) sehingga tersembunyi saat baris bergeser
+    // ke balik header.
+    return Stack(
       children: [
-        // Bagian atas (static, tidak ikut ter-scroll).
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _Header(
-              bus: bus,
-              origin: progress.origin,
-              destination: progress.destination,
-              fallback: progress.direction.label,
-              follow: FollowPayload(
-                originLabel: progress.originLabel,
-                destinationLabel: progress.destinationLabel,
-                route: bus.route,
-                directionKey: progress.arahKey,
-                haltes: progress.direction.halte,
-              ),
+        NotificationListener<ScrollNotification>(
+          onNotification: (n) {
+            _onScrollNotification(n);
+            return false;
+          },
+          child: ValueListenableBuilder<double>(
+            valueListenable: _scrollOffset,
+            // Daftar di-cache sebagai child: tidak ikut di-rebuild saat scroll —
+            // hanya penanda bus di dalam builder yang bergerak.
+            child: ListView(
+              controller: widget.scrollController,
+              cacheExtent: 6000,
+              padding: EdgeInsets.only(top: _headerExtent, bottom: 24),
+              children: [
+                for (var i = 0; i < progress.steps.length; i++)
+                  _HalteRow(
+                    key: i == idx ? _focusKey : null,
+                    step: progress.steps[i],
+                    corridorColor: corridorAccent(bus.corridor, theme),
+                    isFirst: i == 0,
+                    isLast: i == progress.steps.length - 1,
+                    dimmed: seg != null &&
+                        (i < math.min(seg.origin, seg.destination) ||
+                            i > math.max(seg.origin, seg.destination)),
+                    isOrigin: seg != null && i == seg.origin,
+                    isDestination: seg != null && i == seg.destination,
+                  ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-              child: _HighlightCard(
-                current: current,
-                next: next,
-                etaMinutes: etaNext,
-                speedKmh: bus.speedKmh,
-                accent: corridorAccent(bus.corridor, theme),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        // Ringkasan jumlah halte (diletakkan di luar area scroll supaya
-        // koordinat penanda bus di rel halte tetap presisi terhadap baris).
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-          child: Text(
-            _countLabel(progress, seg, AppLocalizations.of(context)),
-            style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          ),
-        ),
-        // Timeline halte (scrollable). Penanda posisi bus digambar di atas
-        // viewport, diposisikan di rel antar halte sesuai posisi aktual bus.
-        Expanded(
-          child: Stack(
-            children: [
-              ListView(
-                controller: _listController,
-                cacheExtent: 6000,
-                padding: const EdgeInsets.only(bottom: 24),
+            builder: (context, offset, child) {
+              return Stack(
                 children: [
-                  for (var i = 0; i < progress.steps.length; i++)
-                    _HalteRow(
-                      key: i == idx ? _focusKey : null,
-                      step: progress.steps[i],
-                      corridorColor: corridorAccent(bus.corridor, theme),
-                      isFirst: i == 0,
-                      isLast: i == progress.steps.length - 1,
-                      dimmed: seg != null &&
-                          (i < math.min(seg.origin, seg.destination) ||
-                              i > math.max(seg.origin, seg.destination)),
-                      isOrigin: seg != null && i == seg.origin,
-                      isDestination: seg != null && i == seg.destination,
+                  if (child != null) child,
+                  if (progress.steps.isNotEmpty)
+                    Positioned(
+                      left: 23,
+                      top: _headerExtent + markerBaseY - offset - 13,
+                      child: _BusPositionMarker(
+                        color: corridorAccent(bus.corridor, theme),
+                      ),
                     ),
                 ],
+              );
+            },
+          ),
+        ),
+        // Header dipin: tetap di atas saat daftar bergeser. Latar solid agar
+        // baris/penanda yang bergeser ke atasnya tersembunyi rapi, sekaligus
+        // sebagai area tarik-turun untuk menutup sheet.
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: _DismissDragRegion(
+            key: const Key('busSheetHeader'),
+            controller: widget.sheetController,
+            child: ColoredBox(
+              key: _headerKey,
+              color: theme.colorScheme.surface,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const _SheetDragHandle(),
+                  _Header(
+                    bus: bus,
+                    origin: progress.origin,
+                    destination: progress.destination,
+                    fallback: progress.direction.label,
+                    follow: FollowPayload(
+                      originLabel: progress.originLabel,
+                      destinationLabel: progress.destinationLabel,
+                      route: bus.route,
+                      directionKey: progress.arahKey,
+                      haltes: progress.direction.halte,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                    child: _HighlightCard(
+                      current: current,
+                      next: next,
+                      etaMinutes: etaNext,
+                      speedKmh: bus.speedKmh,
+                      accent: corridorAccent(bus.corridor, theme),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                    child: Text(
+                      _countLabel(progress, seg, AppLocalizations.of(context)),
+                      style: theme.textTheme.labelMedium
+                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                ],
               ),
-              if (progress.steps.isNotEmpty)
-                Positioned(
-                  left: 23,
-                  top: _busCenterY() - 13,
-child: _BusPositionMarker(
-              color: corridorAccent(bus.corridor, theme),
             ),
-                ),
-            ],
           ),
         ),
       ],
@@ -823,7 +1029,8 @@ class _Unavailable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ListView(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: 40),
         Icon(

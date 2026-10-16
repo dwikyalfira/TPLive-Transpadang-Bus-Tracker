@@ -24,11 +24,23 @@ class TransWsDataSource implements BusSource {
   WebSocketChannel? _channel;
   StreamSubscription<dynamic>? _sub;
   Timer? _reconnectTimer;
+  Timer? _watchdog;
   AppLifecycleListener? _lifecycle;
   int _attempt = 0;
   bool _disposed = false;
   bool _paused = false;
   List<Bus> _lastBuses = const [];
+  DateTime? _lastMessageAt;
+  DateTime? _connectedAt;
+
+  /// Selang pemeriksaan keaktifan koneksi.
+  static const Duration _watchdogInterval = Duration(seconds: 5);
+
+  /// Batas senyap setelah pernah menerima data sebelum koneksi dianggap mati.
+  static const Duration _silenceTimeout = Duration(seconds: 25);
+
+  /// Batas tunggu data pertama pada koneksi yang baru terbuka.
+  static const Duration _initialDataTimeout = Duration(seconds: 30);
 
   final _busController = StreamController<List<Bus>>.broadcast();
   final _statusController = StreamController<ConnectionStatus>.broadcast();
@@ -40,17 +52,46 @@ class TransWsDataSource implements BusSource {
   Stream<ConnectionStatus> get statusStream => _statusController.stream;
   List<Bus> get lastBuses => _lastBuses;
 
-  /// Mulai koneksi dan pantau siklus hidup aplikasi.
+  /// Mulai koneksi, pantau siklus hidup aplikasi, dan jalankan pengawas keaktifan.
   @override
   void connect() {
     if (_disposed) return;
+    _lifecycle ??= AppLifecycleListener(onResume: _checkLiveness);
     _open();
+  }
+
+  /// Pengawas hanya berjalan saat socket benar-benar terbuka, agar tidak ada
+  /// timer yang hidup selagi sekadar mencoba menyambung (atau di pengujian).
+  void _startWatchdog() {
+    _watchdog ??= Timer.periodic(_watchdogInterval, (_) => _checkLiveness());
+  }
+
+  /// Pengawas: bila socket terbuka tetapi lama tidak ada pesan masuk, koneksi
+  /// dianggap mati diam-diam (mis. setelah app lama di background atau perangkat
+  /// berpindah jaringan). Tanpa ini, penanda status tetap "terhubung" padahal
+  /// daftar bus kosong selamanya—satu-satunya pemulihan adalah menutup paksa app.
+  void _checkLiveness() {
+    if (_disposed || _paused || _channel == null) return;
+    final now = DateTime.now();
+    final last = _lastMessageAt;
+    // Di luar jam operasional server boleh diam; jangan sambung ulang terus.
+    if (last == null && AppConfig.isOutsideOperationalHours(now)) return;
+    final since = last ?? _connectedAt;
+    if (since == null) return;
+    final timeout = last == null ? _initialDataTimeout : _silenceTimeout;
+    if (now.difference(since) > timeout) {
+      _lastMessageAt = null;
+      _connectedAt = now;
+      _scheduleReconnect();
+    }
   }
 
   void _open() {
     if (_disposed || _paused) return;
 
     _emitStatus(ConnectionStatus.connecting);
+    _connectedAt = DateTime.now();
+    _lastMessageAt = null;
 
     try {
       final channel = WebSocketChannel.connect(Uri.parse(url));
@@ -59,8 +100,10 @@ class TransWsDataSource implements BusSource {
       channel.ready.then((_) {
         if (_disposed || _channel != channel) return;
         _attempt = 0;
+        _connectedAt = DateTime.now();
         _emitStatus(ConnectionStatus.connected);
         _sendSubscribeAll();
+        _startWatchdog();
       }).catchError((_) {
         if (_channel == channel) _scheduleReconnect();
       });
@@ -81,6 +124,7 @@ class TransWsDataSource implements BusSource {
   }
 
   void _onData(dynamic raw) {
+    _lastMessageAt = DateTime.now();
     if (raw is! String) return;
     try {
       final decoded = jsonDecode(raw);
@@ -123,6 +167,8 @@ class TransWsDataSource implements BusSource {
   }
 
   void _teardownChannel() {
+    _watchdog?.cancel();
+    _watchdog = null;
     _sub?.cancel();
     _sub = null;
     _channel?.sink.close(ws_status.normalClosure);
@@ -138,6 +184,7 @@ class TransWsDataSource implements BusSource {
     if (_disposed) return;
     _disposed = true;
     _reconnectTimer?.cancel();
+    _watchdog?.cancel();
     _teardownChannel();
     _lifecycle?.dispose();
     _busController.close();

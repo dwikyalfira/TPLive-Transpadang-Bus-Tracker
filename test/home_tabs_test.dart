@@ -6,8 +6,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transpadang_live/core/settings.dart';
 import 'package:transpadang_live/features/tracking/data/bus_model.dart';
+import 'package:transpadang_live/features/tracking/data/bus_source.dart';
 import 'package:transpadang_live/features/tracking/data/halte_data.dart';
-import 'package:transpadang_live/features/tracking/data/trans_ws_datasource.dart';
 import 'package:transpadang_live/features/tracking/presentation/home_screen.dart';
 import 'package:transpadang_live/features/tracking/presentation/providers.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/format.dart';
@@ -43,10 +43,31 @@ Bus _bus(String number, String corridor, {double lng = 100.30}) => Bus(
       speedKmh: 20,
       lastUpdate: DateTime.now().toUtc(),
     );
+
+/// Sumber bus tanpa jaringan/timer apa pun (agar pengujian tidak meninggalkan
+/// timer yang tertunda).
+class _SilentBusSource implements BusSource {
+  @override
+  Stream<List<Bus>> get busStream => const Stream<List<Bus>>.empty();
+
+  @override
+  Stream<ConnectionStatus> get statusStream =>
+      const Stream<ConnectionStatus>.empty();
+
+  @override
+  void connect() {}
+
+  @override
+  void dispose() {}
+}
+
 List<Override> _overrides(List<Bus> buses, {bool outsideHoursStatus = false}) =>
     [
       settingsStoreProvider.overrideWithValue(SettingsStore(_prefs)),
       halteDatasetProvider.overrideWith((ref) => _dataset()),
+      // Sumber diam: mencegah socket asli (dan timer pengawasnya) hidup di
+      // pengujian; daftar bus diuji lewat penyuntikan langsung di bawah.
+      busSourceProvider.overrideWithValue(_SilentBusSource()),
       userLocationProvider.overrideWith(
         (ref) => Stream.value(const LatLng(-0.90, 100.30)),
       ),

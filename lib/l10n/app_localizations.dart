@@ -885,6 +885,12 @@ abstract class AppLocalizations {
   /// **'TPLive menampilkan posisi bus TransPadang secara real-time.'**
   String get aboutAppDescription;
 
+  /// No description provided for @aboutDisclaimer.
+  ///
+  /// In id, this message translates to:
+  /// **'TPLive bukan aplikasi resmi TransPadang maupun Pemerintah Kota Padang. Aplikasi ini dikembangkan semata-mata untuk memudahkan pengguna TransPadang.'**
+  String get aboutDisclaimer;
+
   /// No description provided for @demoModeTitle.
   ///
   /// In id, this message translates to:

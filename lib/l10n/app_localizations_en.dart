@@ -469,6 +469,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutAppDescription => 'TPLive shows TransPadang bus positions in real time.';
 
   @override
+  String get aboutDisclaimer => 'TPLive is not an official app of TransPadang or the Padang City Government. It is developed purely to make it easier for TransPadang riders.';
+
+  @override
   String get demoModeTitle => 'Demo mode';
 
   @override

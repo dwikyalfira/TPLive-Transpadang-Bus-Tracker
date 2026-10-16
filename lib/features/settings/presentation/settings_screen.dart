@@ -437,7 +437,52 @@ class _AboutCard extends StatelessWidget {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: _AboutDisclaimer(text: l10n.aboutDisclaimer),
+        ),
       ],
+    );
+  }
+}
+
+/// Kotak penafian di kartu "Tentang": menegaskan aplikasi ini bukan produk
+/// resmi TransPadang/Pemkot Padang dan dibuat untuk memudahkan pengguna.
+class _AboutDisclaimer extends StatelessWidget {
+  final String text;
+
+  const _AboutDisclaimer({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: scheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outlineVariant.withOpacity(0.6)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.info_outline,
+            size: 18,
+            color: scheme.onSecondaryContainer,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: scheme.onSecondaryContainer,
+                    height: 1.4,
+                  ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

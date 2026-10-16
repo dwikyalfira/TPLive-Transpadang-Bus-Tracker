@@ -151,6 +151,7 @@
     }
   },
   "aboutAppDescription": "TPLive shows TransPadang bus positions in real time.",
+  "aboutDisclaimer": "TPLive is not an official app of TransPadang or the Padang City Government. It is developed purely to make it easier for TransPadang riders.",
   "demoModeTitle": "Demo mode",
   "demoModeSubtitle": "Use fake bus data for development"
 }

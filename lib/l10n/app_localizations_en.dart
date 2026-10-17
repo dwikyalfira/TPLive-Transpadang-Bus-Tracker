@@ -5,12 +5,6 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get statusDemo => 'Development mode';
-
-  @override
-  String get statusLive => 'Live';
-
-  @override
   String get statusConnectedShort => 'Connected';
 
   @override
@@ -20,9 +14,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusReconnecting => 'Reconnecting…';
 
   @override
-  String get statusPillOutsideHours => 'Service currently unavailable';
-
-  @override
   String get statusPillDisconnected => 'Not connected';
 
   @override
@@ -30,15 +21,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusOutsideHoursShort => 'Outside operating hours';
-
-  @override
-  String get statusDisconnectedShort => 'Disconnected';
-
-  @override
-  String get tooltipDemoOn => 'Turn off demo mode';
-
-  @override
-  String get tooltipDemoOff => 'Demo mode (fake bus data)';
 
   @override
   String get tooltipReload => 'Reload';
@@ -63,6 +45,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Try again';
+
+  @override
+  String get mapTitle => 'Network Map';
+
+  @override
+  String get mapOpen => 'View map';
+
+  @override
+  String get mapRecenter => 'My location';
+
+  @override
+  String get mapAttribution => '© OpenStreetMap contributors';
 
   @override
   String destinationHeader(String destination) {
@@ -404,6 +398,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myLocationSubtitle => 'Use the device\'s current GPS position';
 
   @override
+  String get favoritesTitle => 'Favorites';
+
+  @override
+  String get recentsTitle => 'Recent';
+
+  @override
+  String get addFavorite => 'Add to favorites';
+
+  @override
+  String get removeFavorite => 'Remove from favorites';
+
+  @override
   String get placeMinChars => 'Type a place name (at least 3 letters), then press search.';
 
   @override
@@ -458,9 +464,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sectionAbout => 'About';
 
   @override
-  String get aboutTitle => 'About App';
-
-  @override
   String aboutVersion(String version) {
     return 'Version $version';
   }
@@ -470,10 +473,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutDisclaimer => 'TPLive is not an official app of TransPadang or the Padang City Government. It is developed purely to make it easier for TransPadang riders.';
-
-  @override
-  String get demoModeTitle => 'Demo mode';
-
-  @override
-  String get demoModeSubtitle => 'Use fake bus data for development';
 }

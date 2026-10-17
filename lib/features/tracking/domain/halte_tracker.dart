@@ -68,9 +68,6 @@ class HalteProgress {
       : (currentIndex! >= 0 && currentIndex! < steps.length
           ? steps[currentIndex!]
           : null);
-
-  /// Jarak dari bus ke halte berikutnya (km).
-  double? get distanceToNextKm => nextStep?.distanceKm;
 }
 
 class HalteTracker {

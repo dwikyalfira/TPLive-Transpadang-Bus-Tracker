@@ -6,6 +6,8 @@ import '../../tracking/domain/geo_utils.dart' as geo;
 import '../../tracking/domain/halte_tracker.dart';
 import '../../tracking/presentation/providers.dart';
 import '../data/geocoding_service.dart';
+import '../data/saved_places_store.dart';
+import '../domain/saved_place.dart';
 import '../domain/trip_endpoint.dart';
 import '../domain/trip_planner.dart';
 
@@ -32,6 +34,75 @@ final geocodingServiceProvider = Provider<GeocodingService>((ref) {
   ref.onDispose(service.close);
   return service;
 });
+
+/// Penyimpanan favorit & riwayat tujuan.
+///
+/// Di-override di `main()` dengan instance ber-[SharedPreferences] (pola sama
+/// dengan `settingsStoreProvider`).
+final savedPlacesStoreProvider = Provider<SavedPlacesStore>(
+  (ref) => throw UnimplementedError('savedPlacesStoreProvider belum di-override'),
+);
+
+/// Favorit + riwayat tujuan yang dipilih pengguna.
+class SavedPlacesState {
+  final List<SavedPlace> favorites;
+  final List<SavedPlace> recents;
+
+  const SavedPlacesState({
+    this.favorites = const [],
+    this.recents = const [],
+  });
+}
+
+/// Mengelola favorit & riwayat tujuan, dipersist ke [SavedPlacesStore].
+class SavedPlacesNotifier extends Notifier<SavedPlacesState> {
+  /// Jumlah maksimum riwayat tujuan yang disimpan.
+  static const int maxRecents = 8;
+
+  @override
+  SavedPlacesState build() {
+    final store = ref.read(savedPlacesStoreProvider);
+    return SavedPlacesState(
+      favorites: store.loadFavorites(),
+      recents: store.loadRecents(),
+    );
+  }
+
+  bool isFavorite(SavedPlace place) =>
+      state.favorites.any((p) => p.id == place.id);
+
+  Future<void> toggleFavorite(SavedPlace place) async {
+    final favorites = [...state.favorites];
+    final index = favorites.indexWhere((p) => p.id == place.id);
+    if (index >= 0) {
+      favorites.removeAt(index);
+    } else {
+      favorites.insert(0, place);
+    }
+    state = SavedPlacesState(favorites: favorites, recents: state.recents);
+    await ref.read(savedPlacesStoreProvider).saveFavorites(favorites);
+  }
+
+  Future<void> addRecent(SavedPlace place) async {
+    final recents = [...state.recents]..removeWhere((p) => p.id == place.id);
+    recents.insert(0, place);
+    if (recents.length > maxRecents) {
+      recents.removeRange(maxRecents, recents.length);
+    }
+    state = SavedPlacesState(favorites: state.favorites, recents: recents);
+    await ref.read(savedPlacesStoreProvider).saveRecents(recents);
+  }
+
+  Future<void> clearRecents() async {
+    state = SavedPlacesState(favorites: state.favorites);
+    await ref.read(savedPlacesStoreProvider).saveRecents(const []);
+  }
+}
+
+final savedPlacesProvider =
+    NotifierProvider<SavedPlacesNotifier, SavedPlacesState>(
+  SavedPlacesNotifier.new,
+);
 
 /// Titik asal perjalanan (default: lokasi GPS pengguna).
 final tripOriginEndpointProvider =

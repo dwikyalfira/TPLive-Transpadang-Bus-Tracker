@@ -20,9 +20,11 @@ import '../domain/halte_tracker.dart';
 import 'providers.dart';
 import 'widgets/bus_tile.dart';
 import 'widgets/corridor_info_header.dart';
+import 'widgets/corridor_selector.dart';
 import 'widgets/format.dart';
 import 'widgets/halte_timeline_sheet.dart';
 import 'widgets/live_status_pill.dart';
+import 'widgets/map/map_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -251,6 +253,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: l10n.mapOpen,
+            icon: const Icon(Icons.map_outlined),
+            onPressed: () => _openMap(context),
+          ),
           _SpinIconButton(
             tooltip: l10n.tooltipReload,
             icon: Icons.refresh,
@@ -301,6 +308,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// Transisi halus menuju layar "Cari tujuan": fade-through Material 3.
   Route<void> _tripSearchRoute() =>
       fadeThroughRoute<void>(builder: (_) => const TripScreen());
+
+  void _openMap(BuildContext context) {
+    Navigator.of(context).push(_mapRoute());
+  }
+
+  /// Transisi halus menuju layar peta: fade-through Material 3.
+  Route<void> _mapRoute() =>
+      fadeThroughRoute<void>(builder: (_) => const MapScreen());
 }
 
 /// Bilah "Cari tujuan" di bagian atas daftar bus. Diketuk untuk membuka
@@ -526,6 +541,7 @@ class _GroupedBusList extends StatelessWidget {
   Widget build(BuildContext context) {
     // Kelompokkan berurutan sesuai kemunculan (bus terdekat dulu).
     final l10n = AppLocalizations.of(context);
+    final corridor = buses.first.bus.corridor;
     final groups = <String, List<BusWithDistance>>{};
     for (final b in buses) {
       final dest = b.destinationLabel ?? l10n.unknown;
@@ -543,11 +559,13 @@ class _GroupedBusList extends StatelessWidget {
 
     return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(top: 4, bottom: 24),
+      padding: const EdgeInsets.only(top: 2, bottom: 24),
       itemCount: rows.length,
       itemBuilder: (context, index) {
         final row = rows[index];
-        if (row is String) return _DestinationHeader(destination: row);
+        if (row is String) {
+          return _DestinationHeader(destination: row, corridor: corridor);
+        }
         final b = row as BusWithDistance;
         return BusTile(
           item: b,
@@ -560,28 +578,58 @@ class _GroupedBusList extends StatelessWidget {
 }
 
 /// Judul bagian tujuan pada daftar bus (mis. "Tujuan Pusat Pemerintahan ...").
+///
+/// Dibuat menonjol berupa pita (band) berlatar aksen koridor dengan ikon
+/// terisi + teks tebal berwarna, supaya pengguna langsung mengenali kelompok
+/// tujuan yang sedang dilihat saat menggulir. Jarak atasnya sama untuk semua
+/// kelompok dan untuk kartu "Info Koridor" (kartu 4 + padding daftar 2 + 10 =
+/// tile bawah 6 + 10) sehingga spasi tetap konsisten.
 class _DestinationHeader extends StatelessWidget {
   final String destination;
+  final String corridor;
 
-  const _DestinationHeader({required this.destination});
+  const _DestinationHeader({required this.destination, required this.corridor});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final accent = corridorAccent(corridor, theme);
+    final band = corridorSurfaceTint(
+      corridor,
+      theme,
+      base: theme.colorScheme.surface,
+      opacity: 0.18,
+    );
+    final fg = corridorOnBackground(corridor, band);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 2),
-      child: Row(
-        children: [
-          Icon(Icons.navigation, size: 16, color: theme.colorScheme.primary),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              AppLocalizations.of(context).destinationHeader(destination),
-              style: theme.textTheme.titleSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: band,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 24,
+              height: 24,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+              child: Icon(Icons.navigation, size: 15, color: onColor(accent)),
             ),
-          ),
-        ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context).destinationHeader(destination),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: fg,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -616,20 +664,9 @@ class _CorridorTabs extends StatelessWidget {
 
     // Hitung warna tiap koridor SEKALI di sini, bukan tiap frame geseran:
     // perhitungan kontras warna relatif mahal dan hasilnya tetap selama geseran.
-    final accents = <Color>[];
-    final mutedAccents = <Color>[];
-    final mutedFgs = <Color>[];
-    final litFgs = <Color>[];
-    for (final corridor in corridors) {
-      final base = corridorAccent(corridor, theme);
-      final muted = base.withOpacity(0.35);
-      final mutedBg = Color.alphaBlend(muted, theme.colorScheme.surface);
-      accents.add(base);
-      mutedAccents.add(muted);
-      mutedFgs.add(corridorOnBackground(corridor, mutedBg));
-      litFgs.add(onCorridorColor(corridor));
-    }
-    final borderColor = theme.colorScheme.primary;
+    final palettes = [
+      for (final corridor in corridors) CorridorPalette.of(corridor, theme),
+    ];
 
     return SizedBox(
       height: 56,
@@ -650,13 +687,9 @@ class _CorridorTabs extends StatelessWidget {
           for (var i = 0; i < corridors.length; i++)
             AnimatedBuilder(
               animation: animation,
-              builder: (context, _) => _corridorButton(
+              builder: (context, _) => CorridorIconButton(
                 corridor: corridors[i],
-                accent: accents[i],
-                mutedAccent: mutedAccents[i],
-                mutedFg: mutedFgs[i],
-                litFg: litFgs[i],
-                borderColor: borderColor,
+                palette: palettes[i],
                 selFactor:
                     (1.0 - (animation.value - (i + 1)).abs()).clamp(0.0, 1.0),
                 onTap: () => _goTo(i + 1),
@@ -678,63 +711,6 @@ class _CorridorTabs extends StatelessWidget {
         label: Text(label),
         selected: selFactor > 0.5,
         onSelected: (_) => onTap(),
-      ),
-    );
-  }
-
-  Widget _corridorButton({
-    required String corridor,
-    required Color accent,
-    required Color mutedAccent,
-    required Color mutedFg,
-    required Color litFg,
-    required Color borderColor,
-    required double selFactor,
-    required VoidCallback onTap,
-  }) {
-    final t = selFactor.clamp(0.0, 1.0);
-    final bg = Color.lerp(mutedAccent, accent, t)!;
-    final fg = Color.lerp(mutedFg, litFg, t)!;
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      // Area sentuh minimal 48dp (pedoman Material 3); lingkaran visual tetap
-      // 40dp sehingga tampilan tidak berubah.
-      child: SizedBox(
-        width: 48,
-        height: 48,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: Center(
-            child: Transform.scale(
-              scale: 1 + 0.06 * t,
-              child: Container(
-                // Sorotan sudah dipandu tiap frame lewat [AnimatedBuilder]; pakai
-                // Container biasa (bukan AnimatedContainer) agar tidak memicu
-                // animasi implisit tambahan di setiap frame geseran.
-                constraints:
-                    const BoxConstraints.tightFor(width: 40, height: 40),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: bg,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: borderColor.withOpacity(t),
-                    width: 2 * t,
-                  ),
-                ),
-                child: Text(
-                  corridor,
-                  style: TextStyle(
-                    color: fg,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

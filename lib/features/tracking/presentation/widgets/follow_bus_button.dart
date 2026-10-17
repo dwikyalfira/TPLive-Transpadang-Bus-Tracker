@@ -7,6 +7,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../data/bus_model.dart';
 import '../../data/halte_data.dart';
 import '../providers.dart';
+import 'format.dart';
 
 /// Data yang dibutuhkan untuk fitur "ikuti bus" (notifikasi).
 class FollowPayload {
@@ -93,6 +94,7 @@ class FollowBusButton extends ConsumerWidget {
         route: payload.route,
         direction: payload.directionKey,
         haltes: payload.haltes,
+        accentColor: corridorColor(bus.corridor).value,
       );
       if (!context.mounted) return;
       ref.read(followedBusProvider.notifier).state = key;

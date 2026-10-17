@@ -113,7 +113,7 @@ Color? _iconColor(WidgetTester tester, String corridor) =>
         .color;
 
 /// Preferensi palsu (in-memory) supaya layar utama bisa dibuat tanpa
-/// SharedPreferences asli; nilai default = mode pengembangan mati.
+/// SharedPreferences asli.
 late SharedPreferences _prefs;
 
 void main() {
@@ -127,12 +127,6 @@ void main() {
       buildNumber: '1',
       buildSignature: '',
     );
-  });
-
-  testWidgets('mode pengembangan default mati', (tester) async {
-    final container = _container([_bus('11', 'K1', lng: 100.3005)]);
-    // Mode demo telah dihapus secara lengkap dari aplikasi.
-    container.dispose();
   });
 
   testWidgets('ikon koridor tampil & pilihan tersimpan saat diketuk',

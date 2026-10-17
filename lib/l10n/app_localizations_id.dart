@@ -5,12 +5,6 @@ class AppLocalizationsId extends AppLocalizations {
   AppLocalizationsId([String locale = 'id']) : super(locale);
 
   @override
-  String get statusDemo => 'Mode pengembangan';
-
-  @override
-  String get statusLive => 'Live';
-
-  @override
   String get statusConnectedShort => 'Terhubung';
 
   @override
@@ -20,9 +14,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get statusReconnecting => 'Menyambung ulang…';
 
   @override
-  String get statusPillOutsideHours => 'Layanan sedang tidak tersedia';
-
-  @override
   String get statusPillDisconnected => 'Tidak terhubung';
 
   @override
@@ -30,15 +21,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get statusOutsideHoursShort => 'Di luar jam operasional';
-
-  @override
-  String get statusDisconnectedShort => 'Terputus';
-
-  @override
-  String get tooltipDemoOn => 'Matikan mode demo';
-
-  @override
-  String get tooltipDemoOff => 'Mode demo (data bus palsu)';
 
   @override
   String get tooltipReload => 'Muat ulang';
@@ -63,6 +45,18 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get retry => 'Coba lagi';
+
+  @override
+  String get mapTitle => 'Peta Jaringan';
+
+  @override
+  String get mapOpen => 'Lihat peta';
+
+  @override
+  String get mapRecenter => 'Ke lokasi saya';
+
+  @override
+  String get mapAttribution => '© OpenStreetMap contributors';
 
   @override
   String destinationHeader(String destination) {
@@ -404,6 +398,18 @@ class AppLocalizationsId extends AppLocalizations {
   String get myLocationSubtitle => 'Gunakan posisi GPS perangkat saat ini';
 
   @override
+  String get favoritesTitle => 'Favorit';
+
+  @override
+  String get recentsTitle => 'Terbaru';
+
+  @override
+  String get addFavorite => 'Tambah ke favorit';
+
+  @override
+  String get removeFavorite => 'Hapus dari favorit';
+
+  @override
   String get placeMinChars => 'Ketik nama tempat (minimal 3 huruf), lalu tekan cari.';
 
   @override
@@ -458,9 +464,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get sectionAbout => 'Tentang';
 
   @override
-  String get aboutTitle => 'Tentang Aplikasi';
-
-  @override
   String aboutVersion(String version) {
     return 'Versi $version';
   }
@@ -470,10 +473,4 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get aboutDisclaimer => 'TPLive bukan aplikasi resmi TransPadang maupun Pemerintah Kota Padang. Aplikasi ini dikembangkan semata-mata untuk memudahkan pengguna TransPadang.';
-
-  @override
-  String get demoModeTitle => 'Mode demo';
-
-  @override
-  String get demoModeSubtitle => 'Gunakan data bus palsu untuk pengembangan';
 }

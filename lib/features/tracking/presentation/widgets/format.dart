@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations.dart';
-import '../../data/trans_ws_datasource.dart';
 
 /// Format jarak: < 1 km ditampilkan dalam meter. Satuan "m"/"km" netral bahasa.
 String formatDistance(double km) {
@@ -113,40 +112,3 @@ Color corridorSurfaceTint(
       corridorAccent(corridor, theme).withOpacity(opacity),
       base,
     );
-
-/// Deskripsi status koneksi untuk UI: (label, warna, ikon).
-(String, Color, IconData) describeStatus(
-  ConnectionStatus? status,
-  AppLocalizations l10n,
-) {
-  switch (status) {
-    case ConnectionStatus.connected:
-      return (l10n.statusLive, const Color(0xFF2E7D32), Icons.cloud_done_outlined);
-    case ConnectionStatus.connecting:
-      return (
-        l10n.statusConnecting,
-        const Color(0xFFEF6C00),
-        Icons.cloud_sync_outlined
-      );
-    case ConnectionStatus.reconnecting:
-      return (
-        l10n.statusReconnecting,
-        const Color(0xFFEF6C00),
-        Icons.cloud_sync_outlined
-      );
-    case ConnectionStatus.outsideHours:
-      return (
-        l10n.statusOutsideHoursShort,
-        const Color(0xFF546E7A),
-        Icons.schedule
-      );
-    case ConnectionStatus.disconnected:
-      return (
-        l10n.statusDisconnectedShort,
-        const Color(0xFFC62828),
-        Icons.cloud_off_outlined
-      );
-    case null:
-      return (l10n.statusWaiting, const Color(0xFF9E9E9E), Icons.cloud_queue_outlined);
-  }
-}

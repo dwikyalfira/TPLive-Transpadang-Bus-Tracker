@@ -56,6 +56,12 @@ class FollowService : Service() {
         const val EXTRA_DIRECTION = "direction"
         const val EXTRA_HALTES = "haltes"
 
+        /** Warna aksen notifikasi (ARGB) yang sudah dihitung di Dart. */
+        const val EXTRA_COLOR = "color"
+
+        /** Fallback bila Dart tidak mengirim warna (abu-abu badge default). */
+        val DEFAULT_KEY_COLOR = 0xFF546E7A.toInt()
+
         const val WS_URL = "wss://wstrans.padang.go.id/ws"
 
         // Sama dengan NotificationCompat.EXTRA_REQUEST_PROMOTED_ONGOING (androidx.core).
@@ -163,7 +169,7 @@ class FollowService : Service() {
         destination = intent.getStringExtra(EXTRA_DESTINATION) ?: ""
         route = intent.getStringExtra(EXTRA_ROUTE) ?: ""
         direction = intent.getStringExtra(EXTRA_DIRECTION) ?: ""
-        keyColor = corridorColor(corridor)
+        keyColor = intent.getIntExtra(EXTRA_COLOR, DEFAULT_KEY_COLOR)
 
         stops.clear()
         stopNames.clear()
@@ -414,7 +420,6 @@ class FollowService : Service() {
                 val progress = HalteMath.computeProgress(
                     stops,
                     HalteMath.Point(lat, lng),
-                    null,
                 )
 
                 hasPosition = true
@@ -459,17 +464,5 @@ class FollowService : Service() {
             stopForeground(true)
         }
         stopSelf()
-    }
-
-    private fun corridorColor(corridor: String): Int {
-        return when (corridor.uppercase()) {
-            "K1" -> 0xFFC8163F.toInt()
-            "K2" -> 0xFFEAA221.toInt()
-            "K3" -> 0xFF5CC49A.toInt()
-            "K4" -> 0xFF5F9A4F.toInt()
-            "K5" -> 0xFF1F2A6B.toInt()
-            "K6" -> 0xFF1E9BDB.toInt()
-            else -> 0xFF546E7A.toInt()
-        }
     }
 }

@@ -9,9 +9,6 @@ class BusWithDistance {
   final double distanceKm;
   final int? etaMinutes;
 
-  /// 'pergi' | 'pulang' bila arah berhasil ditentukan.
-  final String? directionKey;
-
   /// Nama terminus tujuan pada arah yang sedang ditempuh.
   final String? destinationLabel;
 
@@ -22,7 +19,6 @@ class BusWithDistance {
     required this.bus,
     required this.distanceKm,
     required this.etaMinutes,
-    this.directionKey,
     this.destinationLabel,
     this.resolvedHeading,
   });
@@ -30,7 +26,6 @@ class BusWithDistance {
   factory BusWithDistance.compute(
     Bus bus,
     LatLng userLocation, {
-    String? directionKey,
     String? destinationLabel,
     double? resolvedHeading,
   }) {
@@ -39,7 +34,6 @@ class BusWithDistance {
       bus: bus,
       distanceKm: km,
       etaMinutes: geo.estimateEtaMinutes(km, bus.speedKmh),
-      directionKey: directionKey,
       destinationLabel: destinationLabel,
       resolvedHeading: resolvedHeading,
     );

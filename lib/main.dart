@@ -10,6 +10,8 @@ import 'core/theme/app_theme.dart';
 import 'features/splash/presentation/splash_screen.dart';
 import 'features/tracking/presentation/providers.dart';
 import 'features/tracking/presentation/widgets/pinned_bus_overlay.dart';
+import 'features/trip/data/saved_places_store.dart';
+import 'features/trip/presentation/trip_providers.dart';
 import 'l10n/app_localizations.dart';
 
 /// Wadah provider root; dipakai bersama observer navigator supaya kartu
@@ -28,7 +30,10 @@ void main() async {
   // saat aplikasi dibuka.
   final prefs = await SharedPreferences.getInstance();
   appProviderContainer = ProviderContainer(
-    overrides: [settingsStoreProvider.overrideWithValue(SettingsStore(prefs))],
+    overrides: [
+      settingsStoreProvider.overrideWithValue(SettingsStore(prefs)),
+      savedPlacesStoreProvider.overrideWithValue(SavedPlacesStore(prefs)),
+    ],
   );
 
   // Setiap kali rute berpindah (push/pop), kembalikan kartu bus di-pin ke

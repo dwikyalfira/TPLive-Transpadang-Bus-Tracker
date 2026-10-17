@@ -35,12 +35,23 @@ class AppConfig {
   }
   
 
-  /// Mode pengembangan (data bus palsu) kini **preferensi pengguna**, bukan
-  /// lagi flag build: nilainya default mati dan diatur dari layar Pengaturan
-  /// (tersimpan lewat `SettingsStore`, lihat `lib/core/settings.dart`).
-
   /// Offset zona waktu WIB dari UTC.
   static const int wibOffsetHours = 7;
+
+  // --- Peta (tampilan peta live) ---
+
+  /// Template tile raster OpenStreetMap (XYZ, 256 px).
+  static const String osmTileUrl =
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+  /// Identitas aplikasi yang dikirim sebagai User-Agent ke tile server OSM
+  /// (wajib sesuai kebijakan penggunaan OSM).
+  static const String osmUserAgent = 'id.dwiky.transpadang_live';
+
+  /// Pusat awal peta (Kota Padang) & tingkat zoom awal.
+  static const double mapInitialLat = -0.9478;
+  static const double mapInitialLng = 100.3543;
+  static const double mapInitialZoom = 12.5;
 
   // --- Pencarian tujuan (geocoding Nominatim/OSM) ---
 

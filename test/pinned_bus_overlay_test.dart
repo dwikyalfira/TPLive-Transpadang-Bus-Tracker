@@ -284,4 +284,19 @@ void main() {
 
     expect(find.byType(FloatingPinnedBusCard), findsNothing);
   });
+
+  testWidgets('kartu pin global tersembunyi saat bus dipilih di layar peta',
+      (tester) async {
+    final container = ProviderContainer(overrides: [
+      ..._overrides(followed: 'K3|57'),
+      mapBusSelectedProvider.overrideWith((ref) => true),
+    ]);
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(_app(followed: 'K3|57', container: container));
+    await tester.pumpAndSettle();
+
+    // Pilihan bus di peta → kartu pin global disembunyikan agar tidak menumpuk.
+    expect(find.byType(FloatingPinnedBusCard), findsNothing);
+  });
 }

@@ -61,6 +61,10 @@ class PinnedBusOverlay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Di layar peta, kartu bus terpilih sudah tampil di bagian bawah; sembunyikan
+    // kartu pin global agar tidak menumpuk di atasnya.
+    if (ref.watch(mapBusSelectedProvider)) return const SizedBox.shrink();
+
     final followed = ref.watch(followedBusProvider);
     final dataset = ref.watch(halteDatasetProvider).valueOrNull;
 
@@ -113,6 +117,10 @@ class PinnedBusOverlay extends ConsumerWidget {
       bus: bus,
       progress: progress,
       collapsed: collapsed,
+      footer: PinnedBusCardFooter(
+        bus: bus,
+        destinationLabel: progress.destinationLabel,
+      ),
       onTap: onTap,
       onClose: () {
         ref.read(followedBusProvider.notifier).state = null;

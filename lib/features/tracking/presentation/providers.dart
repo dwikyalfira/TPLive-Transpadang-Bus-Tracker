@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
@@ -13,6 +14,7 @@ import '../domain/bus_with_distance.dart';
 import '../domain/corridor_info.dart';
 import '../domain/halte_tracker.dart';
 import '../domain/heading_tracker.dart';
+import '../domain/map_marker.dart';
 
 /// Exception ramah untuk masalah lokasi.
 class LocationException implements Exception {
@@ -85,6 +87,12 @@ final selectedCorridorProvider = StateProvider<String?>((ref) => null);
 /// Bus yang sedang diikuti via notifikasi foreground service.
 /// Nilai berupa kunci `'<koridor>|<nomorBus>'` (null = tidak mengikuti).
 final followedBusProvider = StateProvider<String?>((ref) => null);
+
+/// Apakah ada bus yang sedang dipilih (diketuk) di layar peta.
+///
+/// Dipakai [PinnedBusOverlay] untuk menyembunyikan kartu bus di-pin global
+/// selama kartu bus peta tampil, agar keduanya tidak saling menumpuk.
+final mapBusSelectedProvider = StateProvider<bool>((ref) => false);
 
 /// Apakah bottom sheet detail bus sedang terbuka. Saat bernilai true, kartu
 /// bus melayang ditampilkan dalam versi mini (tidak ikut memelar).
@@ -172,7 +180,6 @@ final nearbyBusesProvider = Provider<List<BusWithDistance>>((ref) {
     if (bus.isStale(nowUtc)) continue;
 
     final estimated = headingTracker.update(bus, nowUtc);
-    String? directionKey;
     String? destinationLabel;
     if (dataset != null) {
       final progress = HalteTracker.track(
@@ -181,7 +188,6 @@ final nearbyBusesProvider = Provider<List<BusWithDistance>>((ref) {
         estimatedHeading: estimated,
       );
       if (progress != null) {
-        directionKey = progress.arahKey;
         destinationLabel = progress.destinationLabel;
       }
     }
@@ -189,7 +195,6 @@ final nearbyBusesProvider = Provider<List<BusWithDistance>>((ref) {
     result.add(BusWithDistance.compute(
       bus,
       location,
-      directionKey: directionKey,
       destinationLabel: destinationLabel,
       resolvedHeading: estimated ?? bus.heading,
     ));
@@ -271,4 +276,20 @@ final corridorInfoProvider = Provider<Map<String, CorridorInfo>>((ref) {
     );
   }
   return result;
+});
+
+/// Sumber tile peta (ubin OpenStreetMap). Dipisah sebagai provider agar dapat
+/// di-override saat pengujian dengan sumber lokal tanpa permintaan jaringan.
+final tileProviderProvider = Provider<TileProvider>(
+  (ref) => NetworkTileProvider(),
+);
+
+/// Penanda bus untuk peta, mengikuti koridor yang sedang dipilih
+/// ([selectedCorridorProvider]; null = semua koridor).
+final busMapMarkersProvider = Provider<List<BusMapMarker>>((ref) {
+  final buses = ref.watch(busesProvider).valueOrNull ?? const <Bus>[];
+  return buildBusMapMarkers(
+    buses,
+    filterCorridor: ref.watch(selectedCorridorProvider),
+  );
 });

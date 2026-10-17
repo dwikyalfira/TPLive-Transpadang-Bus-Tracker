@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transpadang_live/features/tracking/data/bus_model.dart';
 import 'package:transpadang_live/features/tracking/data/halte_data.dart';
 import 'package:transpadang_live/features/tracking/domain/halte_tracker.dart';
 import 'package:transpadang_live/features/tracking/presentation/providers.dart';
 import 'package:transpadang_live/features/trip/data/geocoding_service.dart';
+import 'package:transpadang_live/features/trip/data/saved_places_store.dart';
 import 'package:transpadang_live/features/trip/presentation/trip_providers.dart';
 import 'package:transpadang_live/features/trip/presentation/trip_screen.dart';
 import 'package:transpadang_live/l10n/app_localizations.dart';
+
+late SharedPreferences _prefs;
 
 Halte _h(double lat, double lng, String nama) =>
     Halte(nama: nama, pos: LatLng(lat, lng));
@@ -61,6 +65,7 @@ Widget _app() {
         (ref) => Stream.value(const LatLng(-0.90, 100.30)),
       ),
       busesProvider.overrideWith((ref) => Stream.value(const <Bus>[])),
+      savedPlacesStoreProvider.overrideWithValue(SavedPlacesStore(_prefs)),
     ],
     child: const MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -100,6 +105,7 @@ Widget _appWithLiveBus() {
       ),
       busesProvider.overrideWith((ref) => Stream.value(const <Bus>[])),
       tripBusesProvider.overrideWith((ref, leg) => [tripBus]),
+      savedPlacesStoreProvider.overrideWithValue(SavedPlacesStore(_prefs)),
     ],
     child: const MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -111,6 +117,11 @@ Widget _appWithLiveBus() {
 }
 
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    _prefs = await SharedPreferences.getInstance();
+  });
+
   testWidgets('halte ke halte: pilih tujuan dari daftar halte', (tester) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();

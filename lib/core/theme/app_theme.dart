@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'app_motion.dart';
-
 /// Warna benih tema (oranye logo TPLive) yang dipakai saat warna dinamis
 /// (Material You) dimatikan atau tidak tersedia.
 const Color appSeedColor = Color(0xFFF47F38);
@@ -184,7 +182,3 @@ ThemeData buildAppTheme(Brightness brightness, [ColorScheme? dynamic]) {
     ),
   );
 }
-
-/// Durasi/transisi standar yang dipakai lintas layar.
-const Duration kAppTransitionDuration = AppMotion.medium2;
-const Duration kAppReverseTransitionDuration = AppMotion.short4;

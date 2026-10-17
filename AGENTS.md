@@ -15,7 +15,7 @@ TPLive — Flutter bus tracker for TransPadang (Padang). See `README.md` for ful
 ## Commands
 - Setup: `flutter pub get`
 - Analyze: `flutter analyze` — baseline is **9 `info`** (2 `trans_ws_datasource.dart`, 1 `showStartEnd` in `halte_timeline_sheet.dart`, 6 generated l10n). Any new issue is a regression.
-- Test: `flutter test` (77 tests). Single file: `flutter test test/home_tabs_test.dart`.
+- Test: `flutter test` (104 tests). Single file: `flutter test test/home_tabs_test.dart`.
 - Run: `flutter run -d <id>` (physical Android device, e.g. `a0d334d3` / model `2203129G`). `flutter run` stays attached; it does not exit.
 - Localization: edit `lib/l10n/app_id.arb` (**template**) **and** `lib/l10n/app_en.arb`, then `flutter gen-l10n`. Generated `lib/l10n/app_localizations*.dart` are **tracked** — commit them too.
 - Release: `scripts/build_release.ps1` (requires `dart_defines.json`, copy from `dart_defines.example.json`; that file is tracked and holds `MAPBOX_TOKEN`). Empty token → geocoding falls back to Nominatim.
@@ -27,8 +27,9 @@ TPLive — Flutter bus tracker for TransPadang (Padang). See `README.md` for ful
 - Features: `lib/features/<splash|tracking|trip|settings>/{data,domain,presentation}`.
 - Theming is centralized in `lib/core/theme/app_theme.dart` (seed `#F47F38`). Add component styles there, not per-widget.
 - Animation durations/curves live in `lib/core/theme/app_motion.dart` (`AppMotion.*`). Do not hardcode `Duration`/`Curve` in screens.
-- Reuse the shared kit: `lib/core/ui/state_views.dart`, `lib/core/ui/fade_through_route.dart`, `lib/core/ui/constrained_content.dart` (centers + caps content width, already used by home/trip/settings), `features/tracking/presentation/widgets/corridor_badge.dart`. Do not re-add per-screen copies.
-- Android native: `android/app/src/main/kotlin/id/dwiky/transpadang_live/` (`MainActivity.kt`, `FollowService.kt`, `HalteMath.kt`). MethodChannel `id.dwiky.transpadang_live/follow`. `applicationId`/`namespace` = `id.dwiky.transpadang_live`; `compileSdk 36`, `minSdk 21`.
+- Reuse the shared kit: `lib/core/ui/state_views.dart`, `lib/core/ui/fade_through_route.dart`, `lib/core/ui/constrained_content.dart` (centers + caps content width, already used by home/trip/settings),   `features/tracking/presentation/widgets/corridor_badge.dart`, `.../corridor_selector.dart` (`CorridorIconButton`/`CorridorPalette` — round corridor selector used by home **and** the map). Do not re-add per-screen copies.
+- Map (live): `flutter_map` 6.1.0 (pinned — 6.2.1 needs `meta ^1.12` and breaks version solving on Flutter 3.19) + OpenStreetMap raster tiles (`AppConfig.osmTileUrl`; keep the `osmUserAgent`/attribution for OSM policy). Screen `features/tracking/presentation/widgets/map/map_screen.dart`, view `.../bus_map_view.dart`, pure marker logic `.../domain/map_marker.dart`. Tile source is injected via `tileProviderProvider` (fake in tests). Buses are filtered by `selectedCorridorProvider`. The selected-bus bottom card reuses `PinnedBusCardBody`/`PinnedBusCardFooter` (shared with the pinned overlay) and has a `FollowBusButton`; while a bus is selected the map sets `mapBusSelectedProvider` so `PinnedBusOverlay` hides (no stacked cards). `speed_dial.dart` (`BusSpeedDial`) is the shared speed dial.
+- Android native: `android/app/src/main/kotlin/id/dwiky/transpadang_live/` (`MainActivity.kt`, `FollowService.kt`, `HalteMath.kt`). MethodChannel `id.dwiky.transpadang_live/follow`. `HalteMath.kt` is a minimal port of `halte_tracker.dart`/`geo_utils.dart` for `FollowService` only — don't re-add unused geometry helpers. Notification accent color comes from Dart (`startFollow` extra `color`); the corridor-color table lives only in `format.dart`. `applicationId`/`namespace` = `id.dwiky.transpadang_live`; `compileSdk 36`, `minSdk 21`.
 
 ## Domain quirks (already normalized — do not "fix")
 - Server **swaps** `latitude`/`longitude`; normalized in `Bus.fromJson`.
@@ -39,8 +40,8 @@ TPLive — Flutter bus tracker for TransPadang (Padang). See `README.md` for ful
 ## Gotchas that break things
 - **`Tooltip` crashes outside the Navigator `Overlay`.** `PinnedBusOverlay` is mounted in `MaterialApp.builder`, outside the Navigator's `Overlay`, so `Tooltip` throws "No Overlay widget found". Use `Semantics(label: ...)` there instead (see `floating_pinned_bus_card.dart`).
 - Widget tests build their own plain `MaterialApp` (not the app theme) and assert exact values. Changing these requires updating tests:
-  - corridor tab icon is a `Container` with `constraints: maxWidth == 40`; unselected color = `corridorColor('K1').withOpacity(0.35)`.
+  - corridor tab icon is a `Container` with `constraints: maxWidth == 40` inside `CorridorIconButton` (shared home/map); unselected color = `corridorColor('K1').withOpacity(0.35)`.
   - outside-hours purple `Color(0xFF7B1FA2)`.
   - icons `Icons.close`, `Icons.my_location`, `Icons.arrow_downward`.
-  - `FloatingPinnedBusCard.contentKey`; expanded card height `< 200`, collapsed `< 120`; `DraggableScrollableSheet` 0.5/1.0/min<0.5; settings has exactly one `SwitchListTile`.
+  - `FloatingPinnedBusCard.contentKey`; expanded card height `< 240` (includes `PinnedBusCardFooter`), collapsed `< 120`; `DraggableScrollableSheet` 0.5/1.0/min<0.5; settings has exactly one `SwitchListTile`.
 - Every new UI string must be added to **both** ARB files or `flutter gen-l10n` / the app breaks.

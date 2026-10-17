@@ -182,6 +182,31 @@ void main() {
     expect(find.byType(DraggableScrollableSheet), findsNothing);
   });
 
+  testWidgets('swipe ke bawah cepat pada header langsung menutup sheet',
+      (tester) async {
+    await tester.pumpWidget(_app(_overrides()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    // Fling pendek tapi cepat: harus menutup lewat kecepatan, tanpa perlu
+    // menarik lebih dari separuh tinggi sheet lebih dulu.
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byKey(const Key('busSheetHeader'))),
+    );
+    var stamp = Duration.zero;
+    for (var i = 0; i < 5; i++) {
+      stamp += const Duration(milliseconds: 16);
+      await gesture.moveBy(const Offset(0, 24), timeStamp: stamp);
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    stamp += const Duration(milliseconds: 16);
+    await gesture.up(timeStamp: stamp);
+    await tester.pumpAndSettle();
+    expect(find.byType(DraggableScrollableSheet), findsNothing);
+  });
+
   testWidgets('detail bus tidak meluber saat sheet mengecil drastis',
       (tester) async {
     await tester.pumpWidget(_app(_overrides()));

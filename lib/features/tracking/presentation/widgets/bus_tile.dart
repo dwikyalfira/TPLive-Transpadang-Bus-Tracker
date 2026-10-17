@@ -14,11 +14,16 @@ class BusTile extends StatelessWidget {
   /// ditampilkan sebagai judul kelompok.
   final bool showDestination;
 
+  /// Widget opsional di ujung kanan baris atas (mis. tombol tutup pada kartu
+  /// peta). `null` pada daftar biasa.
+  final Widget? trailing;
+
   const BusTile({
     super.key,
     required this.item,
     this.onTap,
     this.showDestination = true,
+    this.trailing,
   });
 
   @override
@@ -98,6 +103,10 @@ class BusTile extends StatelessWidget {
                     style: theme.textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
+                  if (trailing != null) ...[
+                    const SizedBox(width: 4),
+                    trailing!,
+                  ],
                 ],
               ),
               const SizedBox(height: 6),

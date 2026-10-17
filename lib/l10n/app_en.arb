@@ -1,19 +1,13 @@
 {
   "@@locale": "en",
 
-  "statusDemo": "Development mode",
-  "statusLive": "Live",
   "statusConnectedShort": "Connected",
   "statusConnecting": "Connecting…",
   "statusReconnecting": "Reconnecting…",
-  "statusPillOutsideHours": "Service currently unavailable",
   "statusPillDisconnected": "Not connected",
   "statusWaiting": "Waiting…",
   "statusOutsideHoursShort": "Outside operating hours",
-  "statusDisconnectedShort": "Disconnected",
 
-  "tooltipDemoOn": "Turn off demo mode",
-  "tooltipDemoOff": "Demo mode (fake bus data)",
   "tooltipReload": "Reload",
   "reloading": "Reloading bus data…",
 
@@ -23,6 +17,12 @@
   "noBusesMessage": "No buses detected around you yet.",
   "gettingLocation": "Getting your location…",
   "retry": "Try again",
+
+  "mapTitle": "Network Map",
+  "mapOpen": "View map",
+  "mapRecenter": "My location",
+  "mapAttribution": "© OpenStreetMap contributors",
+
   "destinationHeader": "Toward {destination}",
   "loadingHalteData": "Loading stops…",
 
@@ -122,6 +122,10 @@
   "allHaltes": "All stops",
   "myLocation": "My location",
   "myLocationSubtitle": "Use the device's current GPS position",
+  "favoritesTitle": "Favorites",
+  "recentsTitle": "Recent",
+  "addFavorite": "Add to favorites",
+  "removeFavorite": "Remove from favorites",
   "placeMinChars": "Type a place name (at least 3 letters), then press search.",
   "placeNotFound": "No place found around Padang.",
   "placeSearchError": "An error occurred while searching for places.",
@@ -141,7 +145,6 @@
   "languageIndonesian": "Indonesia",
   "languageEnglish": "English",
   "sectionAbout": "About",
-  "aboutTitle": "About App",
   "aboutVersion": "Version {version}",
   "@aboutVersion": {
     "placeholders": {
@@ -151,7 +154,5 @@
     }
   },
   "aboutAppDescription": "TPLive shows TransPadang bus positions in real time.",
-  "aboutDisclaimer": "TPLive is not an official app of TransPadang or the Padang City Government. It is developed purely to make it easier for TransPadang riders.",
-  "demoModeTitle": "Demo mode",
-  "demoModeSubtitle": "Use fake bus data for development"
+  "aboutDisclaimer": "TPLive is not an official app of TransPadang or the Padang City Government. It is developed purely to make it easier for TransPadang riders."
 }

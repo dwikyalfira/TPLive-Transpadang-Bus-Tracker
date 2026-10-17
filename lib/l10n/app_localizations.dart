@@ -93,18 +93,6 @@ abstract class AppLocalizations {
     Locale('id')
   ];
 
-  /// No description provided for @statusDemo.
-  ///
-  /// In id, this message translates to:
-  /// **'Mode pengembangan'**
-  String get statusDemo;
-
-  /// No description provided for @statusLive.
-  ///
-  /// In id, this message translates to:
-  /// **'Live'**
-  String get statusLive;
-
   /// No description provided for @statusConnectedShort.
   ///
   /// In id, this message translates to:
@@ -123,12 +111,6 @@ abstract class AppLocalizations {
   /// **'Menyambung ulang…'**
   String get statusReconnecting;
 
-  /// No description provided for @statusPillOutsideHours.
-  ///
-  /// In id, this message translates to:
-  /// **'Layanan sedang tidak tersedia'**
-  String get statusPillOutsideHours;
-
   /// No description provided for @statusPillDisconnected.
   ///
   /// In id, this message translates to:
@@ -146,24 +128,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Di luar jam operasional'**
   String get statusOutsideHoursShort;
-
-  /// No description provided for @statusDisconnectedShort.
-  ///
-  /// In id, this message translates to:
-  /// **'Terputus'**
-  String get statusDisconnectedShort;
-
-  /// No description provided for @tooltipDemoOn.
-  ///
-  /// In id, this message translates to:
-  /// **'Matikan mode demo'**
-  String get tooltipDemoOn;
-
-  /// No description provided for @tooltipDemoOff.
-  ///
-  /// In id, this message translates to:
-  /// **'Mode demo (data bus palsu)'**
-  String get tooltipDemoOff;
 
   /// No description provided for @tooltipReload.
   ///
@@ -212,6 +176,30 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Coba lagi'**
   String get retry;
+
+  /// No description provided for @mapTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Peta Jaringan'**
+  String get mapTitle;
+
+  /// No description provided for @mapOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat peta'**
+  String get mapOpen;
+
+  /// No description provided for @mapRecenter.
+  ///
+  /// In id, this message translates to:
+  /// **'Ke lokasi saya'**
+  String get mapRecenter;
+
+  /// No description provided for @mapAttribution.
+  ///
+  /// In id, this message translates to:
+  /// **'© OpenStreetMap contributors'**
+  String get mapAttribution;
 
   /// No description provided for @destinationHeader.
   ///
@@ -759,6 +747,30 @@ abstract class AppLocalizations {
   /// **'Gunakan posisi GPS perangkat saat ini'**
   String get myLocationSubtitle;
 
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Favorit'**
+  String get favoritesTitle;
+
+  /// No description provided for @recentsTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Terbaru'**
+  String get recentsTitle;
+
+  /// No description provided for @addFavorite.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah ke favorit'**
+  String get addFavorite;
+
+  /// No description provided for @removeFavorite.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus dari favorit'**
+  String get removeFavorite;
+
   /// No description provided for @placeMinChars.
   ///
   /// In id, this message translates to:
@@ -867,12 +879,6 @@ abstract class AppLocalizations {
   /// **'Tentang'**
   String get sectionAbout;
 
-  /// No description provided for @aboutTitle.
-  ///
-  /// In id, this message translates to:
-  /// **'Tentang Aplikasi'**
-  String get aboutTitle;
-
   /// No description provided for @aboutVersion.
   ///
   /// In id, this message translates to:
@@ -890,18 +896,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'TPLive bukan aplikasi resmi TransPadang maupun Pemerintah Kota Padang. Aplikasi ini dikembangkan semata-mata untuk memudahkan pengguna TransPadang.'**
   String get aboutDisclaimer;
-
-  /// No description provided for @demoModeTitle.
-  ///
-  /// In id, this message translates to:
-  /// **'Mode demo'**
-  String get demoModeTitle;
-
-  /// No description provided for @demoModeSubtitle.
-  ///
-  /// In id, this message translates to:
-  /// **'Gunakan data bus palsu untuk pengembangan'**
-  String get demoModeSubtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

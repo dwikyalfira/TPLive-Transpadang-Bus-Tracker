@@ -11,6 +11,7 @@ import '../../tracking/presentation/providers.dart';
 import '../../tracking/presentation/widgets/corridor_badge.dart';
 import '../../tracking/presentation/widgets/format.dart';
 import '../data/geocoding_service.dart';
+import '../domain/saved_place.dart';
 import '../domain/trip_endpoint.dart';
 import 'trip_providers.dart';
 
@@ -93,6 +94,9 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen>
   void _chooseHalte(HalteEntry entry) =>
       Navigator.of(context).pop(TripEndpoint.halte(entry));
 
+  void _chooseSavedPlace(SavedPlace place) =>
+      Navigator.of(context).pop(place.toEndpoint());
+
   void _choosePlace(GeocodingResult result) => Navigator.of(context).pop(
         TripEndpoint.place(label: result.name, position: result.pos),
       );
@@ -132,6 +136,7 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen>
                     includeGps: widget.includeGps,
                     onGps: _chooseGps,
                     onSelect: _chooseHalte,
+                    onSelectSaved: _chooseSavedPlace,
                   ),
                   _PlaceTab(onSelect: _choosePlace),
                 ],
@@ -222,17 +227,33 @@ class _HalteEntryRow extends _HalteRow {
   const _HalteEntryRow(this.entry, this.distanceKm);
 }
 
+class _SavedPlaceRow extends _HalteRow {
+  final SavedPlace place;
+  const _SavedPlaceRow(this.place);
+}
+
+/// Mengubah [HalteEntry] menjadi bentuk yang bisa disimpan sebagai favorit.
+SavedPlace _savedForEntry(HalteEntry entry) => SavedPlace(
+      kind: SavedPlaceKind.halte,
+      label: entry.name,
+      lat: entry.halte.pos.latitude,
+      lng: entry.halte.pos.longitude,
+      corridors: (entry.corridors.toList()..sort()).join(', '),
+    );
+
 class _HalteTab extends ConsumerWidget {
   final String query;
   final bool includeGps;
   final VoidCallback onGps;
   final ValueChanged<HalteEntry> onSelect;
+  final ValueChanged<SavedPlace> onSelectSaved;
 
   const _HalteTab({
     required this.query,
     required this.includeGps,
     required this.onGps,
     required this.onSelect,
+    required this.onSelectSaved,
   });
 
   @override
@@ -246,9 +267,24 @@ class _HalteTab extends ConsumerWidget {
       );
     }
 
+    final saved = ref.watch(savedPlacesProvider);
+    bool isFavorite(SavedPlace place) =>
+        saved.favorites.any((f) => f.id == place.id);
+    void toggleFavorite(SavedPlace place) =>
+        ref.read(savedPlacesProvider.notifier).toggleFavorite(place);
+
+    _HalteListView list(List<_HalteRow> rows) => _HalteListView(
+          rows: rows,
+          onGps: onGps,
+          onSelect: onSelect,
+          onSelectSaved: onSelectSaved,
+          isFavorite: isFavorite,
+          onToggleFavorite: toggleFavorite,
+        );
+
     final q = query.trim().toLowerCase();
 
-    // Mode pencarian: tampilkan hanya hasil yang cocok.
+    // Mode pencarian: tampilkan hanya hasil yang cocok (tanpa favorit/riwayat).
     if (q.isNotEmpty) {
       final filtered =
           entries.where((e) => e.name.toLowerCase().contains(q)).toList();
@@ -258,18 +294,28 @@ class _HalteTab extends ConsumerWidget {
           message: l10n.halteNotFound,
         );
       }
-      return _HalteListView(
-        rows: [
-          for (final entry in filtered) _HalteEntryRow(entry, null),
-        ],
-        onGps: onGps,
-        onSelect: onSelect,
-      );
+      return list([
+        for (final entry in filtered) _HalteEntryRow(entry, null),
+      ]);
     }
 
     final userLoc = ref.watch(userLocationProvider).valueOrNull;
     final corridorDist = ref.watch(corridorProximityProvider);
     final rows = <_HalteRow>[];
+
+    // Favorit selalu di atas; riwayat tujuan hanya saat memilih tujuan.
+    if (saved.favorites.isNotEmpty) {
+      rows.add(_SectionHeaderRow(l10n.favoritesTitle));
+      for (final place in saved.favorites) {
+        rows.add(_SavedPlaceRow(place));
+      }
+    }
+    if (!includeGps && saved.recents.isNotEmpty) {
+      rows.add(_SectionHeaderRow(l10n.recentsTitle));
+      for (final place in saved.recents) {
+        rows.add(_SavedPlaceRow(place));
+      }
+    }
 
     if (includeGps) {
       rows.add(const _GpsTileRow());
@@ -289,11 +335,7 @@ class _HalteTab extends ConsumerWidget {
       for (final entry in entries) {
         rows.add(_HalteEntryRow(entry, null));
       }
-      return _HalteListView(
-        rows: rows,
-        onGps: onGps,
-        onSelect: onSelect,
-      );
+      return list(rows);
     }
 
     // Pilih tujuan: urut & kelompokkan menurut koridor yang paling dekat
@@ -332,11 +374,7 @@ class _HalteTab extends ConsumerWidget {
         }
         rows.add(_HalteEntryRow(item.entry, item.dist));
       }
-      return _HalteListView(
-        rows: rows,
-        onGps: onGps,
-        onSelect: onSelect,
-      );
+      return list(rows);
     }
 
     // Tanpa lokasi GPS: urutkan alfabetis seperti sebelumnya.
@@ -344,11 +382,7 @@ class _HalteTab extends ConsumerWidget {
       rows.add(_HalteEntryRow(entry, null));
     }
 
-    return _HalteListView(
-      rows: rows,
-      onGps: onGps,
-      onSelect: onSelect,
-    );
+    return list(rows);
   }
 }
 
@@ -356,11 +390,17 @@ class _HalteListView extends StatelessWidget {
   final List<_HalteRow> rows;
   final VoidCallback onGps;
   final ValueChanged<HalteEntry> onSelect;
+  final ValueChanged<SavedPlace> onSelectSaved;
+  final bool Function(SavedPlace place) isFavorite;
+  final ValueChanged<SavedPlace> onToggleFavorite;
 
   const _HalteListView({
     required this.rows,
     required this.onGps,
     required this.onSelect,
+    required this.onSelectSaved,
+    required this.isFavorite,
+    required this.onToggleFavorite,
   });
 
   @override
@@ -373,9 +413,17 @@ class _HalteListView extends StatelessWidget {
         return switch (row) {
           _GpsTileRow() => _GpsTile(onTap: onGps),
           _SectionHeaderRow(:final title) => _SectionHeader(title: title),
+          _SavedPlaceRow(:final place) => _SavedPlaceTile(
+              place: place,
+              isFavorite: isFavorite(place),
+              onTap: () => onSelectSaved(place),
+              onToggleFavorite: () => onToggleFavorite(place),
+            ),
           _HalteEntryRow(:final entry, :final distanceKm) => _HalteTile(
               entry: entry,
               distanceKm: distanceKm,
+              isFavorite: isFavorite(_savedForEntry(entry)),
+              onToggleFavorite: () => onToggleFavorite(_savedForEntry(entry)),
               onTap: () => onSelect(entry),
             ),
         };
@@ -439,11 +487,15 @@ class _SectionHeader extends StatelessWidget {
 class _HalteTile extends StatelessWidget {
   final HalteEntry entry;
   final double? distanceKm;
+  final bool isFavorite;
+  final VoidCallback onToggleFavorite;
   final VoidCallback onTap;
 
   const _HalteTile({
     required this.entry,
     required this.distanceKm,
+    required this.isFavorite,
+    required this.onToggleFavorite,
     required this.onTap,
   });
 
@@ -478,15 +530,104 @@ class _HalteTile extends StatelessWidget {
           ],
         ],
       ),
-      trailing: distanceKm != null
-          ? Text(
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (distanceKm != null)
+            Text(
               formatDistance(distanceKm!),
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: theme.colorScheme.primary,
               ),
-            )
-          : null,
+            ),
+          _FavoriteStar(isFavorite: isFavorite, onPressed: onToggleFavorite),
+        ],
+      ),
+    );
+  }
+}
+
+/// Satu tempat tersimpan (favorit/riwayat): bisa berupa halte atau tempat (POI).
+class _SavedPlaceTile extends StatelessWidget {
+  final SavedPlace place;
+  final bool isFavorite;
+  final VoidCallback onTap;
+  final VoidCallback onToggleFavorite;
+
+  const _SavedPlaceTile({
+    required this.place,
+    required this.isFavorite,
+    required this.onTap,
+    required this.onToggleFavorite,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isHalte = place.kind == SavedPlaceKind.halte;
+    final corridors = (place.corridors ?? '')
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    final accent = isHalte && corridors.isNotEmpty
+        ? corridorColor(corridors.first)
+        : theme.colorScheme.primary;
+    final accentIconColor = ensureContrast(
+      accent,
+      Color.alphaBlend(accent.withOpacity(0.15), theme.colorScheme.surface),
+    );
+
+    return ListTile(
+      onTap: onTap,
+      leading: CircleAvatar(
+        backgroundColor: accent.withOpacity(0.15),
+        child: Icon(
+          isHalte ? Icons.directions_bus_outlined : Icons.place_outlined,
+          color: accentIconColor,
+          size: 20,
+        ),
+      ),
+      title: Text(
+        place.label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: corridors.isEmpty
+          ? null
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final corridor in corridors) ...[
+                  CorridorBadge(corridor: corridor, size: 24, fontSize: 10),
+                  if (corridor != corridors.last) const SizedBox(width: 4),
+                ],
+              ],
+            ),
+      trailing:
+          _FavoriteStar(isFavorite: isFavorite, onPressed: onToggleFavorite),
+    );
+  }
+}
+
+/// Tombol bintang untuk menambah/menghapus tempat dari favorit.
+class _FavoriteStar extends StatelessWidget {
+  final bool isFavorite;
+  final VoidCallback onPressed;
+
+  const _FavoriteStar({required this.isFavorite, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return IconButton(
+      tooltip: isFavorite ? l10n.removeFavorite : l10n.addFavorite,
+      onPressed: onPressed,
+      icon: Icon(isFavorite ? Icons.star : Icons.star_border),
+      color: isFavorite
+          ? const Color(0xFFEAA221)
+          : Theme.of(context).colorScheme.onSurfaceVariant,
     );
   }
 }
@@ -525,11 +666,22 @@ class _PlaceTab extends ConsumerWidget {
             message: l10n.placeNotFound,
           );
         }
+        final favoriteIds = ref
+            .watch(savedPlacesProvider)
+            .favorites
+            .map((p) => p.id)
+            .toSet();
         return ListView.builder(
           padding: const EdgeInsets.only(bottom: 24),
           itemCount: items.length,
           itemBuilder: (context, index) {
             final item = items[index];
+            final saved = SavedPlace(
+              kind: SavedPlaceKind.place,
+              label: item.name,
+              lat: item.pos.latitude,
+              lng: item.pos.longitude,
+            );
             return ListTile(
               leading: const Icon(Icons.place_outlined),
               title: Text(item.name),
@@ -537,6 +689,12 @@ class _PlaceTab extends ConsumerWidget {
                 item.displayName,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+              ),
+              trailing: _FavoriteStar(
+                isFavorite: favoriteIds.contains(saved.id),
+                onPressed: () => ref
+                    .read(savedPlacesProvider.notifier)
+                    .toggleFavorite(saved),
               ),
               onTap: () => onSelect(item),
             );

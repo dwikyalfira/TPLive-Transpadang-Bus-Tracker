@@ -9,7 +9,7 @@ enum ConnectionStatus {
   outsideHours,
 }
 
-/// Kontrak sumber data bus (WebSocket asli atau data palsu untuk demo).
+/// Kontrak sumber data posisi bus realtime.
 abstract class BusSource {
   /// Aliran daftar bus terbaru.
   Stream<List<Bus>> get busStream;

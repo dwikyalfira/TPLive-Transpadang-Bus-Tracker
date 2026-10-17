@@ -55,6 +55,10 @@ Widget _host(Bus bus, HalteProgress progress, {bool collapsed = false}) {
             progress: progress,
             collapsed: collapsed,
             onClose: () {},
+            footer: PinnedBusCardFooter(
+              bus: bus,
+              destinationLabel: progress.destinationLabel,
+            ),
           ),
         ],
       ),
@@ -125,7 +129,7 @@ void main() {
 
     final size =
         tester.getSize(find.byKey(FloatingPinnedBusCard.contentKey));
-    expect(size.height, lessThan(200));
+    expect(size.height, lessThan(240));
     expect(size.width, lessThan(500));
   });
 

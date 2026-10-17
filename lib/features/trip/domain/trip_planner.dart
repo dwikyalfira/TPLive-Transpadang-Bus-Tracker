@@ -80,10 +80,6 @@ class TripOption {
   /// Kode koridor yang dipakai, mis. "K3" atau "K1 → K3".
   String get corridorChain =>
       legs.map((leg) => leg.corridor).toSet().join(' → ');
-
-  /// Halte pindah (bila transit).
-  Halte? get transferHalte =>
-      legs.length > 1 ? legs.first.alight : null;
 }
 
 /// Hasil perhitungan rute menuju satu destinasi.

@@ -1,23 +1,27 @@
 package id.dwiky.transpadang_live
 
-import kotlin.math.abs
-import kotlin.math.atan2
 import kotlin.math.cos
-import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
- * Port dari logika pelacakan halte di Dart (`halte_tracker.dart` + `geo_utils.dart`)
- * agar sama persis logikanya dengan yang dipakai aplikasi. Hanya menerima daftar
- * halte satu arah (urutan perjalanan) + posisi bus, lalu menghitung indeks halte
- * sekarang / berikutnya serta progres sepanjang rute.
+ * Port minimal dari `halte_tracker.dart` (`_build`) + `geo_utils.dart` yang
+ * benar-benar dipakai [FollowService]: menghitung indeks halte sekarang /
+ * berikutnya serta progres sepanjang SATU arah perjalanan.
+ *
+ * Hanya menerima daftar halte satu arah (urutan perjalanan) + posisi bus.
+ * Fungsi geometri lain (bearing, selisih sudut, pemilihan arah) sengaja TIDAK
+ * diport di sini karena arah yang dipakai sudah ditentukan di Dart dan hanya
+ * dikirim sebagai urutan halte.
+ *
+ * Konstanta kecepatan harus tetap sama dengan `AppConfig.defaultSpeedKmh` /
+ * `AppConfig.minMovingSpeedKmh` di `lib/core/config.dart`.
  */
 object HalteMath {
 
-    const val DEFAULT_SPEED_KMH = 20.0
-    const val MIN_MOVING_SPEED_KMH = 5.0
+    private const val DEFAULT_SPEED_KMH = 20.0
+    private const val MIN_MOVING_SPEED_KMH = 5.0
     private const val EPS_KM = 0.03 // 30 m
 
     data class Point(val lat: Double, val lng: Double)
@@ -33,23 +37,6 @@ object HalteMath {
         /** Jarak garis lurus dari bus ke halte berikutnya (km). */
         val distanceToNextKm: Double,
     )
-
-    /** Bearing kompas (derajat, 0 = utara) dari [from] ke [to]. */
-    fun bearingDegrees(from: Point, to: Point): Double {
-        val lat1 = Math.toRadians(from.lat)
-        val lat2 = Math.toRadians(to.lat)
-        val dLng = Math.toRadians(to.lng - from.lng)
-        val y = sin(dLng) * cos(lat2)
-        val x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLng)
-        val deg = Math.toDegrees(atan2(y, x))
-        return (deg + 360.0) % 360.0
-    }
-
-    /** Selisih sudut terkecil antara dua arah (0..180). */
-    fun angularDifference(a: Double, b: Double): Double {
-        val d = abs(a - b) % 360.0
-        return if (d > 180.0) 360.0 - d else d
-    }
 
     /** Jarak garis lurus (Haversine) dalam kilometer. */
     fun distanceKm(a: Point, b: Point): Double {
@@ -92,16 +79,6 @@ object HalteMath {
         return best
     }
 
-    /** Arah segmen lokal di sekitar index [idx] (rata-rata prev->next). */
-    fun localBearing(stops: List<Point>, idx: Int): Double {
-        if (stops.size < 2) return 0.0
-        if (idx <= 0) return bearingDegrees(stops[0], stops[1])
-        if (idx >= stops.size - 1) {
-            return bearingDegrees(stops[stops.size - 2], stops[stops.size - 1])
-        }
-        return bearingDegrees(stops[idx - 1], stops[idx + 1])
-    }
-
     /** Estimasi ETA (menit) berdasarkan jarak dan kecepatan bus. */
     fun etaMinutes(distanceKm: Double, speedKmh: Double?): Int? {
         val speed = if (speedKmh == null || speedKmh < MIN_MOVING_SPEED_KMH) {
@@ -113,14 +90,11 @@ object HalteMath {
         return minutes.roundToInt()
     }
 
-    fun isValidHeading(v: Double?) =
-        v != null && v.isFinite() && v >= 0 && v < 360
-
     /**
      * Menghitung posisi bus di sepanjang urutan halte [stops] (satu arah).
-     * Port langsung dari dart `HalteTracker._build`.
+     * Port dari dart `HalteTracker._build`.
      */
-    fun computeProgress(stops: List<Point>, pos: Point, heading: Double?): Progress? {
+    fun computeProgress(stops: List<Point>, pos: Point): Progress? {
         if (stops.size < 2) return null
 
         val cum = DoubleArray(stops.size)

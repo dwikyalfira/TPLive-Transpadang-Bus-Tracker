@@ -11,6 +11,7 @@ import '../../tracking/presentation/widgets/corridor_badge.dart';
 import '../../tracking/presentation/widgets/follow_bus_button.dart';
 import '../../tracking/presentation/widgets/format.dart';
 import '../../tracking/presentation/widgets/halte_timeline_sheet.dart';
+import '../domain/saved_place.dart';
 import '../domain/trip_endpoint.dart';
 import '../domain/trip_planner.dart';
 import 'location_picker_screen.dart';
@@ -66,6 +67,10 @@ class TripScreen extends ConsumerWidget {
     );
     if (result != null) {
       ref.read(tripDestinationEndpointProvider.notifier).state = result;
+      final saved = SavedPlace.fromEndpoint(result);
+      if (saved != null) {
+        ref.read(savedPlacesProvider.notifier).addRecent(saved);
+      }
     }
   }
 
@@ -649,7 +654,6 @@ class _TripBusCard extends StatelessWidget {
             bus: bus,
             distanceKm: item.distanceKm,
             etaMinutes: item.etaMinutes,
-            directionKey: progress.arahKey,
             destinationLabel: progress.destinationLabel,
             resolvedHeading: progress.resolvedHeading,
           ),

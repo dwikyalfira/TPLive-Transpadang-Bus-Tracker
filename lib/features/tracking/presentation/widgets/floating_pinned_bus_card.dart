@@ -5,6 +5,7 @@ import '../../data/bus_model.dart';
 import '../../domain/geo_utils.dart' as geo;
 import '../../domain/halte_tracker.dart';
 import 'format.dart';
+import 'speed_dial.dart';
 
 /// Kartu bus yang sedang di-pin ("update island"), melayang di bagian bawah
 /// layar sehingga tetap terlihat di atas konten lain.
@@ -49,6 +50,9 @@ class FloatingPinnedBusCard extends StatelessWidget {
   /// Dipanggil saat tombol tutup ditekan (mis. untuk berhenti mengikuti).
   final VoidCallback? onClose;
 
+  /// Rincian tambahan opsional pada mode penuh (mis. [PinnedBusCardFooter]).
+  final Widget? footer;
+
   const FloatingPinnedBusCard({
     super.key,
     required this.bus,
@@ -56,6 +60,60 @@ class FloatingPinnedBusCard extends StatelessWidget {
     this.collapsed = false,
     this.onTap,
     this.onClose,
+    this.footer,
+  });
+
+  /// Kunci untuk mengukur kartu dalam test.
+  static const Key contentKey = PinnedBusCardBody.contentKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Pengisi transparan: memberi ukuran pada Stack saat ditempatkan
+        // sebagai overlay (constraint loose dari Stack induk). Tidak menyerap
+        // sentuhan karena tidak punya anak/warna.
+        const SizedBox.expand(),
+        Positioned(
+          left: 16,
+          right: 16,
+          bottom: 16,
+          child: PinnedBusCardBody(
+            bus: bus,
+            progress: progress,
+            collapsed: collapsed,
+            onTap: onTap,
+            onClose: onClose,
+            footer: footer,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Isi kartu bus tanpa pembungkus posisi (dipakai overlay [FloatingPinnedBusCard]
+/// dan kartu bawah pada peta). Bergaya sama: latar tint koridor, garis aksen,
+/// identitas bus, status halte saat ini & berikutnya, serta garis progres.
+///
+/// Bila [collapsed] benar hanya garis progres yang tampil. [footer] opsional
+/// menambahkan rincian (mis. kecepatan & waktu pembaruan) pada mode penuh.
+class PinnedBusCardBody extends StatelessWidget {
+  final Bus bus;
+  final HalteProgress progress;
+  final bool collapsed;
+  final VoidCallback? onTap;
+  final VoidCallback? onClose;
+  final Widget? footer;
+
+  const PinnedBusCardBody({
+    super.key,
+    required this.bus,
+    required this.progress,
+    this.collapsed = false,
+    this.onTap,
+    this.onClose,
+    this.footer,
   });
 
   /// Kunci untuk mengukur kartu dalam test.
@@ -67,8 +125,8 @@ class FloatingPinnedBusCard extends StatelessWidget {
     final accent = corridorAccent(bus.corridor, theme);
     final onAccent = onColor(accent);
 
-    // Latar kartu: warna koridor bus yang di-pin, di-tint lembut agar tetap
-    // terasa "milik" bus tersebut namun teks hijau status tetap kontras.
+    // Latar kartu: warna koridor bus, di-tint lembut agar tetap terasa "milik"
+    // bus tersebut namun teks status tetap kontras.
     final background = corridorSurfaceTint(
       bus.corridor,
       theme,
@@ -76,99 +134,211 @@ class FloatingPinnedBusCard extends StatelessWidget {
       opacity: kCorridorPinnedTintOpacity,
     );
 
-    return Stack(
-      children: [
-        // Pengisi transparan: memberi ukuran pada Stack saat ditempatkan
-        // sebagai overlay (constraint loose dari Stack induk). Tidak menyerap
-        // sentuhan karena tidak punya anak/warna.
-        const SizedBox.expand(),
-        Positioned(
-          left: 16,
-          right: 16,
-          bottom: 16,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                key: FloatingPinnedBusCard.contentKey,
-                padding: collapsed
-                    ? const EdgeInsets.symmetric(horizontal: 16, vertical: 6)
-                    : const EdgeInsets.fromLTRB(16, 8, 12, 12),
-                decoration: BoxDecoration(
-                  color: background,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: accent.withOpacity(0.4)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.16),
-                      blurRadius: 12,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                // Tombol tutup ditempatkan sebagai overlay (bukan di dalam aliran
-                // header) supaya tidak menambah tinggi baris header — mencegah
-                // ruang kosong di bagian atas kartu. [AnimatedSize] default
-                // meng-clip, jadi tombol harus berada di luar widget tersebut.
-                child: Stack(
-                  children: [
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 240),
-                      curve: Curves.easeInOut,
-                      alignment: Alignment.topCenter,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: collapsed
-                            ? [
-                                _ProgressTrack(
-                                  progress: progress,
-                                  accent: accent,
-                                ),
-                                const SizedBox(height: 5),
-                                _ProgressLabels(
-                                  progress: progress,
-                                  accent: accent,
-                                ),
-                              ]
-                            : [
-                                _Header(
-                                  bus: bus,
-                                  accent: accent,
-                                  onAccent: onAccent,
-                                ),
-                                const SizedBox(height: 10),
-                                _CurrentStatus(
-                                  step: progress.currentStep,
-                                  accent: accent,
-                                  onAccent: onAccent,
-                                ),
-                                const SizedBox(height: 10),
-                                _NextStatus(
-                                  step: progress.nextStep,
-                                  bus: bus,
-                                  accent: accent,
-                                ),
-                                const SizedBox(height: 12),
-                                _ProgressLine(
-                                  progress: progress,
-                                  accent: accent,
-                                ),
-                              ],
-                      ),
-                    ),
-                    if (!collapsed && onClose != null)
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: _CloseButton(onClose: onClose!),
-                      ),
-                  ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          key: contentKey,
+          padding: collapsed
+              ? const EdgeInsets.symmetric(horizontal: 16, vertical: 6)
+              : const EdgeInsets.fromLTRB(16, 8, 12, 12),
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: accent.withOpacity(0.4)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.16),
+                blurRadius: 12,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          // Tombol tutup ditempatkan sebagai overlay (bukan di dalam aliran
+          // header) supaya tidak menambah tinggi baris header — mencegah
+          // ruang kosong di bagian atas kartu. [AnimatedSize] default
+          // meng-clip, jadi tombol harus berada di luar widget tersebut.
+          child: Stack(
+            children: [
+              AnimatedSize(
+                duration: const Duration(milliseconds: 240),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: collapsed
+                      ? [
+                          _CompactHeader(
+                            bus: bus,
+                            accent: accent,
+                            onAccent: onAccent,
+                          ),
+                          const SizedBox(height: 8),
+                          _ProgressTrack(progress: progress, accent: accent),
+                          const SizedBox(height: 5),
+                          _ProgressLabels(progress: progress, accent: accent),
+                        ]
+                      : [
+                          _Header(bus: bus, accent: accent, onAccent: onAccent),
+                          const SizedBox(height: 10),
+                          _CurrentStatus(
+                            step: progress.currentStep,
+                            accent: accent,
+                            onAccent: onAccent,
+                          ),
+                          const SizedBox(height: 10),
+                          _NextStatus(
+                            step: progress.nextStep,
+                            bus: bus,
+                            accent: accent,
+                          ),
+                          const SizedBox(height: 12),
+                          _ProgressLine(progress: progress, accent: accent),
+                          if (footer != null) ...[
+                            const SizedBox(height: 12),
+                            footer!,
+                          ],
+                        ],
                 ),
               ),
+              if (!collapsed && onClose != null)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: _CloseButton(onClose: onClose!),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Baris rincian tambahan pada kartu bus: kecepatan real-time, tujuan yang
+/// sedang ditempuh, dan waktu pembaruan data. Dipakai kartu peta dan kartu bus
+/// yang di-pin agar tampil seragam (ala detail bus).
+class PinnedBusCardFooter extends StatelessWidget {
+  final Bus bus;
+
+  /// Label terminus tujuan yang sedang ditempuh (mis. "RTH Imam Bonjol").
+  final String? destinationLabel;
+
+  /// Widget opsional di ujung kanan baris (mis. tombol ikuti/pin di kartu peta).
+  final Widget? trailing;
+
+  const PinnedBusCardFooter({
+    super.key,
+    required this.bus,
+    this.destinationLabel,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final accent = corridorAccent(bus.corridor, theme);
+    final speed = bus.speedKmh;
+    final dest = destinationLabel?.trim();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Divider(height: 1, thickness: 1, color: theme.dividerColor),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            if (speed != null && speed > 0) ...[
+              BusSpeedDial(speedKmh: speed, color: accent),
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (dest != null && dest.isNotEmpty)
+                    Row(
+                      children: [
+                        Icon(Icons.place_outlined, size: 14, color: accent),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            l10n.destinationLabel(dest),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.updatedLabel(
+                      formatAge(bus.age(DateTime.now().toUtc()), l10n),
+                    ),
+                    style: theme.textTheme.labelSmall
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
             ),
+            if (trailing != null) ...[
+              const SizedBox(width: 4),
+              trailing!,
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Identitas ringkas pada mode mini: badge koridor + nomor bus, supaya konteks
+/// bus tetap terbaca saat kartu diringkas (mis. saat menggulir).
+class _CompactHeader extends StatelessWidget {
+  final Bus bus;
+  final Color accent;
+  final Color onAccent;
+
+  const _CompactHeader({
+    required this.bus,
+    required this.accent,
+    required this.onAccent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+          decoration: BoxDecoration(
+            color: accent,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Text(
+            bus.corridor.isEmpty ? '?' : bus.corridor,
+            style: TextStyle(
+              color: onAccent,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            AppLocalizations.of(context).busLabel(bus.number),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelLarge
+                ?.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ],

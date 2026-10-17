@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transpadang_live/features/tracking/data/halte_data.dart';
 import 'package:transpadang_live/features/tracking/presentation/providers.dart';
+import 'package:transpadang_live/features/trip/data/saved_places_store.dart';
 import 'package:transpadang_live/features/trip/presentation/location_picker_screen.dart';
+import 'package:transpadang_live/features/trip/presentation/trip_providers.dart';
 import 'package:transpadang_live/l10n/app_localizations.dart';
+
+late SharedPreferences _prefs;
 
 Halte _h(double lat, double lng, String nama) =>
     Halte(nama: nama, pos: LatLng(lat, lng));
@@ -29,6 +34,7 @@ Widget _app({required bool includeGps}) {
       userLocationProvider.overrideWith(
         (ref) => Stream.value(const LatLng(-0.90, 100.30)),
       ),
+      savedPlacesStoreProvider.overrideWithValue(SavedPlacesStore(_prefs)),
     ],
     child: MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -40,6 +46,11 @@ Widget _app({required bool includeGps}) {
 }
 
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    _prefs = await SharedPreferences.getInstance();
+  });
+
   testWidgets('pemilih asal menampilkan Lokasi saya + halte terdekat',
       (tester) async {
     await tester.pumpWidget(_app(includeGps: true));
@@ -61,5 +72,19 @@ void main() {
 
     expect(find.text('Lokasi saya'), findsNothing);
     expect(find.text('Cari halte…'), findsOneWidget);
+  });
+
+  testWidgets('bintang menambah favorit & muncul bagian FAVORIT',
+      (tester) async {
+    await tester.pumpWidget(_app(includeGps: false));
+    await tester.pumpAndSettle();
+
+    expect(find.text('FAVORIT'), findsNothing);
+
+    await tester.tap(find.byIcon(Icons.star_border).first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('FAVORIT'), findsOneWidget);
+    expect(find.byIcon(Icons.star), findsWidgets);
   });
 }

@@ -33,7 +33,6 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
-                    "isFollowing" -> result.success(FollowService.isActive)
                     "getFollowed" -> {
                         if (FollowService.isActive) {
                             result.success(
@@ -78,6 +77,11 @@ class MainActivity : FlutterActivity() {
             .putExtra(FollowService.EXTRA_ROUTE, args?.get("route") as? String ?: "")
             .putExtra(FollowService.EXTRA_DIRECTION, args?.get("direction") as? String ?: "")
             .putExtra(FollowService.EXTRA_HALTES, encodeHaltes(args?.get("haltes")))
+            .putExtra(
+                FollowService.EXTRA_COLOR,
+                (args?.get("color") as? Number)?.toInt()
+                    ?: FollowService.DEFAULT_KEY_COLOR,
+            )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)

@@ -72,11 +72,6 @@ class CorridorInfo {
   }
 
   int get totalStops => stopsPergi + stopsPulang;
-
-  /// Terminus pada arah tertentu; `pergi` (default) atau `pulang`.
-  String? originFor(bool pergi) => pergi ? originPergi : originPulang;
-  String? destinationFor(bool pergi) =>
-      pergi ? destinationPergi : destinationPulang;
 }
 
 /// Ringkasan seluruh jaringan TransPadang untuk tab "Semua".

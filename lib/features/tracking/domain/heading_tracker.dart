@@ -70,6 +70,4 @@ class HeadingTracker {
     final deg = math.atan2(sy, sx) * _deg;
     return (deg + 360) % 360;
   }
-
-  void clear() => _history.clear();
 }

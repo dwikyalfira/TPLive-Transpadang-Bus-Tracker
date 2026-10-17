@@ -27,17 +27,6 @@ class FollowService {
     }
   }
 
-  /// Apakah sedang ada sesi follow aktif.
-  static Future<bool> isFollowing() async {
-    try {
-      return await _channel.invokeMethod<bool>('isFollowing') ?? false;
-    } on PlatformException {
-      return false;
-    } on MissingPluginException {
-      return false;
-    }
-  }
-
   /// Info bus yang sedang diikuti (untuk memulihkan indikator setelah app
   /// di-restart). Mengembalikan null bila tidak ada sesi aktif.
   static Future<({String corridor, String busNumber})?> getFollowed() async {
@@ -59,7 +48,9 @@ class FollowService {
   }
 
   /// Mulai mengikuti satu bus. [haltes] adalah urutan halte arah yang sedang
-  /// ditempuh (pergi/pulang).
+  /// ditempuh (pergi/pulang). [accentColor] adalah warna ARGB badge koridor
+  /// (dari `corridorColor`) agar notifikasi native memakai warna yang sama
+  /// tanpa menduplikasi tabel warna di Kotlin.
   static Future<void> startFollow({
     required String corridor,
     required String busNumber,
@@ -68,6 +59,7 @@ class FollowService {
     required String route,
     required String direction,
     required List<Halte> haltes,
+    required int accentColor,
   }) async {
     await _channel.invokeMethod('startFollow', {
       'corridor': corridor,
@@ -76,6 +68,7 @@ class FollowService {
       'destination': destination,
       'route': route,
       'direction': direction,
+      'color': accentColor,
       'haltes': [
         for (final h in haltes)
           {

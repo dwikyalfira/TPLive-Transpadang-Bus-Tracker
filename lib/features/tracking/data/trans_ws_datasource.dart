@@ -29,7 +29,6 @@ class TransWsDataSource implements BusSource {
   int _attempt = 0;
   bool _disposed = false;
   bool _paused = false;
-  List<Bus> _lastBuses = const [];
   DateTime? _lastMessageAt;
   DateTime? _connectedAt;
 
@@ -50,7 +49,6 @@ class TransWsDataSource implements BusSource {
 
   @override
   Stream<ConnectionStatus> get statusStream => _statusController.stream;
-  List<Bus> get lastBuses => _lastBuses;
 
   /// Mulai koneksi, pantau siklus hidup aplikasi, dan jalankan pengawas keaktifan.
   @override
@@ -137,7 +135,6 @@ class TransWsDataSource implements BusSource {
             .whereType<Map>()
             .map((e) => Bus.fromJson(e.cast<String, dynamic>()))
             .toList(growable: false);
-        _lastBuses = buses;
         if (!_busController.isClosed) _busController.add(buses);
       }
     } catch (_) {

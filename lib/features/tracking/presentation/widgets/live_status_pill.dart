@@ -191,27 +191,35 @@ class _LiveStatusPillState extends State<LiveStatusPill>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     dot,
-                    ClipRect(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: t,
-                        heightFactor: t,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 6),
-                          child: Opacity(
-                            opacity: t,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  baseLabel,
-                                  style: _labelStyle.copyWith(color: color),
-                                ),
-                                if (hasEllipsis)
-                                  _AnimatedEllipsis(
-                                    style: _labelStyle.copyWith(color: color),
+                    Flexible(
+                      child: ClipRect(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: t,
+                          heightFactor: t,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: Opacity(
+                              opacity: t,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      baseLabel,
+                                      softWrap: false,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: _labelStyle.copyWith(color: color),
+                                    ),
                                   ),
-                              ],
+                                  if (hasEllipsis)
+                                    Flexible(
+                                      child: _AnimatedEllipsis(
+                                        style: _labelStyle.copyWith(color: color),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -268,9 +276,11 @@ class _AnimatedEllipsisState extends State<_AnimatedEllipsis> {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var i = 0; i < _dots; i++)
-          Opacity(
-            opacity: i < _phase ? 1.0 : 0.0,
-            child: Text('.', style: widget.style),
+          Flexible(
+            child: Opacity(
+              opacity: i < _phase ? 1.0 : 0.0,
+              child: Text('.', softWrap: false, style: widget.style),
+            ),
           ),
       ],
     );

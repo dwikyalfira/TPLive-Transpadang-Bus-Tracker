@@ -65,6 +65,28 @@ void main() {
     expect(_labelOpacity(tester, 'Terhubung'), closeTo(0.0, 0.02));
   });
 
+  testWidgets('label menyusut (tanpa overflow) saat ruang sempit',
+      (tester) async {
+    for (final status in ConnectionStatus.values) {
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('id'),
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.centerLeft,
+            child: SizedBox(
+              width: 96,
+              child: LiveStatusPill(status: status),
+            ),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    }
+  });
+
   testWidgets('reconnecting → connected: keterangan ikut menyusut',
       (tester) async {
     await tester.pumpWidget(_app(ConnectionStatus.reconnecting));

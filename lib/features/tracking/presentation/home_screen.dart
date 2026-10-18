@@ -245,10 +245,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 10),
-            LiveStatusPill(
-              status:
-                  isOutsideHours ? ConnectionStatus.outsideHours : status,
-              onTap: () {},
+            Flexible(
+              child: LiveStatusPill(
+                status:
+                    isOutsideHours ? ConnectionStatus.outsideHours : status,
+                onTap: () {},
+              ),
             ),
           ],
         ),

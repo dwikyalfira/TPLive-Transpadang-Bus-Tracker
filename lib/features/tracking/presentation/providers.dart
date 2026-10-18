@@ -8,10 +8,12 @@ import 'package:latlong2/latlong.dart';
 import '../../../core/config.dart';
 import '../data/bus_model.dart';
 import '../data/bus_source.dart';
+import '../data/corridor_route.dart';
 import '../data/halte_data.dart';
 import '../data/trans_ws_datasource.dart';
 import '../domain/bus_with_distance.dart';
 import '../domain/corridor_info.dart';
+import '../domain/corridor_path.dart';
 import '../domain/halte_tracker.dart';
 import '../domain/heading_tracker.dart';
 import '../domain/map_marker.dart';
@@ -280,7 +282,11 @@ final corridorInfoProvider = Provider<Map<String, CorridorInfo>>((ref) {
 
 /// Sumber tile peta (ubin OpenStreetMap). Dipisah sebagai provider agar dapat
 /// di-override saat pengujian dengan sumber lokal tanpa permintaan jaringan.
-final tileProviderProvider = Provider<TileProvider>(
+///
+/// `autoDispose` supaya tiap sesi peta memakai [NetworkTileProvider] baru:
+/// [TileLayer] menutup HTTP client milik provider saat peta ditutup, sehingga
+/// provider bersama akan mati permanen dan membuat peta kosong saat dibuka lagi.
+final tileProviderProvider = Provider.autoDispose<TileProvider>(
   (ref) => NetworkTileProvider(),
 );
 
@@ -291,5 +297,34 @@ final busMapMarkersProvider = Provider<List<BusMapMarker>>((ref) {
   return buildBusMapMarkers(
     buses,
     filterCorridor: ref.watch(selectedCorridorProvider),
+  );
+});
+
+/// Geometri jalur koridor (mengikuti jalan) dari hasil bangkitan otomatis
+/// (`scripts/generate_corridor_routes.ps1`).
+final corridorRouteDatasetProvider =
+    FutureProvider<CorridorRouteDataset>((ref) => loadCorridorRouteDataset());
+
+/// Geometri jalur koridor yang digambar manual (GeoJSON di `assets/routes/`).
+/// Diprioritaskan di atas [corridorRouteDatasetProvider].
+final manualCorridorRouteProvider =
+    FutureProvider<CorridorRouteDataset>((ref) => loadManualCorridorRouteDataset());
+
+/// Jalur koridor (polilin) yang digambar di peta.
+///
+/// Saat sebuah koridor dipilih, hanya koridor itu yang digambar (pergi &
+/// pulang). Saat tab "Semua" (null), seluruh koridor ditampilkan sekaligus —
+/// masing-masing memakai warna koridornya. Prioritas geometri: gambar manual >
+/// hasil routing > garis antar-halte.
+final corridorPathsProvider = Provider<List<CorridorPath>>((ref) {
+  final dataset = ref.watch(halteDatasetProvider).valueOrNull;
+  if (dataset == null) return const [];
+  return buildCorridorPaths(
+    dataset,
+    filterCorridor: ref.watch(selectedCorridorProvider),
+    routeGeometry: overlayRouteGeometry(
+      ref.watch(manualCorridorRouteProvider).valueOrNull,
+      ref.watch(corridorRouteDatasetProvider).valueOrNull,
+    ),
   );
 });

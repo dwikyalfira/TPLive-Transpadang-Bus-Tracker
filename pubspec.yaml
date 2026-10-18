@@ -114,6 +114,8 @@ flutter:
 
   assets:
     - assets/halte.json
+    - assets/corridor_routes.json
+    - assets/routes/
     - assets/logo/tpl_logo_original.png
 
   # To add assets to your application, add an assets section, like this:

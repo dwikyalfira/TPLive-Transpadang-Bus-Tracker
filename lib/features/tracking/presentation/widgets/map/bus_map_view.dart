@@ -146,6 +146,22 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
               userAgentPackageName: AppConfig.osmUserAgent,
               tileProvider: ref.watch(tileProviderProvider),
             ),
+            // Jalur koridor (semua koridor saat tab "Semua", atau hanya yang
+            // terpilih), digambar di atas ubin namun di bawah penanda agar bus
+            // & lokasi pengguna tetap terlihat/diketuk.
+            PolylineLayer(
+              polylineCulling: true,
+              polylines: [
+                for (final path in ref.watch(corridorPathsProvider))
+                  Polyline(
+                    points: path.points,
+                    color: corridorAccent(path.corridor, theme),
+                    strokeWidth: 4,
+                    borderColor: theme.colorScheme.surface,
+                    borderStrokeWidth: 1,
+                  ),
+              ],
+            ),
             MarkerLayer(
               markers: [
                 // Titik lokasi digambar lebih dulu agar penanda bus selalu di

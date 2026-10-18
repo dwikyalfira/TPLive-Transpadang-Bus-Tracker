@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:transpadang_live/features/tracking/data/bus_model.dart';
 import 'package:transpadang_live/features/tracking/data/bus_source.dart';
+import 'package:transpadang_live/features/tracking/data/corridor_route.dart';
 import 'package:transpadang_live/features/tracking/data/halte_data.dart';
 import 'package:transpadang_live/features/tracking/presentation/home_screen.dart';
 import 'package:transpadang_live/features/tracking/presentation/providers.dart';
@@ -75,6 +76,11 @@ class _FakeTileProvider extends TileProvider {
 List<Override> _overrides(List<Bus> buses) => [
       busSourceProvider.overrideWithValue(_SilentBusSource()),
       halteDatasetProvider.overrideWith((ref) => _dataset()),
+      // Tanpa geometri mengikuti jalan: uji jatuh ke garis antar-halte.
+      corridorRouteDatasetProvider
+          .overrideWith((ref) async => const CorridorRouteDataset({})),
+      manualCorridorRouteProvider
+          .overrideWith((ref) async => const CorridorRouteDataset({})),
       userLocationProvider.overrideWith(
         (ref) => Stream.value(const LatLng(-0.90, 100.30)),
       ),

@@ -108,6 +108,13 @@ ProviderContainer _container(List<Bus> buses) {
   return container;
 }
 
+/// Penanda halte yang benar-benar tergambar di peta (kunci `mapStop:<id>`).
+Finder _stopMarkers() => find.byWidgetPredicate(
+      (widget) =>
+          widget.key is ValueKey<String> &&
+          (widget.key! as ValueKey<String>).value.startsWith('mapStop:'),
+    );
+
 void main() {
   testWidgets('peta menampilkan judul, penyaring koridor, & penanda bus',
       (tester) async {
@@ -156,6 +163,28 @@ void main() {
     await tester.pumpAndSettle();
     expect(container.read(mapCorridorProvider), isNull);
     expect(find.text('11'), findsOneWidget);
+  });
+
+  testWidgets('halte tampil saat koridor dipilih & ketuk membuka info',
+      (tester) async {
+    final container = _container(const []);
+    await tester.pumpWidget(_app(container, const MapScreen()));
+    await tester.pumpAndSettle();
+
+    // Tab "Semua": puluhan halte terlalu padat, jadi disembunyikan dulu.
+    expect(_stopMarkers(), findsNothing);
+
+    await tester.tap(find.text('K1'));
+    await tester.pumpAndSettle();
+
+    // Dua halte K1 (A & B) tampil; halte K3 tidak ikut.
+    expect(_stopMarkers(), findsNWidgets(2));
+
+    await tester.tap(find.byKey(const ValueKey('mapStop:b#1')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('B'), findsOneWidget);
+    expect(find.text('Dilayani oleh'), findsOneWidget);
   });
 
   testWidgets('ketuk penanda menampilkan kartu bawah, bukan detail',

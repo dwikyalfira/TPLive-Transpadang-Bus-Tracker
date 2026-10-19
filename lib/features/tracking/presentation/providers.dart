@@ -17,6 +17,7 @@ import '../domain/corridor_path.dart';
 import '../domain/halte_tracker.dart';
 import '../domain/heading_tracker.dart';
 import '../domain/map_marker.dart';
+import '../domain/map_stop.dart';
 
 /// Exception ramah untuk masalah lokasi.
 class LocationException implements Exception {
@@ -335,6 +336,14 @@ final corridorRouteDatasetProvider =
 /// Diprioritaskan di atas [corridorRouteDatasetProvider].
 final manualCorridorRouteProvider =
     FutureProvider<CorridorRouteDataset>((ref) => loadManualCorridorRouteDataset());
+
+/// Halte fisik unik untuk peta (hasil penggabungan pergi/pulang & lintas
+/// koridor). Lihat [buildMapStops].
+final mapStopsProvider = Provider<List<MapStop>>((ref) {
+  final dataset = ref.watch(halteDatasetProvider).valueOrNull;
+  if (dataset == null) return const [];
+  return buildMapStops(dataset);
+});
 
 /// Jalur koridor (polilin) yang digambar di peta.
 ///

@@ -11,12 +11,14 @@ import '../../../data/bus_model.dart';
 import '../../../domain/bus_with_distance.dart';
 import '../../../domain/halte_tracker.dart';
 import '../../../domain/map_marker.dart';
+import '../../../domain/map_stop.dart';
 import '../../providers.dart';
 import '../bus_tile.dart';
 import '../floating_pinned_bus_card.dart';
 import '../follow_bus_button.dart';
 import '../format.dart';
 import '../halte_timeline_sheet.dart';
+import 'map_stop_sheet.dart';
 
 /// Peta live TransPadang: ubin OpenStreetMap, penanda bus (warna koridor +
 /// nomor bus), penanda lokasi pengguna, dan tombol kembali ke lokasi pengguna.
@@ -52,6 +54,10 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
 
   /// Kunci bus terpilih (`'<koridor>|<nomor>'`), null = tidak ada.
   String? _selectedKey;
+
+  /// Id halte terpilih ([MapStop.id]) yang diberi cincin sorot, null = tidak
+  /// ada.
+  String? _selectedStopId;
 
   /// Peta sudah siap menerima perintah [MapController.move] (`onMapReady`).
   bool _mapReady = false;
@@ -143,7 +149,19 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
     _applySelection('${marker.corridor}|${marker.number}');
   }
 
-  void _clearSelection() => _applySelection(null);
+  void _clearSelection() {
+    _applySelection(null);
+    if (_selectedStopId != null) {
+      setState(() => _selectedStopId = null);
+    }
+  }
+
+  void _openStop(MapStop stop) {
+    if (_selectedStopId != stop.id) {
+      setState(() => _selectedStopId = stop.id);
+    }
+    showMapStopSheet(context, stop);
+  }
 
   /// Menetapkan bus terpilih sekaligus menandai status pilihan ke provider,
   /// supaya kartu pin global menyembunyikan diri selama kartu peta tampil.
@@ -237,6 +255,18 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
                     borderStrokeWidth: AppConfig.mapRouteBorderWidth,
                   ),
               ],
+            ),
+            // Halte digambar di bawah bus/lokasi pengguna agar penanda bus
+            // tetap menang saat diketuk.
+            Consumer(
+              builder: (context, ref, _) {
+                final camera = MapCamera.of(context);
+                final stops = ref.watch(mapStopsProvider);
+                final filter = ref.watch(mapCorridorProvider);
+                return MarkerLayer(
+                  markers: _stopMarkers(context, stops, filter, camera.zoom),
+                );
+              },
             ),
             MarkerLayer(
               markers: [
@@ -348,6 +378,198 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
       width: 22,
       height: 22,
       child: const _UserMarkerDot(),
+    );
+  }
+
+  /// Zoom minimum untuk menampilkan halte saat penyaring "Semua" aktif.
+  ///
+  /// Dengan puluhan halte per koridor, menampilkannya di zoom kota membuat peta
+  /// penuh titik; saat satu koridor dipilih, haltenya selalu tampil.
+  static const double _stopAllMinZoom = 15.5;
+
+  /// Zoom minimum untuk menampilkan label nama halte.
+  static const double _stopLabelZoom = 17;
+
+  List<Marker> _stopMarkers(
+    BuildContext context,
+    List<MapStop> stops,
+    String? filter,
+    double zoom,
+  ) {
+    if (stops.isEmpty || (filter == null && zoom < _stopAllMinZoom)) {
+      return const [];
+    }
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final showLabels = zoom >= _stopLabelZoom;
+    final size = zoom >= 14.5
+        ? (showLabels ? 13.0 : 11.0)
+        : 8.0;
+    // Saat satu koridor disaring, hanya halte koridor itu yang digambar.
+    final active = filter?.toUpperCase();
+    final visible = active == null
+        ? stops
+        : [
+            for (final stop in stops)
+              if (stop.corridors.contains(active)) stop,
+          ];
+
+    return [
+      for (final stop in visible)
+        Marker(
+          key: ValueKey('mapStop:${stop.id}'),
+          point: stop.pos,
+          width: showLabels ? _StopMarkerPin.labelWidth : 44,
+          height: 44,
+          child: _StopMarkerPin(
+            name: stop.name,
+            color: _stopColor(stop, filter, theme),
+            size: size,
+            selected: stop.id == _selectedStopId,
+            interchange: stop.isInterchange,
+            showLabel: showLabels,
+            semanticsLabel: l10n.mapStopSemantics(stop.name),
+            onTap: () => _openStop(stop),
+          ),
+        ),
+    ];
+  }
+
+  /// Warna titik halte: warna koridor yang sedang disaring, warna koridornya
+  /// saat hanya satu koridor melayani, dan warna netral untuk halte transit.
+  Color _stopColor(MapStop stop, String? filter, ThemeData theme) {
+    if (filter != null) return corridorColor(filter);
+    if (stop.corridors.length == 1) return corridorColor(stop.corridors.first);
+    return theme.colorScheme.onSurfaceVariant;
+  }
+}
+
+/// Titik halte di peta.
+///
+/// Area sentuh selalu 44x44 dp meski titiknya kecil; label nama (bila aktif)
+/// tidak menerima sentuhan supaya tidak menutupi peta di sekitarnya.
+class _StopMarkerPin extends StatelessWidget {
+  /// Lebar kotak saat label nama ikut tampil.
+  static const double labelWidth = 168;
+
+  final String name;
+  final Color color;
+  final double size;
+  final bool selected;
+  final bool interchange;
+  final bool showLabel;
+  final String semanticsLabel;
+  final VoidCallback onTap;
+
+  const _StopMarkerPin({
+    required this.name,
+    required this.color,
+    required this.size,
+    required this.selected,
+    required this.interchange,
+    required this.showLabel,
+    required this.semanticsLabel,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final border = theme.colorScheme.surface;
+    final dotSize = selected ? size + 5 : size;
+
+    return Semantics(
+      label: semanticsLabel,
+      button: true,
+      child: SizedBox(
+        width: showLabel ? labelWidth : 44,
+        height: 44,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onTap,
+              child: SizedBox(
+                width: 44,
+                height: 44,
+                child: Center(
+                  child: Container(
+                    width: dotSize,
+                    height: dotSize,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: border, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.25),
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    // Halte transit diberi inti putih agar mudah dikenali
+                    // walau warnanya sama dengan koridor di sekitarnya.
+                    child: interchange
+                        ? Center(
+                            child: Container(
+                              width: dotSize * 0.34,
+                              height: dotSize * 0.34,
+                              decoration: BoxDecoration(
+                                color: border,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            ),
+            if (showLabel)
+              Positioned(
+                left: labelWidth / 2 + 12,
+                top: 0,
+                bottom: 0,
+                child: IgnorePointer(
+                  child: Center(child: _StopLabel(name: name)),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Chip nama halte yang tampil di samping titik saat zoom dekat.
+class _StopLabel extends StatelessWidget {
+  final String name;
+
+  const _StopLabel({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 120),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withOpacity(0.92),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Text(
+        name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: theme.textTheme.labelSmall?.copyWith(
+          fontWeight: FontWeight.w600,
+          height: 1.1,
+        ),
+      ),
     );
   }
 }

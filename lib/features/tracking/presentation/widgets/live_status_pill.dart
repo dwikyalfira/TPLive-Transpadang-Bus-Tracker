@@ -208,15 +208,17 @@ class _LiveStatusPillState extends State<LiveStatusPill>
                                     child: Text(
                                       baseLabel,
                                       softWrap: false,
-                                      overflow: TextOverflow.ellipsis,
+                                      // Titik animasi digambar
+                                      // [_AnimatedEllipsis]; jangan biarkan
+                                      // Flutter menambahkan elipsisnya
+                                      // sendiri agar titik tidak tampak dobel.
+                                      overflow: TextOverflow.clip,
                                       style: _labelStyle.copyWith(color: color),
                                     ),
                                   ),
                                   if (hasEllipsis)
-                                    Flexible(
-                                      child: _AnimatedEllipsis(
-                                        style: _labelStyle.copyWith(color: color),
-                                      ),
+                                    _AnimatedEllipsis(
+                                      style: _labelStyle.copyWith(color: color),
                                     ),
                                 ],
                               ),
@@ -238,7 +240,9 @@ class _LiveStatusPillState extends State<LiveStatusPill>
 
 /// Tiga titik yang tampil bergantian (efek mengetik) untuk label yang berakhir
 /// "…". Ketiga titik selalu dirender (yang tersembunyi hanya transparan) supaya
-/// lebar label tidak bergetar saat animasi berjalan.
+/// lebar label tidak bergetar saat animasi berjalan. Titik sengaja tidak
+/// fleksibel agar tidak ikut terhimpit saat ruang pill sempit — teks dasarnya
+/// yang mengalah (dipotong) lebih dulu.
 class _AnimatedEllipsis extends StatefulWidget {
   final TextStyle style;
 
@@ -276,11 +280,9 @@ class _AnimatedEllipsisState extends State<_AnimatedEllipsis> {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var i = 0; i < _dots; i++)
-          Flexible(
-            child: Opacity(
-              opacity: i < _phase ? 1.0 : 0.0,
-              child: Text('.', softWrap: false, style: widget.style),
-            ),
+          Opacity(
+            opacity: i < _phase ? 1.0 : 0.0,
+            child: Text('.', softWrap: false, style: widget.style),
           ),
       ],
     );

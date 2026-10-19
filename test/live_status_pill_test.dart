@@ -102,4 +102,46 @@ void main() {
     await tester.pumpAndSettle();
     expect(_labelOpacity(tester, 'Terhubung'), closeTo(0.0, 0.02));
   });
+
+  testWidgets('label "…" memakai titik animasi saja, bukan elipsis bawaan',
+      (tester) async {
+    await tester.pumpWidget(_app(ConnectionStatus.connecting));
+    await tester.pumpAndSettle();
+
+    // Teks dasar dipotong tanpa menggambar "…" milik Flutter sendiri.
+    final base = tester.widget<Text>(find.text('Menyambung'));
+    expect(base.overflow, TextOverflow.clip);
+    expect(find.text('…'), findsNothing);
+
+    // Hanya tiga titik dari animasi (bukan elipsis + tiga titik).
+    expect(find.text('.'), findsNWidgets(3));
+  });
+
+  testWidgets('ruang sempit: teks dipotong, titik animasi tetap tiga & utuh',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: Locale('id'),
+      home: Scaffold(
+        body: Align(
+          alignment: Alignment.centerLeft,
+          child: SizedBox(
+            width: 96,
+            child: LiveStatusPill(status: ConnectionStatus.reconnecting),
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('…'), findsNothing);
+    expect(find.text('.'), findsNWidgets(3));
+    // Pill tidak pernah melebihi ruang yang tersedia.
+    expect(
+      tester.getSize(find.byType(LiveStatusPill)).width,
+      lessThanOrEqualTo(96),
+    );
+  });
 }

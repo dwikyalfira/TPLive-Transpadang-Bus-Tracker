@@ -35,7 +35,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get outsideHoursTitle => 'Sedang tidak melayani penumpang';
 
   @override
-  String get outsideHoursMessage => 'TransPadang beroperasi pukul 05.00–20.00 WIB.';
+  String get outsideHoursMessage => 'TransPadang beroperasi pukul 06.00–19.00 WIB.';
 
   @override
   String get noBusesMessage => 'Belum ada bus terdeteksi di sekitar Anda.';
@@ -265,7 +265,7 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get infoOperationalHours => 'Jam operasional 05.00–20.00 WIB';
+  String get infoOperationalHours => 'Jam operasional 06.00–19.00 WIB';
 
   @override
   String get infoDataDisclaimer => 'Data halte dapat berbeda dengan kondisi terkini di lapangan.';

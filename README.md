@@ -72,7 +72,7 @@ dari titik asal ke tujuan, termasuk opsi **langsung** maupun **1 kali transit**
 - **Material You (dynamic color)** — tema mengikuti warna wallpaper (Android 12+),
   plus mode terang/gelap/sistem.
 - **Dua bahasa** — Bahasa Indonesia dan English, dapat mengikuti bahasa sistem.
-- **Jam operasional** — status khusus "layanan tidak tersedia" di luar jam 05.00–20.00 WIB.
+- **Jam operasional** — status khusus "layanan tidak tersedia" di luar jam 06.00–19.00 WIB.
 
 ### API yang Digunakan
 
@@ -134,7 +134,7 @@ Aplikasi memakai **dua jalur API**, ditambah layanan geocoding pihak ketiga.
 - Field `latitude` dan `longitude` **terbalik**. Normalisasi: `lat = json["longitude"]`,
   `lng = json["latitude"]` (lihat `lib/features/tracking/data/bus_model.dart`).
 - `last_update` memakai waktu **WIB**, dikonversi ke UTC dengan mengurangi 7 jam.
-- Jam operasional bus: **05.00–20.00 WIB**. Di luar jam itu bus tidak beroperasi.
+- Jam operasional bus: **06.00–19.00 WIB**. Di luar jam itu bus tidak beroperasi.
 - Layanan native juga memakai langganan per koridor: `{"type":"subscribeKoridor","koridor":"K3"}`,
   yang membalas dengan `busLocationByKoridor`.
 
@@ -266,7 +266,7 @@ flutter gen-l10n
 - **Zona waktu:** `last_update` adalah WIB; dikonversi ke UTC (`-7 jam`).
 - **Data basi:** bus dengan `last_update` lebih tua dari **5 menit** disembunyikan
   (kecuali data tanpa timestamp).
-- **Jam operasional:** `05.00–20.00 WIB` (`AppConfig.operationalStartHour` /
+- **Jam operasional:** `06.00–19.00 WIB` (`AppConfig.operationalStartHour` /
   `operationalEndHour`).
 - **ETA:** memakai kecepatan bus bila ≥ 5 km/j, selain itu kecepatan default 20 km/j.
 - **Keselamatan legal:** proyek ini tidak berafiliasi dengan Pemerintah Kota Padang.
@@ -330,7 +330,7 @@ changes), with estimated travel and walking times.
 - **Material You (dynamic color)** — theme follows the device wallpaper (Android 12+),
   with light/dark/system modes.
 - **Bilingual** — Indonesian and English, optionally following the system language.
-- **Operating hours** — a dedicated "service unavailable" state outside 05.00–20.00 WIB.
+- **Operating hours** — a dedicated "service unavailable" state outside 06.00–19.00 WIB.
 
 ### APIs Used
 
@@ -393,7 +393,7 @@ The app uses **two API paths**, plus a third-party geocoding service.
   `lat = json["longitude"]`, `lng = json["latitude"]` (see
   `lib/features/tracking/data/bus_model.dart`).
 - `last_update` is in **WIB**, converted to UTC by subtracting 7 hours.
-- Operating hours: **05.00–20.00 WIB**. No bus data outside those hours.
+- Operating hours: **06.00–19.00 WIB**. No bus data outside those hours.
 - The native service also uses a per-corridor subscription:
   `{"type":"subscribeKoridor","koridor":"K3"}`, which replies with `busLocationByKoridor`.
 
@@ -525,7 +525,7 @@ flutter gen-l10n
 - **Time zone:** `last_update` is WIB; converted to UTC (`-7 hours`).
 - **Stale data:** buses whose `last_update` is older than **5 minutes** are hidden
   (unless the datum has no timestamp).
-- **Operating hours:** `05.00–20.00 WIB` (`AppConfig.operationalStartHour` /
+- **Operating hours:** `06.00–19.00 WIB` (`AppConfig.operationalStartHour` /
   `operationalEndHour`).
 - **ETA:** uses the bus speed when ≥ 5 km/h, otherwise a default of 20 km/h.
 - **Legal note:** this project is not affiliated with the Padang City Government. Data is

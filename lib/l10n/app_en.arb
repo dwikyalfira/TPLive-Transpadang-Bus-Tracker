@@ -13,7 +13,7 @@
 
   "searchDestinationHint": "Search destination…",
   "outsideHoursTitle": "Not serving passengers",
-  "outsideHoursMessage": "TransPadang operates 05.00–20.00 WIB.",
+  "outsideHoursMessage": "TransPadang operates 06.00–19.00 WIB.",
   "noBusesMessage": "No buses detected around you yet.",
   "gettingLocation": "Getting your location…",
   "retry": "Try again",
@@ -81,7 +81,7 @@
   "infoStatCorridors": "{count} corridors",
   "infoStatHaltes": "{count} stops",
   "infoCorridorTitleCode": "Corridor {code}",
-  "infoOperationalHours": "Operating hours 05.00–20.00 WIB",
+  "infoOperationalHours": "Operating hours 06.00–19.00 WIB",
   "infoDataDisclaimer": "Stop data may differ from current conditions on the ground.",
   "infoActiveBusesLabel": "Active buses",
   "infoTotalStopsLabel": "Total stops",

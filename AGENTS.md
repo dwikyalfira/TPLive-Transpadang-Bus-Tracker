@@ -34,7 +34,7 @@ TPLive — Flutter bus tracker for TransPadang (Padang). See `README.md` for ful
 ## Domain quirks (already normalized — do not "fix")
 - Server **swaps** `latitude`/`longitude`; normalized in `Bus.fromJson`.
 - `last_update` is WIB (UTC+7), stored as UTC; buses older than 5 min are hidden.
-- Operating hours 05:00–20:00 WIB (`AppConfig`); outside hours shows purple `0xFF7B1FA2`.
+- Operating hours 06:00–19:00 WIB (`AppConfig`); outside hours shows purple `0xFF7B1FA2`.
 - Stop data is bundled (`assets/halte.json`, corridors K1–K6). No REST dependency.
 
 ## Gotchas that break things

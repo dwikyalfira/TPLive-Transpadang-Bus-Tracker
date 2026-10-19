@@ -19,11 +19,11 @@ class AppConfig {
 
   /// Jam operasional TransPadang (WIB).
   ///
-  /// Aplikasi aktif layanan pukul 05.00 hingga 20.00 WIB.
-  /// Di luar jam ini (20.00 - 05.00 WIB), penanda status berubah menjadi ungu
+  /// Aplikasi aktif layanan pukul 06.00 hingga 19.00 WIB.
+  /// Di luar jam ini (19.00 - 06.00 WIB), penanda status berubah menjadi ungu
   /// "Layanan sedang tidak tersedia" karena bus tidak beroperasi.
-  static const int operationalStartHour = 5; // 05.00
-  static const int operationalEndHour = 20; // 20.00 (eksklusif)
+  static const int operationalStartHour = 6; // 06.00
+  static const int operationalEndHour = 19; // 19.00 (eksklusif)
 
   /// Benar bila [time] jatuh di luar jam operasional TransPadang menurut WIB.
   ///

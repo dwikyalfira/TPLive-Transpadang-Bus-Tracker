@@ -194,7 +194,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // Di luar jam operasional (05:00-20:00 WIB) dihitung provider yang
+    // Di luar jam operasional (06:00-19:00 WIB) dihitung provider yang
     // diperbarui tiap menit. Saat true, bilah pencarian & info koridor tetap
     // tampil, tetapi daftar bus diganti info jam operasional (lihat
     // [_BusListView.isOutsideHours]).

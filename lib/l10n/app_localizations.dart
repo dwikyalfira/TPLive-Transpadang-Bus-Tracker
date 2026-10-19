@@ -156,7 +156,7 @@ abstract class AppLocalizations {
   /// No description provided for @outsideHoursMessage.
   ///
   /// In id, this message translates to:
-  /// **'TransPadang beroperasi pukul 05.00–20.00 WIB.'**
+  /// **'TransPadang beroperasi pukul 06.00–19.00 WIB.'**
   String get outsideHoursMessage;
 
   /// No description provided for @noBusesMessage.
@@ -516,7 +516,7 @@ abstract class AppLocalizations {
   /// No description provided for @infoOperationalHours.
   ///
   /// In id, this message translates to:
-  /// **'Jam operasional 05.00–20.00 WIB'**
+  /// **'Jam operasional 06.00–19.00 WIB'**
   String get infoOperationalHours;
 
   /// No description provided for @infoDataDisclaimer.

@@ -13,7 +13,7 @@
 
   "searchDestinationHint": "Cari tujuan…",
   "outsideHoursTitle": "Sedang tidak melayani penumpang",
-  "outsideHoursMessage": "TransPadang beroperasi pukul 05.00–20.00 WIB.",
+  "outsideHoursMessage": "TransPadang beroperasi pukul 06.00–19.00 WIB.",
   "noBusesMessage": "Belum ada bus terdeteksi di sekitar Anda.",
   "gettingLocation": "Mendapatkan lokasi…",
   "retry": "Coba lagi",
@@ -215,7 +215,7 @@
       "code": {"type": "String"}
     }
   },
-  "infoOperationalHours": "Jam operasional 05.00–20.00 WIB",
+  "infoOperationalHours": "Jam operasional 06.00–19.00 WIB",
   "infoDataDisclaimer": "Data halte dapat berbeda dengan kondisi terkini di lapangan.",
   "infoActiveBusesLabel": "Bus aktif",
   "infoTotalStopsLabel": "Total halte",

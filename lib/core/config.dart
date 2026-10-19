@@ -59,10 +59,11 @@ class AppConfig {
   /// Tebal garis jalur koridor di peta (px layar) + garis batasnya.
   ///
   /// Sengaja tipis: pada zoom 16 skala peta Padang ~2,4 m/px, jadi total
-  /// ~3,5 px hanya menutupi ~8 m — selebar badan jalan. Garis yang lebih tebal
-  /// (4 px + 1 px batas) melebar ~12 m sehingga menutupi seluruh jalan dan
-  /// membuat arah pergi/pulang yang berjarak ~10 m saling menumpuk.
-  static const double mapRouteStrokeWidth = 3;
+  /// ~3 px hanya menutupi ~7 m. Garis yang lebih tebal (4 px + 1 px batas)
+  /// melebar ~12 m sehingga menutupi seluruh jalan dan membuat kedua arah
+  /// (berjarak ~10 m) saling menumpuk. Pada ~3 px keduanya masih terpisah
+  /// tipis di zoom 16 dan makin jelas di zoom 17 ke atas.
+  static const double mapRouteStrokeWidth = 2.5;
   static const double mapRouteBorderWidth = 0.5;
 
   // --- Pencarian tujuan (geocoding Nominatim/OSM) ---

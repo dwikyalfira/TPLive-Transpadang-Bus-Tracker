@@ -7,6 +7,7 @@ import 'package:transpadang_live/features/tracking/data/bus_model.dart';
 import 'package:transpadang_live/features/tracking/data/halte_data.dart';
 import 'package:transpadang_live/features/tracking/domain/bus_with_distance.dart';
 import 'package:transpadang_live/features/tracking/presentation/providers.dart';
+import 'package:transpadang_live/features/tracking/presentation/widgets/corridor_badge.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/halte_timeline_sheet.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/pinned_bus_overlay.dart';
 import 'package:transpadang_live/features/trip/domain/trip_endpoint.dart';
@@ -144,6 +145,37 @@ void main() {
     expect(find.text('Naik'), findsOneWidget);
     expect(find.text('Turun'), findsOneWidget);
     expect(find.textContaining('dari 4 halte'), findsOneWidget);
+  });
+
+  testWidgets('tag Awal/Akhir dipin di tepi kanan baris timeline',
+      (tester) async {
+    await tester.pumpWidget(_app(_overrides()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    final width = tester.getRect(find.byType(ListView)).right;
+    final startBadge = find.ancestor(
+      of: find.text('Awal'),
+      matching: find.byType(EdgeBadge),
+    );
+    final endBadge = find.ancestor(
+      of: find.text('Akhir'),
+      matching: find.byType(EdgeBadge),
+    );
+
+    expect(startBadge, findsOneWidget);
+    expect(endBadge, findsOneWidget);
+    // Baris memakai padding horizontal 16, jadi badge harus rata di situ.
+    expect(tester.getRect(startBadge).right, closeTo(width - 16, 0.5));
+    expect(tester.getRect(endBadge).right, closeTo(width - 16, 0.5));
+    // Nama halte tetap di kiri, tidak ikut terdorong ke tepi.
+    final firstStop = tester.getRect(find.descendant(
+      of: find.byType(ListView),
+      matching: find.text('TK Aisyiah Lelongkaran'),
+    ));
+    expect(firstStop.right, lessThan(tester.getRect(startBadge).left));
   });
 
   testWidgets('detail bus adalah sheet berjenjang & menutup saat timeline '

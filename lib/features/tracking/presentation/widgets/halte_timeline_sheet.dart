@@ -886,6 +886,10 @@ class _HalteRow extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
+                // Nama + jarak tetap berdampingan di kiri (jarak mengikuti
+                // nama seperti sebelumnya). Badge status dipisah dan dipin di
+                // tepi kanan baris agar sejajar antar baris — sama seperti
+                // daftar halte di Info Koridor.
                 Expanded(
                   child: Row(
                     children: [
@@ -897,32 +901,6 @@ class _HalteRow extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (isOrigin)
-                        EdgeBadge(
-                          label: l10n.badgeBoard,
-                          icon: Icons.lens,
-                          color: corridorColor,
-                          filled: true,
-                        )
-                      else if (isFirst)
-                        EdgeBadge(
-                          label: l10n.badgeStart,
-                          icon: Icons.trip_origin,
-                          color: corridorColor,
-                        ),
-                      if (isDestination)
-                        EdgeBadge(
-                          label: l10n.badgeAlight,
-                          icon: Icons.place,
-                          color: corridorColor,
-                          filled: true,
-                        )
-                      else if (isLast)
-                        EdgeBadge(
-                          label: l10n.badgeEnd,
-                          icon: Icons.flag,
-                          color: corridorColor,
-                        ),
                       if (isNext || isCurrent)
                         Padding(
                           padding: const EdgeInsets.only(left: 8),
@@ -937,6 +915,34 @@ class _HalteRow extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (isOrigin || isFirst || isDestination || isLast)
+                  const SizedBox(width: 8),
+                if (isOrigin)
+                  EdgeBadge(
+                    label: l10n.badgeBoard,
+                    icon: Icons.lens,
+                    color: corridorColor,
+                    filled: true,
+                  )
+                else if (isFirst)
+                  EdgeBadge(
+                    label: l10n.badgeStart,
+                    icon: Icons.trip_origin,
+                    color: corridorColor,
+                  ),
+                if (isDestination)
+                  EdgeBadge(
+                    label: l10n.badgeAlight,
+                    icon: Icons.place,
+                    color: corridorColor,
+                    filled: true,
+                  )
+                else if (isLast)
+                  EdgeBadge(
+                    label: l10n.badgeEnd,
+                    icon: Icons.flag,
+                    color: corridorColor,
+                  ),
               ],
             ),
           ),

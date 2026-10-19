@@ -62,12 +62,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   /// Memulihkan indikator "mengikuti" bila foreground service masih aktif
-  /// (mis. setelah aplikasi dibuka ulang). Tidak dipulihkan di luar jam
-  /// operasional.
+  /// (mis. setelah aplikasi dibuka ulang). Di luar jam operasional, service
+  /// yang tertinggal justru dihentikan agar WebSocket-nya tidak terus
+  /// berjalan padahal layanan tidak beroperasi.
   Future<void> _restoreFollow() async {
-    if (ref.read(isOutsideHoursProvider)) return;
     final followed = await FollowService.getFollowed();
-    if (!mounted || followed == null) return;
+    if (followed == null) return;
+    if (ref.read(isOutsideHoursProvider)) {
+      await FollowService.stopFollow();
+      return;
+    }
+    if (!mounted) return;
     ref.read(followedBusProvider.notifier).state =
         busFollowKey(followed.corridor, followed.busNumber);
   }

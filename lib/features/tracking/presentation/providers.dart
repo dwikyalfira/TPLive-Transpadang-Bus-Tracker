@@ -37,7 +37,12 @@ final headingTrackerProvider = Provider<HeadingTracker>((ref) {
 });
 
 /// Sumber data bus: WebSocket asli.
-final busSourceProvider = Provider<BusSource>((ref) {
+///
+/// `autoDispose` bukan tanpa alasan: di luar jam operasional tidak ada
+/// konsumen ([busesProvider] & [connectionStatusProvider] berhenti membacanya),
+/// sehingga socket ditutup alih-alih menganggur sepanjang malam. Begitu jam
+/// operasional kembali, provider dihitung ulang dan koneksi dibuka lagi.
+final busSourceProvider = Provider.autoDispose<BusSource>((ref) {
   final BusSource source = TransWsDataSource();
   source.connect();
   ref.onDispose(source.dispose);
@@ -47,6 +52,11 @@ final busSourceProvider = Provider<BusSource>((ref) {
 /// Benar bila saat ini di luar jam operasional TransPadang (boolean). Memakai
 /// `select` agar konsumen hanya dihitung ulang saat nilainya benar-benar
 /// berubah, bukan tiap menit saat [outsideHoursProvider] memperbarui diri.
+///
+/// Selama emisi pertama belum tiba (satu mikrotask saat aplikasi dibuka),
+/// nilainya dianggap "di dalam jam". Bila ternyata di luar jam, koneksi yang
+/// sempat dibuat langsung ditutup begitu status sebenarnya diketahui — jauh
+/// sebelum langganan `subscribeAll` terkirim.
 final isOutsideHoursProvider = Provider<bool>((ref) {
   return ref.watch(
     outsideHoursProvider.select((async) => async.valueOrNull ?? false),
@@ -64,7 +74,14 @@ final busesProvider = StreamProvider<List<Bus>>((ref) {
 });
 
 /// Aliran status koneksi.
+///
+/// Di luar jam operasional provider ini tidak membaca [busSourceProvider] (yang
+/// akan membuka socket), jadi statusnya langsung "outsideHours". Karena itu
+/// tidak ada lagi koneksi yang menganggur sepanjang malam.
 final connectionStatusProvider = StreamProvider<ConnectionStatus>((ref) {
+  if (ref.watch(isOutsideHoursProvider)) {
+    return Stream.value(ConnectionStatus.outsideHours);
+  }
   return ref.watch(busSourceProvider).statusStream;
 });
 

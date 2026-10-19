@@ -297,7 +297,8 @@ void main() {
     expect(find.byType(FlutterMap), findsOneWidget);
   });
 
-  testWidgets('peta dibuka dengan bus fokus: kartu langsung tampil', (tester) async {
+  testWidgets('peta dibuka dengan bus fokus: hanya koridornya + kartu tampil',
+      (tester) async {
     final container =
         _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
     await tester.pumpWidget(
@@ -305,15 +306,18 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Bus fokus langsung terpilih & kartunya terbuka.
+    // Peta dipersempit ke koridor bus fokus (chip filter juga ikut K1).
+    expect(container.read(selectedCorridorProvider), 'K1');
+    // Bus koridor lain tidak digambar.
+    expect(find.text('57'), findsNothing);
+
+    // Bus fokus langsung terpilih, kartunya terbuka, dan penandanya disorot.
     expect(find.byType(PinnedBusCardBody), findsOneWidget);
     expect(container.read(mapBusSelectedProvider), isTrue);
-
-    // Filter "Semua" dibiarkan agar tab di layar utama tidak ikut berpindah.
-    expect(container.read(selectedCorridorProvider), isNull);
+    expect(find.byKey(const Key('busMarkerHighlight')), findsOneWidget);
   });
 
-  testWidgets('bus fokus hanya mengubah filter bila tersaring keluar',
+  testWidgets('bus fokus mengganti filter yang menyembunyikannya',
       (tester) async {
     final container =
         _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);

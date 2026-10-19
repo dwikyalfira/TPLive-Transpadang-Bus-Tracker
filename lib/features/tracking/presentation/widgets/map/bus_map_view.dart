@@ -27,8 +27,10 @@ import '../halte_timeline_sheet.dart';
 class BusMapView extends ConsumerStatefulWidget {
   /// Kunci bus yang langsung difokuskan saat peta dibuka (`'<koridor>|<nomor>'`).
   ///
-  /// Dipakai saat peta dibuka dari detail bus: peta terpusat ke bus tersebut
-  /// dan kartu bus di bagian bawah ikut tampil.
+  /// Dipakai saat peta dibuka dari detail bus: peta dipersempit ke koridor bus
+  /// itu (garis + bus sekoridor), terpusat ke bus tersebut (zoom
+  /// [AppConfig.mapFocusZoom]), penandanya disorot, dan kartu bus di bagian
+  /// bawah langsung tampil.
   final String? focusBusKey;
 
   const BusMapView({super.key, this.focusBusKey});
@@ -103,19 +105,17 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
     });
   }
 
-  /// Menetapkan pilihan bus fokus & menyesuaikan filter koridor bila perlu.
+  /// Menetapkan pilihan bus fokus & mempersempit peta ke koridornya.
   void _applyFocus() {
     final focus = widget.focusBusKey;
     if (focus == null) return;
 
-    // Ubah filter global HANYA bila bus fokus akan tersaring keluar. Saat tab
-    // "Semua" (null), filter dibiarkan agar tab layar utama tidak ikut
-    // berpindah koridor.
+    // Peta dari detail bus menampilkan koridor bus itu saja (garis + bus
+    // sekoridor), bukan seluruh jaringan. Filter ini juga dipakai tab beranda;
+    // tampilan beranda tidak ikut berpindah karena `TabController`-nya tidak
+    // memantau provider ini.
     final corridor = focus.split('|').first.toUpperCase();
-    final active = _container.read(selectedCorridorProvider);
-    if (active != null && active.toUpperCase() != corridor) {
-      _container.read(selectedCorridorProvider.notifier).state = corridor;
-    }
+    _container.read(selectedCorridorProvider.notifier).state = corridor;
 
     // Sembunyikan kartu pin global selama kartu bus peta tampil.
     _container.read(mapBusSelectedProvider.notifier).state = true;
@@ -322,6 +322,8 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
   }
 
   Marker _busMarker(BusMapMarker marker) {
+    // `_selectedKey` null saat tak ada pilihan, jadi tidak perlu cek null.
+    final highlight = _selectedKey == '${marker.corridor}|${marker.number}';
     return Marker(
       point: marker.position,
       width: 44,
@@ -333,6 +335,7 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
           color: corridorColor(marker.corridor),
           heading: marker.heading,
           label: marker.number,
+          highlighted: highlight,
         ),
       ),
     );
@@ -349,16 +352,21 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
 }
 
 /// Penanda bus di peta: lingkaran berwarna koridor berisi nomor bus, dengan
-/// panah arah gerak bila heading tersedia.
+/// panah arah gerak bila heading tersedia. Saat [highlighted] benar (bus yang
+/// diklik dari detail bus), penanda diberi cincin warna koridor.
 class _BusMarkerPin extends StatelessWidget {
   final Color color;
   final double? heading;
   final String label;
 
+  /// Beri cincin sorot (bus terpilih/fokus).
+  final bool highlighted;
+
   const _BusMarkerPin({
     required this.color,
     required this.heading,
     required this.label,
+    this.highlighted = false,
   });
 
   @override
@@ -374,6 +382,23 @@ class _BusMarkerPin extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
+            if (highlighted)
+              Container(
+                key: const Key('busMarkerHighlight'),
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color, width: 2.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.35),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+              ),
             if (direction != null)
               Transform.rotate(
                 angle: direction * math.pi / 180,

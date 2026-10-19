@@ -12,8 +12,8 @@ import 'bus_map_view.dart';
 class MapScreen extends ConsumerWidget {
   /// Kunci bus yang langsung difokuskan saat peta dibuka (`'<koridor>|<nomor>'`).
   ///
-  /// Dipakai saat peta dibuka dari detail bus: peta langsung terpusat ke bus
-  /// tersebut dan kartu bus di bawah ikut tampil.
+  /// Dipakai saat peta dibuka dari detail bus: peta dipersempit ke koridor bus
+  /// itu, terpusat ke bus tersebut, dan kartu bus di bawah ikut tampil.
   final String? focusBusKey;
 
   const MapScreen({super.key, this.focusBusKey});

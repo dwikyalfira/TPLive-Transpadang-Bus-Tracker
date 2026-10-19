@@ -213,9 +213,15 @@ void main() {
     await tester.tap(mapButton);
     await tester.pumpAndSettle();
 
-    // Peta terbuka di atas sheet, dengan bus langsung terpilih.
+    // Peta terbuka di atas sheet, dipersempit ke koridor bus, dengan bus itu
+    // langsung terpilih & disorot.
     expect(find.byType(MapScreen), findsOneWidget);
     expect(find.byType(PinnedBusCardBody), findsOneWidget);
+    expect(find.byKey(const Key('busMarkerHighlight')), findsOneWidget);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MapScreen)),
+    );
+    expect(container.read(selectedCorridorProvider), 'K3');
     // Sheet detail tetap ada di bawah (offstage) — back dari peta
     // mengembalikannya dengan posisi scroll utuh.
     expect(

@@ -232,9 +232,9 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
                   Polyline(
                     points: path.points,
                     color: corridorAccent(path.corridor, theme),
-                    strokeWidth: 4,
+                    strokeWidth: AppConfig.mapRouteStrokeWidth,
                     borderColor: theme.colorScheme.surface,
-                    borderStrokeWidth: 1,
+                    borderStrokeWidth: AppConfig.mapRouteBorderWidth,
                   ),
               ],
             ),

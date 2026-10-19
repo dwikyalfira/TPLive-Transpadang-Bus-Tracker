@@ -56,6 +56,15 @@ class AppConfig {
   /// Zoom saat peta dibuka untuk memusatkan satu bus tertentu (dari detail bus).
   static const double mapFocusZoom = 16;
 
+  /// Tebal garis jalur koridor di peta (px layar) + garis batasnya.
+  ///
+  /// Sengaja tipis: pada zoom 16 skala peta Padang ~2,4 m/px, jadi total
+  /// ~3,5 px hanya menutupi ~8 m — selebar badan jalan. Garis yang lebih tebal
+  /// (4 px + 1 px batas) melebar ~12 m sehingga menutupi seluruh jalan dan
+  /// membuat arah pergi/pulang yang berjarak ~10 m saling menumpuk.
+  static const double mapRouteStrokeWidth = 3;
+  static const double mapRouteBorderWidth = 0.5;
+
   // --- Pencarian tujuan (geocoding Nominatim/OSM) ---
 
   /// Host layanan geocoding Nominatim (OpenStreetMap).

@@ -51,9 +51,10 @@ class MapScreen extends ConsumerWidget {
   }
 }
 
-/// Baris penyaring koridor: chip "Semua" diikuti ikon bulat berwarna tiap
-/// koridor (gaya sama dengan layar utama). Nilai terpilih disimpan di
-/// [selectedCorridorProvider] agar selaras dengan tab di layar utama.
+/// Baris penyaring koridor peta: chip "Semua" diikuti ikon bulat berwarna tiap
+/// koridor (gaya sama dengan layar utama). Nilainya disimpan di
+/// [mapCorridorProvider] — terpisah dari tab beranda ([selectedCorridorProvider]),
+/// jadi menyaring peta tidak mengubah tab yang sedang dilihat di beranda.
 class _CorridorFilter extends ConsumerWidget {
   final List<String> corridors;
 
@@ -63,7 +64,7 @@ class _CorridorFilter extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final selected = ref.watch(selectedCorridorProvider);
+    final selected = ref.watch(mapCorridorProvider);
     final palettes = [
       for (final corridor in corridors) CorridorPalette.of(corridor, theme),
     ];
@@ -83,7 +84,7 @@ class _CorridorFilter extends ConsumerWidget {
                 visualDensity: VisualDensity.compact,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 onSelected: (_) =>
-                    ref.read(selectedCorridorProvider.notifier).state = null,
+                    ref.read(mapCorridorProvider.notifier).state = null,
               ),
             ),
           ),
@@ -97,7 +98,7 @@ class _CorridorFilter extends ConsumerWidget {
                 palette: palettes[i],
                 selFactor: value,
                 onTap: () => ref
-                    .read(selectedCorridorProvider.notifier)
+                    .read(mapCorridorProvider.notifier)
                     .state = corridors[i],
               ),
             ),

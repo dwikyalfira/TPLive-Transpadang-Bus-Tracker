@@ -221,7 +221,9 @@ void main() {
     final container = ProviderScope.containerOf(
       tester.element(find.byType(MapScreen)),
     );
-    expect(container.read(selectedCorridorProvider), 'K3');
+    expect(container.read(mapCorridorProvider), 'K3');
+    // Tab beranda tidak ikut berpindah.
+    expect(container.read(selectedCorridorProvider), isNull);
     // Sheet detail tetap ada di bawah (offstage) — back dari peta
     // mengembalikannya dengan posisi scroll utuh.
     expect(

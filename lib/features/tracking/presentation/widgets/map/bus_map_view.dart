@@ -99,8 +99,10 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
     }
   }
 
+  /// Mengganti penyaring koridor peta membatalkan pilihan bus (bus bisa tidak
+  /// tampil lagi).
   void _listenCorridorChanges() {
-    ref.listenManual(selectedCorridorProvider, (_, __) {
+    ref.listenManual(mapCorridorProvider, (_, __) {
       if (mounted) _applySelection(null);
     });
   }
@@ -111,11 +113,10 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
     if (focus == null) return;
 
     // Peta dari detail bus menampilkan koridor bus itu saja (garis + bus
-    // sekoridor), bukan seluruh jaringan. Filter ini juga dipakai tab beranda;
-    // tampilan beranda tidak ikut berpindah karena `TabController`-nya tidak
-    // memantau provider ini.
+    // sekoridor), bukan seluruh jaringan. Filternya milik peta sendiri, jadi
+    // tab yang sedang dilihat di beranda tidak ikut berubah.
     final corridor = focus.split('|').first.toUpperCase();
-    _container.read(selectedCorridorProvider.notifier).state = corridor;
+    _container.read(mapCorridorProvider.notifier).state = corridor;
 
     // Sembunyikan kartu pin global selama kartu bus peta tampil.
     _container.read(mapBusSelectedProvider.notifier).state = true;
@@ -159,7 +160,7 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
     final key = _selectedKey;
     if (key == null) return null;
     final buses = ref.watch(busesProvider).valueOrNull ?? const <Bus>[];
-    final filter = ref.watch(selectedCorridorProvider)?.toUpperCase();
+    final filter = ref.watch(mapCorridorProvider)?.toUpperCase();
     final location = ref.watch(userLocationProvider).valueOrNull;
     final nowUtc = DateTime.now().toUtc();
     for (final bus in buses) {

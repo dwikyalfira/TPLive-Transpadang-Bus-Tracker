@@ -146,12 +146,15 @@ void main() {
     await tester.tap(find.text('K3'));
     await tester.pumpAndSettle();
 
-    expect(container.read(selectedCorridorProvider), 'K3');
+    // Filter peta sendiri yang berubah; tab beranda tidak tersentuh.
+    expect(container.read(mapCorridorProvider), 'K3');
+    expect(container.read(selectedCorridorProvider), isNull);
     expect(find.text('11'), findsNothing);
     expect(find.text('57'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(ChoiceChip, 'Semua'));
     await tester.pumpAndSettle();
+    expect(container.read(mapCorridorProvider), isNull);
     expect(find.text('11'), findsOneWidget);
   });
 
@@ -297,6 +300,27 @@ void main() {
     expect(find.byType(FlutterMap), findsOneWidget);
   });
 
+  testWidgets('peta dari beranda mewarisi koridor tab yang aktif',
+      (tester) async {
+    final container =
+        _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
+    await tester.pumpWidget(_app(container, const HomeScreen()));
+    await tester.pumpAndSettle();
+
+    // Pindah ke tab K3 di beranda, lalu buka peta.
+    await tester.tap(find.text('K3', skipOffstage: false).first);
+    await tester.pumpAndSettle();
+    expect(container.read(selectedCorridorProvider), 'K3');
+
+    await tester.tap(find.widgetWithIcon(IconButton, Icons.map_outlined));
+    await tester.pumpAndSettle();
+
+    // Filter peta mulai dari koridor tab beranda; beranda tidak berubah.
+    expect(container.read(mapCorridorProvider), 'K3');
+    expect(container.read(selectedCorridorProvider), 'K3');
+    expect(find.text('57'), findsOneWidget);
+  });
+
   testWidgets('peta dibuka dengan bus fokus: hanya koridornya + kartu tampil',
       (tester) async {
     final container =
@@ -307,7 +331,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // Peta dipersempit ke koridor bus fokus (chip filter juga ikut K1).
-    expect(container.read(selectedCorridorProvider), 'K1');
+    expect(container.read(mapCorridorProvider), 'K1');
+    // Tab beranda tidak ikut berpindah.
+    expect(container.read(selectedCorridorProvider), isNull);
     // Bus koridor lain tidak digambar.
     expect(find.text('57'), findsNothing);
 
@@ -321,7 +347,7 @@ void main() {
       (tester) async {
     final container =
         _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
-    container.read(selectedCorridorProvider.notifier).state = 'K3';
+    container.read(mapCorridorProvider.notifier).state = 'K3';
 
     await tester.pumpWidget(
       _app(container, const MapScreen(focusBusKey: 'K1|11')),
@@ -329,7 +355,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Filter pindah ke koridor bus fokus, dan pilihan tidak langsung batal.
-    expect(container.read(selectedCorridorProvider), 'K1');
+    expect(container.read(mapCorridorProvider), 'K1');
     expect(find.byType(PinnedBusCardBody), findsOneWidget);
     expect(container.read(mapBusSelectedProvider), isTrue);
   });

@@ -312,6 +312,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       fadeThroughRoute<void>(builder: (_) => const TripScreen());
 
   void _openMap(BuildContext context) {
+    // Peta punya penyaring koridornya sendiri; mulai dari koridor yang sedang
+    // dilihat di beranda supaya tidak selalu "Semua".
+    ref.read(mapCorridorProvider.notifier).state =
+        ref.read(selectedCorridorProvider);
     Navigator.of(context).push(_mapRoute());
   }
 

@@ -49,14 +49,24 @@ void main() {
     expect(paths, hasLength(3)); // K1/pergi + K3/pergi + K3/pulang
   });
 
-  test('koridor terpilih hanya menggambar jalur koridor itu', () {
+  test('koridor terpilih di peta hanya menggambar jalur koridor itu', () {
     final container = _container();
-    container.read(selectedCorridorProvider.notifier).state = 'K3';
+    container.read(mapCorridorProvider.notifier).state = 'K3';
 
     final paths = container.read(corridorPathsProvider);
 
     expect(paths.map((p) => p.corridor).toSet(), {'K3'});
     expect(paths.map((p) => p.directionKey).toSet(), {'pergi', 'pulang'});
     expect(paths, hasLength(2));
+  });
+
+  test('tab beranda tidak menyaring jalur peta', () {
+    final container = _container();
+    // Memilih tab koridor di beranda tidak mengubah filter peta.
+    container.read(selectedCorridorProvider.notifier).state = 'K3';
+
+    final paths = container.read(corridorPathsProvider);
+
+    expect(paths.map((p) => p.corridor).toSet(), {'K1', 'K3'});
   });
 }

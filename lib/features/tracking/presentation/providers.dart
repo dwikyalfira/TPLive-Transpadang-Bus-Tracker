@@ -86,6 +86,15 @@ final outsideHoursProvider = StreamProvider<bool>((ref) async* {
 /// pengguna menggeser antar tab.
 final selectedCorridorProvider = StateProvider<String?>((ref) => null);
 
+/// Koridor yang disaring di layar peta (null = semua koridor).
+///
+/// Sengaja terpisah dari [selectedCorridorProvider]: tab beranda dan filter
+/// peta adalah dua hal berbeda. Membuka peta dari detail bus mempersempit peta
+/// ke koridor bus itu tanpa mengubah tab yang sedang dilihat di beranda.
+/// Saat peta dibuka biasa, nilai ini di-seed dari tab beranda (lihat
+/// `HomeScreen._openMap`).
+final mapCorridorProvider = StateProvider<String?>((ref) => null);
+
 /// Bus yang sedang diikuti via notifikasi foreground service.
 /// Nilai berupa kunci `'<koridor>|<nomorBus>'` (null = tidak mengikuti).
 final followedBusProvider = StateProvider<String?>((ref) => null);
@@ -290,13 +299,13 @@ final tileProviderProvider = Provider.autoDispose<TileProvider>(
   (ref) => NetworkTileProvider(),
 );
 
-/// Penanda bus untuk peta, mengikuti koridor yang sedang dipilih
-/// ([selectedCorridorProvider]; null = semua koridor).
+/// Penanda bus untuk peta, mengikuti koridor yang sedang disaring di peta
+/// ([mapCorridorProvider]; null = semua koridor).
 final busMapMarkersProvider = Provider<List<BusMapMarker>>((ref) {
   final buses = ref.watch(busesProvider).valueOrNull ?? const <Bus>[];
   return buildBusMapMarkers(
     buses,
-    filterCorridor: ref.watch(selectedCorridorProvider),
+    filterCorridor: ref.watch(mapCorridorProvider),
   );
 });
 
@@ -312,16 +321,16 @@ final manualCorridorRouteProvider =
 
 /// Jalur koridor (polilin) yang digambar di peta.
 ///
-/// Saat sebuah koridor dipilih, hanya koridor itu yang digambar (pergi &
-/// pulang). Saat tab "Semua" (null), seluruh koridor ditampilkan sekaligus —
-/// masing-masing memakai warna koridornya. Prioritas geometri: gambar manual >
-/// hasil routing > garis antar-halte.
+/// Saat sebuah koridor dipilih di peta ([mapCorridorProvider]), hanya koridor
+/// itu yang digambar (pergi & pulang). Saat "Semua" (null), seluruh koridor
+/// ditampilkan sekaligus — masing-masing memakai warna koridornya. Prioritas
+/// geometri: gambar manual > hasil routing > garis antar-halte.
 final corridorPathsProvider = Provider<List<CorridorPath>>((ref) {
   final dataset = ref.watch(halteDatasetProvider).valueOrNull;
   if (dataset == null) return const [];
   return buildCorridorPaths(
     dataset,
-    filterCorridor: ref.watch(selectedCorridorProvider),
+    filterCorridor: ref.watch(mapCorridorProvider),
     routeGeometry: overlayRouteGeometry(
       ref.watch(manualCorridorRouteProvider).valueOrNull,
       ref.watch(corridorRouteDatasetProvider).valueOrNull,

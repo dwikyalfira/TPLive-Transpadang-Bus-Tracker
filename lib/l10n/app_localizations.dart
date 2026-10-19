@@ -285,6 +285,12 @@ abstract class AppLocalizations {
   /// **'Ikuti bus ini'**
   String get tooltipFollow;
 
+  /// No description provided for @tooltipViewOnMap.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat di peta'**
+  String get tooltipViewOnMap;
+
   /// No description provided for @tooltipClose.
   ///
   /// In id, this message translates to:

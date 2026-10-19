@@ -53,6 +53,9 @@ class AppConfig {
   static const double mapInitialLng = 100.3543;
   static const double mapInitialZoom = 12.5;
 
+  /// Zoom saat peta dibuka untuk memusatkan satu bus tertentu (dari detail bus).
+  static const double mapFocusZoom = 16;
+
   // --- Pencarian tujuan (geocoding Nominatim/OSM) ---
 
   /// Host layanan geocoding Nominatim (OpenStreetMap).

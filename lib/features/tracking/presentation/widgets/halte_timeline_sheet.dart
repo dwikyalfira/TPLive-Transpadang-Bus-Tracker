@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/ui/fade_through_route.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/bus_model.dart';
 import '../../domain/bus_with_distance.dart';
@@ -16,6 +17,7 @@ import '../providers.dart';
 import 'corridor_badge.dart';
 import 'follow_bus_button.dart';
 import 'format.dart';
+import 'map/map_screen.dart';
 import 'speed_dial.dart';
 
 /// Tinggi maksimum sheet detail bus sebagai fraksi tinggi layar. Dipakai oleh
@@ -55,7 +57,14 @@ const double _busSheetMaxSize = 0.9;
 /// Selama sheet terbuka, [pinnedDetailOpenProvider] bernilai benar sehingga
 /// kartu melayang bus yang di-pin hanya ditampilkan dalam versi kecil (mini).
 /// Saat sheet ditutup, penanda dibersihkan dan kartu tetap beristirahat mini.
-Future<void> showBusTimeline(BuildContext context, BusWithDistance item) {
+///
+/// [fromMap] benar bila detail dibuka dari layar peta; tombol "Lihat di peta"
+/// lalu disembunyikan agar tidak membuka peta kedua di atas yang sudah ada.
+Future<void> showBusTimeline(
+  BuildContext context,
+  BusWithDistance item, {
+  bool fromMap = false,
+}) {
   final container = ProviderScope.containerOf(context, listen: false);
   container
     ..read(pinnedDetailOpenProvider.notifier).state = true
@@ -72,7 +81,7 @@ Future<void> showBusTimeline(BuildContext context, BusWithDistance item) {
     // Sudut atas membulat (radius dari tema, selaras Info Koridor & M3).
     shape: const RoundedRectangleBorder(borderRadius: AppShape.topExtraLarge),
     clipBehavior: Clip.antiAlias,
-    builder: (_) => HalteTimelineSheet(item: item),
+    builder: (_) => HalteTimelineSheet(item: item, fromMap: fromMap),
   ).whenComplete(() {
     container
       ..read(pinnedCardCollapsedProvider.notifier).state = true
@@ -83,7 +92,14 @@ Future<void> showBusTimeline(BuildContext context, BusWithDistance item) {
 class HalteTimelineSheet extends ConsumerStatefulWidget {
   final BusWithDistance item;
 
-  const HalteTimelineSheet({super.key, required this.item});
+  /// Dibuka dari layar peta (lihat [showBusTimeline]).
+  final bool fromMap;
+
+  const HalteTimelineSheet({
+    super.key,
+    required this.item,
+    this.fromMap = false,
+  });
 
   @override
   ConsumerState<HalteTimelineSheet> createState() =>
@@ -159,6 +175,7 @@ class _HalteTimelineSheetState extends ConsumerState<HalteTimelineSheet> {
               bus: live.bus,
               progress: progress,
               segment: segment,
+              fromMap: widget.fromMap,
               scrollController: scrollController,
               sheetController: _sheetController,
             );
@@ -294,6 +311,9 @@ class _Timeline extends StatefulWidget {
   /// [_resolveSegment]); `null` = tampilkan seluruh lintasan normal.
   final ({int origin, int destination})? segment;
 
+  /// Detail dibuka dari layar peta (lihat [HalteTimelineSheet.fromMap]).
+  final bool fromMap;
+
   /// Controller dari [DraggableScrollableSheet]; ditempel ke daftar halte
   /// sehingga menarik turun saat sudah di puncak mengecilkan & menutup sheet.
   final ScrollController scrollController;
@@ -306,6 +326,7 @@ class _Timeline extends StatefulWidget {
     required this.bus,
     required this.progress,
     this.segment,
+    this.fromMap = false,
     required this.scrollController,
     required this.sheetController,
   });
@@ -506,6 +527,7 @@ class _TimelineState extends State<_Timeline> {
                     origin: progress.origin,
                     destination: progress.destination,
                     fallback: progress.direction.label,
+                    showMapButton: !widget.fromMap,
                     follow: FollowPayload(
                       originLabel: progress.originLabel,
                       destinationLabel: progress.destinationLabel,
@@ -571,6 +593,10 @@ class _TimelineState extends State<_Timeline> {
     final FollowPayload follow;
     final bool showStartEnd; // BARU: tampilkan badge Awal/Akhir di timeline
 
+    /// Tampilkan ikon "Lihat di peta" (disembunyikan saat detail dibuka dari
+    /// peta agar tidak menumpuk peta kedua).
+    final bool showMapButton;
+
     const _Header({
       required this.bus,
       required this.origin,
@@ -578,6 +604,7 @@ class _TimelineState extends State<_Timeline> {
       required this.fallback,
       required this.follow,
       this.showStartEnd = false, // DEFAULT: false
+      this.showMapButton = true,
     });
 
     @override
@@ -606,8 +633,29 @@ class _TimelineState extends State<_Timeline> {
               ),
             ),
             const SizedBox(width: 4),
+            if (showMapButton)
+              IconButton(
+                key: const Key('timelineViewOnMap'),
+                tooltip: AppLocalizations.of(context).tooltipViewOnMap,
+                onPressed: () => _openOnMap(context),
+                icon: const Icon(Icons.map_outlined),
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             FollowBusButton(bus: bus, payload: follow, activeColor: color),
           ],
+        ),
+      );
+    }
+
+    /// Membuka layar peta dengan bus ini langsung terpilih & terpusat. Peta
+    /// ditumpuk di atas sheet, sehingga kembali dari peta mengembalikan detail
+    /// bus apa adanya.
+    void _openOnMap(BuildContext context) {
+      Navigator.of(context).push(
+        fadeThroughRoute<void>(
+          builder: (_) => MapScreen(
+            focusBusKey: busFollowKey(bus.corridor, bus.number),
+          ),
         ),
       );
     }

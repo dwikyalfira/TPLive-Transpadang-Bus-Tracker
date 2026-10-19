@@ -25,7 +25,13 @@ import '../halte_timeline_sheet.dart';
 /// bawah layar (bukan langsung membuka detail), sehingga bus lain tetap
 /// terlihat. Ketuk kartu untuk membuka detail halte ([showBusTimeline]).
 class BusMapView extends ConsumerStatefulWidget {
-  const BusMapView({super.key});
+  /// Kunci bus yang langsung difokuskan saat peta dibuka (`'<koridor>|<nomor>'`).
+  ///
+  /// Dipakai saat peta dibuka dari detail bus: peta terpusat ke bus tersebut
+  /// dan kartu bus di bagian bawah ikut tampil.
+  final String? focusBusKey;
+
+  const BusMapView({super.key, this.focusBusKey});
 
   @override
   ConsumerState<BusMapView> createState() => _BusMapViewState();
@@ -45,6 +51,12 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
   /// Kunci bus terpilih (`'<koridor>|<nomor>'`), null = tidak ada.
   String? _selectedKey;
 
+  /// Peta sudah siap menerima perintah [MapController.move] (`onMapReady`).
+  bool _mapReady = false;
+
+  /// Bus fokus sudah dipusatkan sekali; jangan lawan geseran pengguna.
+  bool _didFocus = false;
+
   static String _keyOf(Bus bus) => '${bus.corridor}|${bus.number}';
 
   @override
@@ -59,10 +71,67 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
   void initState() {
     super.initState();
     _container = ProviderScope.containerOf(context, listen: false);
-    // Mengganti penyaring koridor membatalkan pilihan (bus bisa tidak tampil).
+
+    final focus = widget.focusBusKey;
+    if (focus != null) {
+      _selectedKey = focus;
+      // Jangan pusatkan ke GPS saat pengguna meminta melihat bus tertentu.
+      _centeredOnUser = true;
+
+      // Data bus bisa tiba setelah peta siap; pusatkan begitu busnya tersedia.
+      ref.listenManual(busesProvider, (_, __) {
+        if (mounted) _tryFocus();
+      });
+
+      // Penulisan provider tidak boleh terjadi saat initState (pohon masih
+      // dibangun), jadi tunda satu frame. Listener filter baru didaftarkan
+      // setelahnya agar perubahan fokus awal tidak membatalkan pilihannya.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _applyFocus();
+        _listenCorridorChanges();
+      });
+    } else {
+      // Mengganti penyaring koridor membatalkan pilihan (bus bisa tidak tampil).
+      _listenCorridorChanges();
+    }
+  }
+
+  void _listenCorridorChanges() {
     ref.listenManual(selectedCorridorProvider, (_, __) {
       if (mounted) _applySelection(null);
     });
+  }
+
+  /// Menetapkan pilihan bus fokus & menyesuaikan filter koridor bila perlu.
+  void _applyFocus() {
+    final focus = widget.focusBusKey;
+    if (focus == null) return;
+
+    // Ubah filter global HANYA bila bus fokus akan tersaring keluar. Saat tab
+    // "Semua" (null), filter dibiarkan agar tab layar utama tidak ikut
+    // berpindah koridor.
+    final corridor = focus.split('|').first.toUpperCase();
+    final active = _container.read(selectedCorridorProvider);
+    if (active != null && active.toUpperCase() != corridor) {
+      _container.read(selectedCorridorProvider.notifier).state = corridor;
+    }
+
+    // Sembunyikan kartu pin global selama kartu bus peta tampil.
+    _container.read(mapBusSelectedProvider.notifier).state = true;
+  }
+
+  /// Memusatkan peta ke bus fokus sekali saja, saat peta & datanya siap.
+  void _tryFocus() {
+    if (_didFocus || !_mapReady) return;
+    final key = widget.focusBusKey;
+    if (key == null) return;
+    for (final bus in ref.read(busesProvider).valueOrNull ?? const <Bus>[]) {
+      if (_keyOf(bus) != key) continue;
+      _didFocus = true;
+      _controller.move(bus.position, AppConfig.mapFocusZoom);
+      return;
+    }
   }
 
   void _centerOn(LatLng target) {
@@ -138,6 +207,12 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
             ),
+            // Peta belum bisa digeser lewat controller sebelum siap; di sinilah
+            // bus fokus dipusatkan (termasuk bila datanya baru tiba).
+            onMapReady: () {
+              _mapReady = true;
+              _tryFocus();
+            },
             onTap: (_, __) => _clearSelection(),
           ),
           children: [
@@ -212,7 +287,7 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
                         ? PinnedBusCardBody(
                             bus: selected.bus,
                             progress: progress,
-                            onTap: () => showBusTimeline(context, selected),
+                            onTap: () => showBusTimeline(context, selected, fromMap: true),
                             onClose: _clearSelection,
                             footer: PinnedBusCardFooter(
                               bus: selected.bus,
@@ -234,7 +309,7 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
                         // Bila data halte belum siap, jatuh ke kartu daftar biasa.
                         : BusTile(
                             item: selected,
-                            onTap: () => showBusTimeline(context, selected),
+                            onTap: () => showBusTimeline(context, selected, fromMap: true),
                             trailing: _CloseButton(onClose: _clearSelection),
                           ),
                   ),

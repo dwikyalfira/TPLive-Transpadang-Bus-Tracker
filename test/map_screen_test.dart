@@ -296,4 +296,37 @@ void main() {
     expect(find.text('Peta Jaringan'), findsOneWidget);
     expect(find.byType(FlutterMap), findsOneWidget);
   });
+
+  testWidgets('peta dibuka dengan bus fokus: kartu langsung tampil', (tester) async {
+    final container =
+        _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
+    await tester.pumpWidget(
+      _app(container, const MapScreen(focusBusKey: 'K1|11')),
+    );
+    await tester.pumpAndSettle();
+
+    // Bus fokus langsung terpilih & kartunya terbuka.
+    expect(find.byType(PinnedBusCardBody), findsOneWidget);
+    expect(container.read(mapBusSelectedProvider), isTrue);
+
+    // Filter "Semua" dibiarkan agar tab di layar utama tidak ikut berpindah.
+    expect(container.read(selectedCorridorProvider), isNull);
+  });
+
+  testWidgets('bus fokus hanya mengubah filter bila tersaring keluar',
+      (tester) async {
+    final container =
+        _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
+    container.read(selectedCorridorProvider.notifier).state = 'K3';
+
+    await tester.pumpWidget(
+      _app(container, const MapScreen(focusBusKey: 'K1|11')),
+    );
+    await tester.pumpAndSettle();
+
+    // Filter pindah ke koridor bus fokus, dan pilihan tidak langsung batal.
+    expect(container.read(selectedCorridorProvider), 'K1');
+    expect(find.byType(PinnedBusCardBody), findsOneWidget);
+    expect(container.read(mapBusSelectedProvider), isTrue);
+  });
 }

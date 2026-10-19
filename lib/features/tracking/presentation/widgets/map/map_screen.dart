@@ -10,7 +10,13 @@ import 'bus_map_view.dart';
 /// Layar peta live TransPadang: seluruh bus di peta (penanda berwarna koridor),
 /// dengan penyaring koridor dan penanda lokasi pengguna.
 class MapScreen extends ConsumerWidget {
-  const MapScreen({super.key});
+  /// Kunci bus yang langsung difokuskan saat peta dibuka (`'<koridor>|<nomor>'`).
+  ///
+  /// Dipakai saat peta dibuka dari detail bus: peta langsung terpusat ke bus
+  /// tersebut dan kartu bus di bawah ikut tampil.
+  final String? focusBusKey;
+
+  const MapScreen({super.key, this.focusBusKey});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +34,7 @@ class MapScreen extends ConsumerWidget {
       ),
       body: Stack(
         children: [
-          const BusMapView(),
+          BusMapView(focusBusKey: focusBusKey),
           if (isOutsideHours)
             Positioned(
               left: 16,

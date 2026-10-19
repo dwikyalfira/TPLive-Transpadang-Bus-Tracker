@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:transpadang_live/core/app_navigator.dart';
 import 'package:transpadang_live/features/tracking/data/bus_model.dart';
+import 'package:transpadang_live/features/tracking/data/corridor_route.dart';
 import 'package:transpadang_live/features/tracking/data/halte_data.dart';
 import 'package:transpadang_live/features/tracking/domain/bus_with_distance.dart';
 import 'package:transpadang_live/features/tracking/presentation/providers.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/corridor_badge.dart';
+import 'package:transpadang_live/features/tracking/presentation/widgets/floating_pinned_bus_card.dart';
+import 'package:transpadang_live/features/tracking/presentation/widgets/follow_bus_button.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/halte_timeline_sheet.dart';
+import 'package:transpadang_live/features/tracking/presentation/widgets/map/map_screen.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/pinned_bus_overlay.dart';
 import 'package:transpadang_live/features/trip/domain/trip_endpoint.dart';
 import 'package:transpadang_live/features/trip/presentation/trip_providers.dart';
 import 'package:transpadang_live/l10n/app_localizations.dart';
+
+/// Penyedia ubin palsu: satu piksel transparan tanpa jaringan.
+class _FakeTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
+      MemoryImage(TileProvider.transparentImage);
+}
 
 Halte _h(double lat, double lng, String nama) =>
     Halte(nama: nama, pos: LatLng(lat, lng));
@@ -73,7 +85,7 @@ List<Override> _overrides({
   tripDestinationEndpointProvider.overrideWith((ref) => destination),
 ];
 
-Widget _app(List<Override> overrides) {
+Widget _app(List<Override> overrides, {bool detailFromMap = false}) {
   final item = BusWithDistance(
     bus: _pinnedBus(),
     distanceKm: 0,
@@ -93,7 +105,8 @@ Widget _app(List<Override> overrides) {
         body: Center(
           child: Builder(
             builder: (context) => TextButton(
-              onPressed: () => showBusTimeline(context, item),
+              onPressed: () =>
+                  showBusTimeline(context, item, fromMap: detailFromMap),
               child: const Text('buka detail'),
             ),
           ),
@@ -176,6 +189,52 @@ void main() {
       matching: find.text('TK Aisyiah Lelongkaran'),
     ));
     expect(firstStop.right, lessThan(tester.getRect(startBadge).left));
+  });
+
+  testWidgets('detail bus membuka peta dengan bus itu langsung terpilih',
+      (tester) async {
+    await tester.pumpWidget(_app([
+      ..._overrides(),
+      corridorRouteDatasetProvider
+          .overrideWith((ref) async => const CorridorRouteDataset({})),
+      manualCorridorRouteProvider
+          .overrideWith((ref) async => const CorridorRouteDataset({})),
+      outsideHoursProvider.overrideWith((ref) => Stream.value(false)),
+      tileProviderProvider.overrideWithValue(_FakeTileProvider()),
+    ]));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    final mapButton = find.byKey(const Key('timelineViewOnMap'));
+    expect(mapButton, findsOneWidget);
+
+    await tester.tap(mapButton);
+    await tester.pumpAndSettle();
+
+    // Peta terbuka di atas sheet, dengan bus langsung terpilih.
+    expect(find.byType(MapScreen), findsOneWidget);
+    expect(find.byType(PinnedBusCardBody), findsOneWidget);
+    // Sheet detail tetap ada di bawah (offstage) — back dari peta
+    // mengembalikannya dengan posisi scroll utuh.
+    expect(
+      find.byType(HalteTimelineSheet, skipOffstage: false),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('tombol peta disembunyikan saat detail dibuka dari peta',
+      (tester) async {
+    await tester.pumpWidget(_app(_overrides(), detailFromMap: true));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('timelineViewOnMap')), findsNothing);
+    // Tombol lain di header tetap ada.
+    expect(find.byType(FollowBusButton), findsOneWidget);
   });
 
   testWidgets('detail bus adalah sheet berjenjang & menutup saat timeline '

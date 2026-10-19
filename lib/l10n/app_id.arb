@@ -75,6 +75,7 @@
 
   "tooltipUnfollow": "Berhenti mengikuti",
   "tooltipFollow": "Ikuti bus ini",
+  "tooltipViewOnMap": "Lihat di peta",
   "tooltipClose": "Tutup",
   "notifPermissionDenied": "Izin notifikasi ditolak. Izinkan notifikasi untuk mengikuti bus.",
   "followFailed": "Gagal mengikuti bus: {message}",

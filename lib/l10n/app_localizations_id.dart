@@ -113,6 +113,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get tooltipFollow => 'Ikuti bus ini';
 
   @override
+  String get tooltipViewOnMap => 'Lihat di peta';
+
+  @override
   String get tooltipClose => 'Tutup';
 
   @override

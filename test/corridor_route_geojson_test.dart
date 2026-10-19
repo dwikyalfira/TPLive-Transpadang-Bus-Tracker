@@ -72,14 +72,29 @@ void main() {
     expect(parseCorridorRoutesGeoJson('{"type":"Feature"}'), isEmpty);
   });
 
-  test('aset manual nyata (assets/routes) termuat dari bundle', () async {
+  test('BOM di awal berkas (editor Windows) tetap terbaca', () {
+    final raw = _collection([
+      _feature('K1', 'pergi', [
+        [100.36, -0.95],
+        [100.37, -0.94],
+      ]),
+    ]);
+
+    expect(parseCorridorRoutesGeoJson('\uFEFF$raw').keys, ['K1']);
+  });
+
+  test('aset manual nyata (assets/routes) memuat keenam koridor', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
 
     final dataset = await loadManualCorridorRouteDataset();
 
-    expect(dataset.points('K3', 'pergi'), isNotNull);
-    expect(dataset.points('K3', 'pulang'), isNotNull);
-    expect(dataset.points('K3', 'pergi')!.length, greaterThan(2));
+    for (final corridor in ['K1', 'K2', 'K3', 'K4', 'K5', 'K6']) {
+      for (final direction in ['pergi', 'pulang']) {
+        final points = dataset.points(corridor, direction);
+        expect(points, isNotNull, reason: '$corridor/$direction');
+        expect(points!.length, greaterThan(2), reason: '$corridor/$direction');
+      }
+    }
   });
 
   test('overlayRouteGeometry: manual menang, base mengisi arah yang kosong', () {

@@ -63,11 +63,13 @@ CorridorRouteDataset overlayRouteGeometry(
 /// kurang dari dua diabaikan. Berkas rusak/kosong menghasilkan peta kosong
 /// (aman, tidak melempar).
 Map<String, Map<String, List<LatLng>>> parseCorridorRoutesGeoJson(String raw) {
-  if (raw.trim().isEmpty) return const {};
+  // Buang BOM bila ada (mis. berkas yang ditulis editor Windows).
+  final text = raw.startsWith('\uFEFF') ? raw.substring(1) : raw;
+  if (text.trim().isEmpty) return const {};
 
   Object? decoded;
   try {
-    decoded = json.decode(raw);
+    decoded = json.decode(text);
   } on FormatException {
     return const {};
   }

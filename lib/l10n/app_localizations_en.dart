@@ -59,6 +59,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapAttribution => '© OpenStreetMap contributors';
 
   @override
+  String get mapStopServedBy => 'Served by';
+
+  @override
+  String mapStopSemantics(String name) {
+    return 'Stop $name';
+  }
+
+  @override
   String destinationHeader(String destination) {
     return 'Toward $destination';
   }
@@ -284,6 +292,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get infoDirectionPulang => 'Return';
+
+  @override
+  String get infoAllCorridorsTitle => 'All corridors info';
+
+  @override
+  String get infoAllCorridorsHint => 'Tap a corridor to see its stops and travel directions.';
+
+  @override
+  String get infoAllCorridorsEmpty => 'Corridor data is not available yet.';
+
+  @override
+  String get infoFareTitle => 'Fares & Payment';
+
+  @override
+  String get infoFarePaymentHint => 'Payment accepted via';
+
+  @override
+  String get infoFareGeneral => 'General';
+
+  @override
+  String get infoFareStudent => 'Students (elementary, middle, high school)';
+
+  @override
+  String get infoFareChildOver5 => 'Children over 5 (without school uniform)';
+
+  @override
+  String get infoFareChildUnder5 => 'Children under 5';
+
+  @override
+  String get infoFareNote => 'The fare is charged twice each time you pass the last stop and when transferring between corridors.';
 
   @override
   String get searchDestinationTitle => 'Search destination';

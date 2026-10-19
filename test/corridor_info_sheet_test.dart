@@ -105,4 +105,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Data halte dapat berbeda'), findsOneWidget);
   });
+
+  testWidgets('swipe ke bawah menutup sheet tanpa menyisakan layar gelap',
+      (tester) async {
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    final barriersBefore = find.byType(ModalBarrier).evaluate().length;
+
+    await tester.tap(find.text('buka info'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DraggableScrollableSheet), findsOneWidget);
+
+    // Tarik sheet turun sampai tinggi minimum; route modal harus ikut tertutup
+    // sehingga scrim/barrier gelap tidak tertinggal.
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, 700));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DraggableScrollableSheet), findsNothing);
+    expect(find.byType(ModalBarrier).evaluate().length, barriersBefore);
+    // Halaman di bawahnya tidak ikut tertutup.
+    expect(find.text('buka info'), findsOneWidget);
+  });
 }

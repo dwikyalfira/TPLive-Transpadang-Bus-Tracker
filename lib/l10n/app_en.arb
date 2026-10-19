@@ -22,6 +22,13 @@
   "mapOpen": "View map",
   "mapRecenter": "My location",
   "mapAttribution": "© OpenStreetMap contributors",
+  "mapStopServedBy": "Served by",
+  "mapStopSemantics": "Stop {name}",
+  "@mapStopSemantics": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
 
   "destinationHeader": "Toward {destination}",
   "loadingHalteData": "Loading stops…",
@@ -88,6 +95,16 @@
   "infoUniqueStopsLabel": "Unique stops",
   "infoDirectionPergi": "Outbound",
   "infoDirectionPulang": "Return",
+  "infoAllCorridorsTitle": "All corridors info",
+  "infoAllCorridorsHint": "Tap a corridor to see its stops and travel directions.",
+  "infoAllCorridorsEmpty": "Corridor data is not available yet.",
+  "infoFareTitle": "Fares & Payment",
+  "infoFarePaymentHint": "Payment accepted via",
+  "infoFareGeneral": "General",
+  "infoFareStudent": "Students (elementary, middle, high school)",
+  "infoFareChildOver5": "Children over 5 (without school uniform)",
+  "infoFareChildUnder5": "Children under 5",
+  "infoFareNote": "The fare is charged twice each time you pass the last stop and when transferring between corridors.",
 
   "searchDestinationTitle": "Search destination",
   "pickOriginTitle": "Choose origin",

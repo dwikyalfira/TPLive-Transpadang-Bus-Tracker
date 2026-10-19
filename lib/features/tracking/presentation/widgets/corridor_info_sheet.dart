@@ -7,6 +7,8 @@ import '../../domain/corridor_info.dart';
 import '../providers.dart';
 import 'corridor_badge.dart';
 import 'format.dart';
+import 'sheet_close_on_min_extent.dart';
+import 'sheet_drag_handle.dart';
 
 /// Menampilkan detail info sebuah koridor dalam bottom sheet berjenjang.
 ///
@@ -55,146 +57,121 @@ class _CorridorInfoSheetState extends ConsumerState<CorridorInfoSheet> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final accent = corridorAccent(widget.corridor, theme);
-    final info = ref
-        .watch(corridorInfoProvider.select((m) => m[widget.corridor.toUpperCase()]));
+    final info = ref.watch(
+        corridorInfoProvider.select((m) => m[widget.corridor.toUpperCase()]));
     final datasetAsync = ref.watch(halteDatasetProvider);
 
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.5,
-      // 0.0 agar menarik turun (gulir ke bawah) dapat langsung mengecilkan
-      // sheet hingga menutup tanpa terhenti di titik minimum lama (0.25).
-      minChildSize: 0.0,
-      maxChildSize: 1.0,
-      snap: true,
-      builder: (context, scrollController) {
-        final slivers = <Widget>[
-          const SliverToBoxAdapter(child: _DragHandle()),
-        ];
+    return CloseOnMinExtent(
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.5,
+        // 0.0 agar menarik turun (gulir ke bawah) dapat langsung mengecilkan
+        // sheet hingga menutup tanpa terhenti di titik minimum lama (0.25).
+        minChildSize: 0.0,
+        maxChildSize: 1.0,
+        snap: true,
+        builder: (context, scrollController) {
+          final slivers = <Widget>[
+            const SliverToBoxAdapter(child: SheetDragHandle()),
+          ];
 
-        datasetAsync.when(
-          loading: () => slivers.add(
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ),
-          error: (e, _) => slivers.add(
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Text(
-                    l10n.halteDataLoadFailed('$e'),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+          datasetAsync.when(
+            loading: () => slivers.add(
+              const SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(child: CircularProgressIndicator()),
               ),
             ),
-          ),
-          data: (dataset) {
-            final stops = dataset.forCorridor(widget.corridor);
-            final resolved = info ?? CorridorInfo.of(widget.corridor, stops, 0);
-            final direction = _pergi ? stops?.pergi : stops?.pulang;
-
-            slivers.add(SliverToBoxAdapter(
-              child: _Header(
-                l10n: l10n,
-                theme: theme,
-                accent: accent,
-                info: resolved,
-                pergi: _pergi,
-                onDirectionChanged: (pergi) => setState(() => _pergi = pergi),
-              ),
-            ));
-            slivers.add(const SliverToBoxAdapter(child: Divider(height: 1)));
-
-            if (direction == null) {
-              slivers.add(SliverFillRemaining(
+            error: (e, _) => slivers.add(
+              SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32),
                     child: Text(
-                      l10n.halteUnavailable(widget.corridor),
+                      l10n.halteDataLoadFailed('$e'),
                       textAlign: TextAlign.center,
                     ),
+                  ),
+                ),
+              ),
+            ),
+            data: (dataset) {
+              final stops = dataset.forCorridor(widget.corridor);
+              final resolved =
+                  info ?? CorridorInfo.of(widget.corridor, stops, 0);
+              final direction = _pergi ? stops?.pergi : stops?.pulang;
+
+              slivers.add(SliverToBoxAdapter(
+                child: _Header(
+                  l10n: l10n,
+                  theme: theme,
+                  accent: accent,
+                  info: resolved,
+                  pergi: _pergi,
+                  onDirectionChanged: (pergi) => setState(() => _pergi = pergi),
+                ),
+              ));
+              slivers.add(const SliverToBoxAdapter(child: Divider(height: 1)));
+
+              if (direction == null) {
+                slivers.add(SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Text(
+                        l10n.halteUnavailable(widget.corridor),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ));
+                return;
+              }
+
+              slivers.add(SliverPadding(
+                padding: const EdgeInsets.only(top: 6),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, i) => _HalteRow(
+                      index: i,
+                      total: direction.halte.length,
+                      halte: direction.halte[i],
+                      accent: accent,
+                    ),
+                    childCount: direction.halte.length,
                   ),
                 ),
               ));
-              return;
-            }
-
-            slivers.add(SliverPadding(
-              padding: const EdgeInsets.only(top: 6),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, i) => _HalteRow(
-                    index: i,
-                    total: direction.halte.length,
-                    halte: direction.halte[i],
-                    accent: accent,
-                  ),
-                  childCount: direction.halte.length,
-                ),
-              ),
-            ));
-            slivers.add(SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      l10n.infoOperationalHours,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
+              slivers.add(SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        l10n.infoOperationalHours,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    _DataDisclaimer(
-                      text: l10n.infoDataDisclaimer,
-                      theme: theme,
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      _DataDisclaimer(
+                        text: l10n.infoDataDisclaimer,
+                        theme: theme,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ));
-          },
-        );
+              ));
+            },
+          );
 
-        return CustomScrollView(controller: scrollController, slivers: slivers);
-      },
-    );
-  }
-}
-
-/// Drag handle di tengah bilah atas sheet.
-///
-/// Karena berada di dalam [CustomScrollView] yang memakai controller
-/// [DraggableScrollableSheet], menarik dari bilah ini pun mengubah tinggi
-/// sheet. Sheet dapat ditutup dengan menarik turun ke titik minimum atau
-/// mengetuk area di luar sheet.
-class _DragHandle extends StatelessWidget {
-  const _DragHandle();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return SizedBox(
-      height: 48,
-      child: Align(
-        alignment: Alignment.center,
-        child: Container(
-          width: 36,
-          height: 4,
-          decoration: BoxDecoration(
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
+          return CustomScrollView(
+              controller: scrollController, slivers: slivers);
+        },
       ),
     );
   }
@@ -356,7 +333,8 @@ class _Header extends StatelessWidget {
               ),
             ],
             selected: {pergi},
-            onSelectionChanged: (selection) => onDirectionChanged(selection.first),
+            onSelectionChanged: (selection) =>
+                onDirectionChanged(selection.first),
           ),
         ],
       ),
@@ -553,4 +531,3 @@ class _HalteRow extends StatelessWidget {
     );
   }
 }
-

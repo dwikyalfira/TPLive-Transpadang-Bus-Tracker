@@ -59,6 +59,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get mapAttribution => '© OpenStreetMap contributors';
 
   @override
+  String get mapStopServedBy => 'Dilayani oleh';
+
+  @override
+  String mapStopSemantics(String name) {
+    return 'Halte $name';
+  }
+
+  @override
   String destinationHeader(String destination) {
     return 'Tujuan $destination';
   }
@@ -284,6 +292,36 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get infoDirectionPulang => 'Pulang';
+
+  @override
+  String get infoAllCorridorsTitle => 'Info Semua Koridor';
+
+  @override
+  String get infoAllCorridorsHint => 'Ketuk koridor untuk melihat detail halte dan arah perjalanannya.';
+
+  @override
+  String get infoAllCorridorsEmpty => 'Data koridor belum tersedia.';
+
+  @override
+  String get infoFareTitle => 'Tarif & Pembayaran';
+
+  @override
+  String get infoFarePaymentHint => 'Pembayaran dapat menggunakan';
+
+  @override
+  String get infoFareGeneral => 'Umum';
+
+  @override
+  String get infoFareStudent => 'Pelajar (SD, SMP, SMA)';
+
+  @override
+  String get infoFareChildOver5 => 'Anak di atas 5 tahun (tanpa seragam sekolah)';
+
+  @override
+  String get infoFareChildUnder5 => 'Anak di bawah 5 tahun';
+
+  @override
+  String get infoFareNote => 'Pembayaran berlaku 2 kali setiap melewati halte terakhir & transit beda koridor.';
 
   @override
   String get searchDestinationTitle => 'Cari tujuan';

@@ -201,6 +201,18 @@ abstract class AppLocalizations {
   /// **'© OpenStreetMap contributors'**
   String get mapAttribution;
 
+  /// No description provided for @mapStopServedBy.
+  ///
+  /// In id, this message translates to:
+  /// **'Dilayani oleh'**
+  String get mapStopServedBy;
+
+  /// No description provided for @mapStopSemantics.
+  ///
+  /// In id, this message translates to:
+  /// **'Halte {name}'**
+  String mapStopSemantics(String name);
+
   /// No description provided for @destinationHeader.
   ///
   /// In id, this message translates to:
@@ -554,6 +566,66 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pulang'**
   String get infoDirectionPulang;
+
+  /// No description provided for @infoAllCorridorsTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Info Semua Koridor'**
+  String get infoAllCorridorsTitle;
+
+  /// No description provided for @infoAllCorridorsHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk koridor untuk melihat detail halte dan arah perjalanannya.'**
+  String get infoAllCorridorsHint;
+
+  /// No description provided for @infoAllCorridorsEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Data koridor belum tersedia.'**
+  String get infoAllCorridorsEmpty;
+
+  /// No description provided for @infoFareTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tarif & Pembayaran'**
+  String get infoFareTitle;
+
+  /// No description provided for @infoFarePaymentHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran dapat menggunakan'**
+  String get infoFarePaymentHint;
+
+  /// No description provided for @infoFareGeneral.
+  ///
+  /// In id, this message translates to:
+  /// **'Umum'**
+  String get infoFareGeneral;
+
+  /// No description provided for @infoFareStudent.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelajar (SD, SMP, SMA)'**
+  String get infoFareStudent;
+
+  /// No description provided for @infoFareChildOver5.
+  ///
+  /// In id, this message translates to:
+  /// **'Anak di atas 5 tahun (tanpa seragam sekolah)'**
+  String get infoFareChildOver5;
+
+  /// No description provided for @infoFareChildUnder5.
+  ///
+  /// In id, this message translates to:
+  /// **'Anak di bawah 5 tahun'**
+  String get infoFareChildUnder5;
+
+  /// No description provided for @infoFareNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran berlaku 2 kali setiap melewati halte terakhir & transit beda koridor.'**
+  String get infoFareNote;
 
   /// No description provided for @searchDestinationTitle.
   ///

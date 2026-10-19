@@ -22,6 +22,13 @@
   "mapOpen": "Lihat peta",
   "mapRecenter": "Ke lokasi saya",
   "mapAttribution": "© OpenStreetMap contributors",
+  "mapStopServedBy": "Dilayani oleh",
+  "mapStopSemantics": "Halte {name}",
+  "@mapStopSemantics": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
 
   "destinationHeader": "Tujuan {destination}",
   "@destinationHeader": {
@@ -222,6 +229,16 @@
   "infoUniqueStopsLabel": "Halte unik",
   "infoDirectionPergi": "Pergi",
   "infoDirectionPulang": "Pulang",
+  "infoAllCorridorsTitle": "Info Semua Koridor",
+  "infoAllCorridorsHint": "Ketuk koridor untuk melihat detail halte dan arah perjalanannya.",
+  "infoAllCorridorsEmpty": "Data koridor belum tersedia.",
+  "infoFareTitle": "Tarif & Pembayaran",
+  "infoFarePaymentHint": "Pembayaran dapat menggunakan",
+  "infoFareGeneral": "Umum",
+  "infoFareStudent": "Pelajar (SD, SMP, SMA)",
+  "infoFareChildOver5": "Anak di atas 5 tahun (tanpa seragam sekolah)",
+  "infoFareChildUnder5": "Anak di bawah 5 tahun",
+  "infoFareNote": "Pembayaran berlaku 2 kali setiap melewati halte terakhir & transit beda koridor.",
 
   "searchDestinationTitle": "Cari tujuan",
   "pickOriginTitle": "Pilih asal",

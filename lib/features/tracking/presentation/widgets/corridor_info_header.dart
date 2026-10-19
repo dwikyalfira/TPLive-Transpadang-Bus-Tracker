@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../providers.dart';
 import 'corridor_info_sheet.dart';
+import 'corridor_list_sheet.dart';
 import 'format.dart';
 
 /// Kartu ringkas "Info Koridor" di atas daftar bus tiap tab.
@@ -44,11 +45,12 @@ class CorridorInfoHeader extends ConsumerWidget {
             label: l10n.infoStatHaltes(net.uniqueStops),
           ),
         ],
+        onTap: () => showCorridorListSheet(context),
       );
     }
 
-    final info =
-        ref.watch(corridorInfoProvider.select((m) => m[corridor!.toUpperCase()]));
+    final info = ref
+        .watch(corridorInfoProvider.select((m) => m[corridor!.toUpperCase()]));
     if (info == null) return const SizedBox.shrink();
     final accent = corridorAccent(corridor!, theme);
 

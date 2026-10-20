@@ -18,6 +18,26 @@
   "gettingLocation": "Mendapatkan lokasi…",
   "retry": "Coba lagi",
 
+  "locationErrorTitle": "Lokasi tidak tersedia",
+  "locationServiceOffTitle": "GPS nonaktif",
+  "locationServiceOffMessage": "Aktifkan GPS perangkat agar jarak dan ETA bus bisa dihitung.",
+  "locationPermissionTitle": "Izin lokasi diperlukan",
+  "locationPermissionMessage": "Izinkan akses lokasi agar jarak dan ETA bus bisa dihitung.",
+  "locationPermissionForeverMessage": "Izin lokasi ditolak permanen. Aktifkan dari Pengaturan aplikasi.",
+  "locationOpenSettings": "Buka Pengaturan",
+  "locationEnable": "Aktifkan lokasi",
+  "planPickStopInstead": "Pilih halte sebagai asal",
+
+  "busesConnecting": "Menyambung ke server…",
+  "busesReconnecting": "Menyambung ulang ke server…",
+  "busesDisconnected": "Tidak terhubung ke server bus.",
+  "busesEmptyCorridor": "Tidak ada bus di koridor {corridor} saat ini.",
+  "@busesEmptyCorridor": {
+    "placeholders": {
+      "corridor": {"type": "String"}
+    }
+  },
+
   "mapTitle": "Peta Jaringan",
   "mapOpen": "Lihat peta",
   "mapRecenter": "Ke lokasi saya",
@@ -85,6 +105,51 @@
   "tooltipViewOnMap": "Lihat di peta",
   "tooltipClose": "Tutup",
   "notifPermissionDenied": "Izin notifikasi ditolak. Izinkan notifikasi untuk mengikuti bus.",
+  "notifFollowTitle": "Bus {bus} · Koridor {corridor}",
+  "@notifFollowTitle": {
+    "placeholders": {
+      "bus": {"type": "String"},
+      "corridor": {"type": "String"}
+    }
+  },
+  "notifFollowTitleGeneric": "Mengikuti bus {corridor}",
+  "@notifFollowTitleGeneric": {
+    "placeholders": {
+      "corridor": {"type": "String"}
+    }
+  },
+  "notifHeadingTo": "Menuju {stop}",
+  "@notifHeadingTo": {
+    "placeholders": {
+      "stop": {"type": "String"}
+    }
+  },
+  "notifDistanceToNext": "{distance} ke halte berikutnya",
+  "@notifDistanceToNext": {
+    "placeholders": {
+      "distance": {"type": "String"}
+    }
+  },
+  "notifEta": " · ±{minutes} mnt",
+  "@notifEta": {
+    "placeholders": {
+      "minutes": {"type": "String"}
+    }
+  },
+  "notifSearchingNext": "Mencari halte berikutnya…",
+  "notifSearchingSignal": "Mencari sinyal bus…",
+  "notifDestinationFallback": "Ikuti bus hingga tiba di tujuan",
+  "notifStopAction": "Berhenti",
+  "notifStopFallback": "Halte {index}",
+  "@notifStopFallback": {
+    "placeholders": {
+      "index": {"type": "String"}
+    }
+  },
+  "notifChannelName": "Mengikuti bus",
+  "notifChannelDescription": "Notifikasi posisi bus yang sedang diikuti",
+  "notifEventChannelName": "Kedatangan bus",
+  "notifEventChannelDescription": "Pemberitahuan kedatangan bus yang diikuti",
   "followFailed": "Gagal mengikuti bus: {message}",
   "@followFailed": {
     "placeholders": {
@@ -329,6 +394,15 @@
   "placeMinChars": "Ketik nama tempat (minimal 3 huruf), lalu tekan cari.",
   "placeNotFound": "Tempat tidak ditemukan di sekitar Padang.",
   "placeSearchError": "Terjadi kesalahan saat mencari tempat.",
+  "placeSearchTimeout": "Pencarian memakan waktu terlalu lama. Periksa koneksi internet.",
+  "placeSearchNoConnection": "Tidak ada koneksi internet.",
+  "placeSearchInvalidResponse": "Respons pencarian tidak valid.",
+  "placeSearchHttp": "Pencarian gagal (HTTP {status}). Coba lagi nanti.",
+  "@placeSearchHttp": {
+    "placeholders": {
+      "status": {"type": "int"}
+    }
+  },
 
   "settingsTooltip": "Pengaturan",
   "settingsTitle": "Pengaturan",

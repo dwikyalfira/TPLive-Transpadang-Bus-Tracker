@@ -59,6 +59,9 @@ class FollowService : Service() {
         /** Warna aksen notifikasi (ARGB) yang sudah dihitung di Dart. */
         const val EXTRA_COLOR = "color"
 
+        /** String notifikasi yang sudah dilokalisasi di Dart (JSON). */
+        const val EXTRA_LABELS = "labels"
+
         /** Fallback bila Dart tidak mengirim warna (abu-abu badge default). */
         val DEFAULT_KEY_COLOR = 0xFF546E7A.toInt()
 
@@ -91,6 +94,7 @@ class FollowService : Service() {
     private val stops = ArrayList<HalteMath.Point>()
     private val stopNames = ArrayList<String>()
     private var keyColor = 0
+    private var labels: Map<String, String> = emptyMap()
 
     private var client: OkHttpClient? = null
     private var generation = 0
@@ -163,6 +167,20 @@ class FollowService : Service() {
     }
 
     private fun readExtras(intent: Intent) {
+        labels = try {
+            val root = JSONObject(intent.getStringExtra(EXTRA_LABELS) ?: "{}")
+            val map = mutableMapOf<String, String>()
+            val keys = root.keys()
+            while (keys.hasNext()) {
+                val key = keys.next()
+                map[key] = root.optString(key)
+            }
+            map
+        } catch (e: Exception) {
+            Log.w(TAG, "Gagal membaca label notifikasi: ${e.message}")
+            emptyMap()
+        }
+
         corridor = intent.getStringExtra(EXTRA_CORRIDOR) ?: ""
         busNumber = intent.getStringExtra(EXTRA_BUS_NUMBER) ?: ""
         origin = intent.getStringExtra(EXTRA_ORIGIN) ?: ""
@@ -177,7 +195,15 @@ class FollowService : Service() {
             val arr = JSONArray(intent.getStringExtra(EXTRA_HALTES) ?: "[]")
             for (i in 0 until arr.length()) {
                 val o = arr.getJSONObject(i)
-                stopNames.add(o.optString("nama").ifEmpty { "Halte ${i + 1}" })
+                stopNames.add(
+                    o.optString("nama").ifEmpty {
+                        fill(
+                            label("stopFallback", "Halte __INDEX__"),
+                            "INDEX",
+                            "${i + 1}",
+                        )
+                    },
+                )
                 stops.add(HalteMath.Point(o.optDouble("lat", 0.0), o.optDouble("lng", 0.0)))
             }
         } catch (e: Exception) {
@@ -198,10 +224,13 @@ class FollowService : Service() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val ch = NotificationChannel(
             CHANNEL_ID,
-            "Follow bus",
+            label("channelName", "Follow bus"),
             NotificationManager.IMPORTANCE_LOW,
         ).apply {
-            description = "Notifikasi posisi bus yang sedang diikuti"
+            description = label(
+                "channelDescription",
+                "Notifikasi posisi bus yang sedang diikuti",
+            )
             setShowBadge(false)
         }
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -246,28 +275,57 @@ class FollowService : Service() {
         return String.format(Locale.US, "%.1f km", km)
     }
 
+    private fun label(key: String, fallback: String): String =
+        labels[key]?.takeIf { it.isNotEmpty() } ?: fallback
+
+    private fun fill(template: String, token: String, value: String): String =
+        template.replace("__${token}__", value)
+
     private fun buildNotification(): Notification {
-        val title = if (busNumber.isNotEmpty()) {
-            "Bus $busNumber · Koridor $corridor"
-        } else {
-            "Follow bus $corridor"
-        }
+        val title = label(
+            "title",
+            if (busNumber.isNotEmpty()) {
+                "Bus $busNumber · Koridor $corridor"
+            } else {
+                "Follow bus $corridor"
+            },
+        )
 
         var text: String
         var sub: String
         if (hasPosition && nextName != null) {
-            text = "Menuju $nextName"
+            text = fill(
+                label("headingTo", "Menuju __STOP__"),
+                "STOP",
+                nextName!!,
+            )
             sub = buildString {
                 if (distKm != null) {
-                    append("${formatKm(distKm!!)} ke halte berikutnya")
-                    if (etaMin != null) append(" · ±$etaMin mnt")
+                    append(
+                        fill(
+                            label("distanceToNextStop", "__DISTANCE__ ke halte berikutnya"),
+                            "DISTANCE",
+                            formatKm(distKm!!),
+                        ),
+                    )
+                    if (etaMin != null) {
+                        append(
+                            fill(
+                                label("eta", " · ±__MINUTES__ mnt"),
+                                "MINUTES",
+                                etaMin!!.toString(),
+                            ),
+                        )
+                    }
                 } else {
-                    append("Mencari halte berikutnya…")
+                    append(label("searchingNext", "Mencari halte berikutnya…"))
                 }
             }
         } else {
-            text = "Mencari sinyal bus…"
-            sub = destination.ifBlank { "Ikuti bus hingga tiba di tujuan" }
+            text = label("searchingSignal", "Mencari sinyal bus…")
+            sub = destination.ifBlank {
+                label("destinationFallback", "Ikuti bus hingga tiba di tujuan")
+            }
         }
 
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -289,7 +347,7 @@ class FollowService : Service() {
             .setCategory(Notification.CATEGORY_PROGRESS)
             .setColor(keyColor)
             .setContentIntent(contentIntent())
-            .addAction(0, "Berhenti", stopIntent())
+            .addAction(0, label("stopAction", "Berhenti"), stopIntent())
 
         if (hasPosition) {
             builder.setProgress(100, pct, false)

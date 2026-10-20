@@ -47,6 +47,47 @@ class AppLocalizationsId extends AppLocalizations {
   String get retry => 'Coba lagi';
 
   @override
+  String get locationErrorTitle => 'Lokasi tidak tersedia';
+
+  @override
+  String get locationServiceOffTitle => 'GPS nonaktif';
+
+  @override
+  String get locationServiceOffMessage => 'Aktifkan GPS perangkat agar jarak dan ETA bus bisa dihitung.';
+
+  @override
+  String get locationPermissionTitle => 'Izin lokasi diperlukan';
+
+  @override
+  String get locationPermissionMessage => 'Izinkan akses lokasi agar jarak dan ETA bus bisa dihitung.';
+
+  @override
+  String get locationPermissionForeverMessage => 'Izin lokasi ditolak permanen. Aktifkan dari Pengaturan aplikasi.';
+
+  @override
+  String get locationOpenSettings => 'Buka Pengaturan';
+
+  @override
+  String get locationEnable => 'Aktifkan lokasi';
+
+  @override
+  String get planPickStopInstead => 'Pilih halte sebagai asal';
+
+  @override
+  String get busesConnecting => 'Menyambung ke server…';
+
+  @override
+  String get busesReconnecting => 'Menyambung ulang ke server…';
+
+  @override
+  String get busesDisconnected => 'Tidak terhubung ke server bus.';
+
+  @override
+  String busesEmptyCorridor(String corridor) {
+    return 'Tidak ada bus di koridor $corridor saat ini.';
+  }
+
+  @override
   String get mapTitle => 'Peta Jaringan';
 
   @override
@@ -128,6 +169,60 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get notifPermissionDenied => 'Izin notifikasi ditolak. Izinkan notifikasi untuk mengikuti bus.';
+
+  @override
+  String notifFollowTitle(String bus, String corridor) {
+    return 'Bus $bus · Koridor $corridor';
+  }
+
+  @override
+  String notifFollowTitleGeneric(String corridor) {
+    return 'Mengikuti bus $corridor';
+  }
+
+  @override
+  String notifHeadingTo(String stop) {
+    return 'Menuju $stop';
+  }
+
+  @override
+  String notifDistanceToNext(String distance) {
+    return '$distance ke halte berikutnya';
+  }
+
+  @override
+  String notifEta(String minutes) {
+    return ' · ±$minutes mnt';
+  }
+
+  @override
+  String get notifSearchingNext => 'Mencari halte berikutnya…';
+
+  @override
+  String get notifSearchingSignal => 'Mencari sinyal bus…';
+
+  @override
+  String get notifDestinationFallback => 'Ikuti bus hingga tiba di tujuan';
+
+  @override
+  String get notifStopAction => 'Berhenti';
+
+  @override
+  String notifStopFallback(String index) {
+    return 'Halte $index';
+  }
+
+  @override
+  String get notifChannelName => 'Mengikuti bus';
+
+  @override
+  String get notifChannelDescription => 'Notifikasi posisi bus yang sedang diikuti';
+
+  @override
+  String get notifEventChannelName => 'Kedatangan bus';
+
+  @override
+  String get notifEventChannelDescription => 'Pemberitahuan kedatangan bus yang diikuti';
 
   @override
   String followFailed(String message) {
@@ -458,6 +553,20 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get placeSearchError => 'Terjadi kesalahan saat mencari tempat.';
+
+  @override
+  String get placeSearchTimeout => 'Pencarian memakan waktu terlalu lama. Periksa koneksi internet.';
+
+  @override
+  String get placeSearchNoConnection => 'Tidak ada koneksi internet.';
+
+  @override
+  String get placeSearchInvalidResponse => 'Respons pencarian tidak valid.';
+
+  @override
+  String placeSearchHttp(int status) {
+    return 'Pencarian gagal (HTTP $status). Coba lagi nanti.';
+  }
 
   @override
   String get settingsTooltip => 'Pengaturan';

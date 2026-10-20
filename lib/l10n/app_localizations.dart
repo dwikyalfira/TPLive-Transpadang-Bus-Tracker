@@ -177,6 +177,84 @@ abstract class AppLocalizations {
   /// **'Coba lagi'**
   String get retry;
 
+  /// No description provided for @locationErrorTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi tidak tersedia'**
+  String get locationErrorTitle;
+
+  /// No description provided for @locationServiceOffTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'GPS nonaktif'**
+  String get locationServiceOffTitle;
+
+  /// No description provided for @locationServiceOffMessage.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktifkan GPS perangkat agar jarak dan ETA bus bisa dihitung.'**
+  String get locationServiceOffMessage;
+
+  /// No description provided for @locationPermissionTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin lokasi diperlukan'**
+  String get locationPermissionTitle;
+
+  /// No description provided for @locationPermissionMessage.
+  ///
+  /// In id, this message translates to:
+  /// **'Izinkan akses lokasi agar jarak dan ETA bus bisa dihitung.'**
+  String get locationPermissionMessage;
+
+  /// No description provided for @locationPermissionForeverMessage.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin lokasi ditolak permanen. Aktifkan dari Pengaturan aplikasi.'**
+  String get locationPermissionForeverMessage;
+
+  /// No description provided for @locationOpenSettings.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka Pengaturan'**
+  String get locationOpenSettings;
+
+  /// No description provided for @locationEnable.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktifkan lokasi'**
+  String get locationEnable;
+
+  /// No description provided for @planPickStopInstead.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih halte sebagai asal'**
+  String get planPickStopInstead;
+
+  /// No description provided for @busesConnecting.
+  ///
+  /// In id, this message translates to:
+  /// **'Menyambung ke server…'**
+  String get busesConnecting;
+
+  /// No description provided for @busesReconnecting.
+  ///
+  /// In id, this message translates to:
+  /// **'Menyambung ulang ke server…'**
+  String get busesReconnecting;
+
+  /// No description provided for @busesDisconnected.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak terhubung ke server bus.'**
+  String get busesDisconnected;
+
+  /// No description provided for @busesEmptyCorridor.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada bus di koridor {corridor} saat ini.'**
+  String busesEmptyCorridor(String corridor);
+
   /// No description provided for @mapTitle.
   ///
   /// In id, this message translates to:
@@ -314,6 +392,90 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Izin notifikasi ditolak. Izinkan notifikasi untuk mengikuti bus.'**
   String get notifPermissionDenied;
+
+  /// No description provided for @notifFollowTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus {bus} · Koridor {corridor}'**
+  String notifFollowTitle(String bus, String corridor);
+
+  /// No description provided for @notifFollowTitleGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Mengikuti bus {corridor}'**
+  String notifFollowTitleGeneric(String corridor);
+
+  /// No description provided for @notifHeadingTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Menuju {stop}'**
+  String notifHeadingTo(String stop);
+
+  /// No description provided for @notifDistanceToNext.
+  ///
+  /// In id, this message translates to:
+  /// **'{distance} ke halte berikutnya'**
+  String notifDistanceToNext(String distance);
+
+  /// No description provided for @notifEta.
+  ///
+  /// In id, this message translates to:
+  /// **' · ±{minutes} mnt'**
+  String notifEta(String minutes);
+
+  /// No description provided for @notifSearchingNext.
+  ///
+  /// In id, this message translates to:
+  /// **'Mencari halte berikutnya…'**
+  String get notifSearchingNext;
+
+  /// No description provided for @notifSearchingSignal.
+  ///
+  /// In id, this message translates to:
+  /// **'Mencari sinyal bus…'**
+  String get notifSearchingSignal;
+
+  /// No description provided for @notifDestinationFallback.
+  ///
+  /// In id, this message translates to:
+  /// **'Ikuti bus hingga tiba di tujuan'**
+  String get notifDestinationFallback;
+
+  /// No description provided for @notifStopAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Berhenti'**
+  String get notifStopAction;
+
+  /// No description provided for @notifStopFallback.
+  ///
+  /// In id, this message translates to:
+  /// **'Halte {index}'**
+  String notifStopFallback(String index);
+
+  /// No description provided for @notifChannelName.
+  ///
+  /// In id, this message translates to:
+  /// **'Mengikuti bus'**
+  String get notifChannelName;
+
+  /// No description provided for @notifChannelDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'Notifikasi posisi bus yang sedang diikuti'**
+  String get notifChannelDescription;
+
+  /// No description provided for @notifEventChannelName.
+  ///
+  /// In id, this message translates to:
+  /// **'Kedatangan bus'**
+  String get notifEventChannelName;
+
+  /// No description provided for @notifEventChannelDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'Pemberitahuan kedatangan bus yang diikuti'**
+  String get notifEventChannelDescription;
 
   /// No description provided for @followFailed.
   ///
@@ -866,6 +1028,30 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Terjadi kesalahan saat mencari tempat.'**
   String get placeSearchError;
+
+  /// No description provided for @placeSearchTimeout.
+  ///
+  /// In id, this message translates to:
+  /// **'Pencarian memakan waktu terlalu lama. Periksa koneksi internet.'**
+  String get placeSearchTimeout;
+
+  /// No description provided for @placeSearchNoConnection.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada koneksi internet.'**
+  String get placeSearchNoConnection;
+
+  /// No description provided for @placeSearchInvalidResponse.
+  ///
+  /// In id, this message translates to:
+  /// **'Respons pencarian tidak valid.'**
+  String get placeSearchInvalidResponse;
+
+  /// No description provided for @placeSearchHttp.
+  ///
+  /// In id, this message translates to:
+  /// **'Pencarian gagal (HTTP {status}). Coba lagi nanti.'**
+  String placeSearchHttp(int status);
 
   /// No description provided for @settingsTooltip.
   ///

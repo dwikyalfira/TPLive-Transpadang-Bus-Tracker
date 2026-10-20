@@ -102,8 +102,7 @@ class HalteTimelineSheet extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<HalteTimelineSheet> createState() =>
-      _HalteTimelineSheetState();
+  ConsumerState<HalteTimelineSheet> createState() => _HalteTimelineSheetState();
 }
 
 class _HalteTimelineSheetState extends ConsumerState<HalteTimelineSheet> {
@@ -163,7 +162,8 @@ class _HalteTimelineSheetState extends ConsumerState<HalteTimelineSheet> {
               estimatedHeading: live.resolvedHeading,
             );
             if (progress == null) {
-              return _sheetList(scrollController, [_Unavailable(bus: live.bus)]);
+              return _sheetList(
+                  scrollController, [_Unavailable(bus: live.bus)]);
             }
 
             // Bila rencana perjalanan aktif (asal & turun ditetapkan), sorot
@@ -241,9 +241,8 @@ class _DismissDragRegionState extends State<_DismissDragRegion> {
   void _onUpdate(DragUpdateDetails d) {
     if (!widget.controller.isAttached) return;
     _accumulatedDy += d.delta.dy;
-    final target =
-        (_startSize - widget.controller.pixelsToSize(_accumulatedDy))
-            .clamp(0.0, _busSheetMaxSize);
+    final target = (_startSize - widget.controller.pixelsToSize(_accumulatedDy))
+        .clamp(0.0, _busSheetMaxSize);
     widget.controller.jumpTo(target);
   }
 
@@ -585,80 +584,78 @@ class _TimelineState extends State<_Timeline> {
 }
 
 /// Data yang dibutuhkan untuk fitur "ikuti bus" (diteruskan ke tombol header).
-  class _Header extends StatelessWidget {
-    final Bus bus;
-    final String? origin;
-    final String? destination;
-    final String fallback;
-    final FollowPayload follow;
-    final bool showStartEnd; // BARU: tampilkan badge Awal/Akhir di timeline
+class _Header extends StatelessWidget {
+  final Bus bus;
+  final String? origin;
+  final String? destination;
+  final String fallback;
+  final FollowPayload follow;
 
-    /// Tampilkan ikon "Lihat di peta" (disembunyikan saat detail dibuka dari
-    /// peta agar tidak menumpuk peta kedua).
-    final bool showMapButton;
+  /// Tampilkan ikon "Lihat di peta" (disembunyikan saat detail dibuka dari
+  /// peta agar tidak menumpuk peta kedua).
+  final bool showMapButton;
 
-    const _Header({
-      required this.bus,
-      required this.origin,
-      required this.destination,
-      required this.fallback,
-      required this.follow,
-      this.showStartEnd = false, // DEFAULT: false
-      this.showMapButton = true,
-    });
+  const _Header({
+    required this.bus,
+    required this.origin,
+    required this.destination,
+    required this.fallback,
+    required this.follow,
+    this.showMapButton = true,
+  });
 
-    @override
-    Widget build(BuildContext context) {
-      final theme = Theme.of(context);
-      final color = corridorAccent(bus.corridor, theme);
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CorridorBadge(corridor: bus.corridor),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context).busLabel(bus.number),
-                    style: theme.textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 2),
-                  _subtitle(theme),
-                ],
-              ),
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = corridorAccent(bus.corridor, theme);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CorridorBadge(corridor: bus.corridor),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context).busLabel(bus.number),
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 2),
+                _subtitle(theme),
+              ],
             ),
-            const SizedBox(width: 4),
-            if (showMapButton)
-              IconButton(
-                key: const Key('timelineViewOnMap'),
-                tooltip: AppLocalizations.of(context).tooltipViewOnMap,
-                onPressed: () => _openOnMap(context),
-                icon: const Icon(Icons.map_outlined),
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            FollowBusButton(bus: bus, payload: follow, activeColor: color),
-          ],
-        ),
-      );
-    }
-
-    /// Membuka layar peta dengan bus ini langsung terpilih & terpusat. Peta
-    /// ditumpuk di atas sheet, sehingga kembali dari peta mengembalikan detail
-    /// bus apa adanya.
-    void _openOnMap(BuildContext context) {
-      Navigator.of(context).push(
-        fadeThroughRoute<void>(
-          builder: (_) => MapScreen(
-            focusBusKey: busFollowKey(bus.corridor, bus.number),
           ),
+          const SizedBox(width: 4),
+          if (showMapButton)
+            IconButton(
+              key: const Key('timelineViewOnMap'),
+              tooltip: AppLocalizations.of(context).tooltipViewOnMap,
+              onPressed: () => _openOnMap(context),
+              icon: const Icon(Icons.map_outlined),
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          FollowBusButton(bus: bus, payload: follow, activeColor: color),
+        ],
+      ),
+    );
+  }
+
+  /// Membuka layar peta dengan bus ini langsung terpilih & terpusat. Peta
+  /// ditumpuk di atas sheet, sehingga kembali dari peta mengembalikan detail
+  /// bus apa adanya.
+  void _openOnMap(BuildContext context) {
+    Navigator.of(context).push(
+      fadeThroughRoute<void>(
+        builder: (_) => MapScreen(
+          focusBusKey: busFollowKey(bus.corridor, bus.number),
         ),
-      );
-    }
+      ),
+    );
+  }
 
   Widget _subtitle(ThemeData theme) {
     // Tampilkan kedua terminus rute (asal ⇄ tujuan). Tujuan yang sedang
@@ -745,8 +742,8 @@ class _HighlightCard extends StatelessWidget {
                               size: 16, color: color),
                           const SizedBox(width: 6),
                           Text(l10n.currentAt,
-                              style: theme.textTheme.labelMedium
-                                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant)),
                         ],
                       ),
                       Text(
@@ -870,10 +867,14 @@ class _HalteRow extends StatelessWidget {
               : corridorColor;
     } else if (isPassed) {
       icon = Icons.check_circle;
-      color = dimmed ? dimColor : theme.colorScheme.onSurfaceVariant.withOpacity(0.6);
+      color = dimmed
+          ? dimColor
+          : theme.colorScheme.onSurfaceVariant.withOpacity(0.6);
     } else {
       icon = Icons.circle_outlined;
-      color = dimmed ? dimColor : theme.colorScheme.onSurfaceVariant.withOpacity(0.5);
+      color = dimmed
+          ? dimColor
+          : theme.colorScheme.onSurfaceVariant.withOpacity(0.5);
     }
 
     final emphasize = isNext || isCurrent || isEdge;

@@ -95,6 +95,23 @@ class FollowBusButton extends ConsumerWidget {
         direction: payload.directionKey,
         haltes: payload.haltes,
         accentColor: corridorColor(bus.corridor).value,
+        labels: {
+          'title': bus.number.trim().isEmpty
+              ? l10n.notifFollowTitleGeneric(bus.corridor)
+              : l10n.notifFollowTitle(bus.number, bus.corridor),
+          // Template diberi penanda yang diganti oleh layanan native dengan
+          // nilai yang berubah tiap snapshot (nama halte, jarak, ETA).
+          'headingTo': l10n.notifHeadingTo('__STOP__'),
+          'distanceToNextStop': l10n.notifDistanceToNext('__DISTANCE__'),
+          'eta': l10n.notifEta('__MINUTES__'),
+          'searchingNext': l10n.notifSearchingNext,
+          'searchingSignal': l10n.notifSearchingSignal,
+          'destinationFallback': l10n.notifDestinationFallback,
+          'stopAction': l10n.notifStopAction,
+          'stopFallback': l10n.notifStopFallback('__INDEX__'),
+          'channelName': l10n.notifChannelName,
+          'channelDescription': l10n.notifChannelDescription,
+        },
       );
       if (!context.mounted) return;
       ref.read(followedBusProvider.notifier).state = key;

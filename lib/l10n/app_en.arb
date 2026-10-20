@@ -18,6 +18,26 @@
   "gettingLocation": "Getting your location…",
   "retry": "Try again",
 
+  "locationErrorTitle": "Location unavailable",
+  "locationServiceOffTitle": "GPS is off",
+  "locationServiceOffMessage": "Turn on your device GPS so bus distances and ETAs can be calculated.",
+  "locationPermissionTitle": "Location permission required",
+  "locationPermissionMessage": "Allow location access so bus distances and ETAs can be calculated.",
+  "locationPermissionForeverMessage": "Location permission was permanently denied. Enable it in the app settings.",
+  "locationOpenSettings": "Open settings",
+  "locationEnable": "Turn on location",
+  "planPickStopInstead": "Choose a stop as origin",
+
+  "busesConnecting": "Connecting to the server…",
+  "busesReconnecting": "Reconnecting to the server…",
+  "busesDisconnected": "Not connected to the bus server.",
+  "busesEmptyCorridor": "No buses on corridor {corridor} right now.",
+  "@busesEmptyCorridor": {
+    "placeholders": {
+      "corridor": {"type": "String"}
+    }
+  },
+
   "mapTitle": "Network Map",
   "mapOpen": "View map",
   "mapRecenter": "My location",
@@ -49,6 +69,20 @@
   "tooltipViewOnMap": "View on map",
   "tooltipClose": "Close",
   "notifPermissionDenied": "Notification permission denied. Allow notifications to follow a bus.",
+  "notifFollowTitle": "Bus {bus} · Corridor {corridor}",
+  "notifFollowTitleGeneric": "Following bus {corridor}",
+  "notifHeadingTo": "Heading to {stop}",
+  "notifDistanceToNext": "{distance} to the next stop",
+  "notifEta": " · ±{minutes} min",
+  "notifSearchingNext": "Finding the next stop…",
+  "notifSearchingSignal": "Searching for bus signal…",
+  "notifDestinationFallback": "Follow the bus until you reach your destination",
+  "notifStopAction": "Stop",
+  "notifStopFallback": "Stop {index}",
+  "notifChannelName": "Following a bus",
+  "notifChannelDescription": "Notification for the bus you are following",
+  "notifEventChannelName": "Bus arrivals",
+  "notifEventChannelDescription": "Alerts for the bus you are following",
   "followFailed": "Failed to follow bus: {message}",
   "followUnavailable": "Follow service unavailable.",
 
@@ -147,6 +181,10 @@
   "placeMinChars": "Type a place name (at least 3 letters), then press search.",
   "placeNotFound": "No place found around Padang.",
   "placeSearchError": "An error occurred while searching for places.",
+  "placeSearchTimeout": "Search is taking too long. Check your internet connection.",
+  "placeSearchNoConnection": "No internet connection.",
+  "placeSearchInvalidResponse": "Invalid search response.",
+  "placeSearchHttp": "Search failed (HTTP {status}). Try again later.",
 
   "settingsTooltip": "Settings",
   "settingsTitle": "Settings",

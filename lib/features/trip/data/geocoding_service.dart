@@ -25,9 +25,7 @@ class GeocodingResult {
   factory GeocodingResult.fromJson(Map<String, dynamic> json) {
     final display = (json['display_name'] ?? '').toString();
     final rawName = (json['name'] ?? '').toString().trim();
-    final name = rawName.isNotEmpty
-        ? rawName
-        : display.split(',').first.trim();
+    final name = rawName.isNotEmpty ? rawName : display.split(',').first.trim();
     return GeocodingResult(
       name: name.isEmpty ? display : name,
       displayName: display,
@@ -69,14 +67,23 @@ class GeocodingResult {
   }
 }
 
-/// Kesalahan geocoding dengan pesan ramah pengguna.
-class GeocodingException implements Exception {
-  final String message;
+/// Jenis kesalahan geocoding (dipetakan ke teks oleh lapisan UI).
+enum GeocodingErrorKind {
+  timeout,
+  noConnection,
+  invalidResponse,
+  httpError,
+}
 
-  const GeocodingException(this.message);
+/// Kesalahan geocoding; UI yang menentukan pesan sesuai bahasa aplikasi.
+class GeocodingException implements Exception {
+  final GeocodingErrorKind kind;
+  final int? statusCode;
+
+  const GeocodingException(this.kind, {this.statusCode});
 
   @override
-  String toString() => message;
+  String toString() => 'GeocodingException(${kind.name}, $statusCode)';
 }
 
 /// Klien pencarian tempat.
@@ -109,7 +116,8 @@ class GeocodingService {
     required int limit,
     required Duration timeout,
   }) async {
-    final uri = Uri.https(AppConfig.mapboxSearchHost, '/search/searchbox/v1/forward', {
+    final uri =
+        Uri.https(AppConfig.mapboxSearchHost, '/search/searchbox/v1/forward', {
       'q': q,
       'access_token': AppConfig.mapboxToken,
       'limit': '$limit',
@@ -174,22 +182,22 @@ class GeocodingService {
       request.headers.set(HttpHeaders.acceptHeader, 'application/json');
       headers?.forEach((name, value) => request.headers.set(name, value));
       final response = await request.close().timeout(timeout);
-      final body = await response.transform(utf8.decoder).join().timeout(timeout);
+      final body =
+          await response.transform(utf8.decoder).join().timeout(timeout);
 
       if (response.statusCode != HttpStatus.ok) {
         throw GeocodingException(
-          'Pencarian gagal (HTTP ${response.statusCode}). Coba lagi nanti.',
+          GeocodingErrorKind.httpError,
+          statusCode: response.statusCode,
         );
       }
       return jsonDecode(body);
     } on TimeoutException {
-      throw const GeocodingException(
-        'Pencarian memakan waktu terlalu lama. Periksa koneksi internet.',
-      );
+      throw const GeocodingException(GeocodingErrorKind.timeout);
     } on SocketException {
-      throw const GeocodingException('Tidak ada koneksi internet.');
+      throw const GeocodingException(GeocodingErrorKind.noConnection);
     } on FormatException {
-      throw const GeocodingException('Respons pencarian tidak valid.');
+      throw const GeocodingException(GeocodingErrorKind.invalidResponse);
     }
   }
 

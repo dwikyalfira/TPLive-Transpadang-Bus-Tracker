@@ -11,6 +11,7 @@ import '../../tracking/presentation/widgets/corridor_badge.dart';
 import '../../tracking/presentation/widgets/follow_bus_button.dart';
 import '../../tracking/presentation/widgets/format.dart';
 import '../../tracking/presentation/widgets/halte_timeline_sheet.dart';
+import '../../tracking/presentation/widgets/location_error_view.dart';
 import '../domain/saved_place.dart';
 import '../domain/trip_endpoint.dart';
 import '../domain/trip_planner.dart';
@@ -28,7 +29,8 @@ class TripScreen extends ConsumerWidget {
     final destination = ref.watch(tripDestinationEndpointProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).searchDestinationTitle)),
+      appBar: AppBar(
+          title: Text(AppLocalizations.of(context).searchDestinationTitle)),
       body: ConstrainedContent(
         child: Column(
           children: [
@@ -41,7 +43,11 @@ class TripScreen extends ConsumerWidget {
                 onTapDestination: () => _pickDestination(context, ref),
               ),
             ),
-            const Expanded(child: _PlanArea()),
+            Expanded(
+              child: _PlanArea(
+                onPickOrigin: () => _pickOrigin(context, ref),
+              ),
+            ),
           ],
         ),
       ),
@@ -171,9 +177,8 @@ class _RouteFieldRow extends StatelessWidget {
     final scheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context);
     final hasValue = endpoint != null;
-    final valueText = hasValue
-        ? (endpoint!.isGps ? l10n.myLocation : endpoint!.label)
-        : hint;
+    final valueText =
+        hasValue ? (endpoint!.isGps ? l10n.myLocation : endpoint!.label) : hint;
 
     return InkWell(
       onTap: onTap,
@@ -261,7 +266,9 @@ class _RouteFieldRow extends StatelessWidget {
 }
 
 class _PlanArea extends ConsumerWidget {
-  const _PlanArea();
+  final VoidCallback onPickOrigin;
+
+  const _PlanArea({required this.onPickOrigin});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -275,7 +282,18 @@ class _PlanArea extends ConsumerWidget {
     }
 
     final origin = ref.watch(tripOriginEndpointProvider);
-    if (origin.isGps && ref.watch(userLocationProvider).valueOrNull == null) {
+    final locationAsync = origin.isGps ? ref.watch(userLocationProvider) : null;
+    if (locationAsync != null && locationAsync.hasError) {
+      return LocationErrorView(
+        error: locationAsync.error!,
+        onRetry: () => ref.invalidate(userLocationProvider),
+        secondaryAction: TextButton(
+          onPressed: onPickOrigin,
+          child: Text(l10n.planPickStopInstead),
+        ),
+      );
+    }
+    if (locationAsync != null && locationAsync.valueOrNull == null) {
       return EmptyStateView(
         icon: Icons.my_location,
         message: l10n.planWaitingLocation,
@@ -352,7 +370,8 @@ class _OptionCard extends ConsumerWidget {
                   (option.transferCount > 0
                       ? l10n.routeSummaryTransit(option.transferCount)
                       : l10n.routeSummaryDirect),
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 12),
             _RouteSteps(option: option),
@@ -416,8 +435,8 @@ class _RouteSteps extends StatelessWidget {
 
       if (i < option.legs.length - 1) {
         final next = option.legs[i + 1];
-        final sameHalte = leg.alight.nama.toLowerCase() ==
-            next.board.nama.toLowerCase();
+        final sameHalte =
+            leg.alight.nama.toLowerCase() == next.board.nama.toLowerCase();
         final walks = !sameHalte && option.transferWalkKm >= walkThresholdKm;
         if (walks) {
           steps.add(_Step(
@@ -488,8 +507,8 @@ class _RouteSteps extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(
-                        bottom: k < steps.length - 1 ? 16 : 0),
+                    padding:
+                        EdgeInsets.only(bottom: k < steps.length - 1 ? 16 : 0),
                     child: Text(
                       steps[k].text,
                       style: theme.textTheme.bodyMedium,
@@ -606,7 +625,8 @@ class _BusSection extends StatelessWidget {
     if (buses.isEmpty) {
       return Text(
         l10n.noBusesToBoard,
-        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        style: theme.textTheme.bodySmall
+            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
       );
     }
 
@@ -618,7 +638,8 @@ class _BusSection extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           l10n.tapCardHint,
-          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          style: theme.textTheme.bodySmall
+              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
         for (final bus in top) _TripBusCard(item: bus),

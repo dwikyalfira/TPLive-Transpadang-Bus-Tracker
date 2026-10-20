@@ -72,10 +72,14 @@ List<Override> _overrides(List<Bus> buses, {bool outsideHoursStatus = false}) =>
         (ref) => Stream.value(const LatLng(-0.90, 100.30)),
       ),
       busesProvider.overrideWith((ref) => Stream.value(buses)),
+      connectionStatusProvider.overrideWith(
+        (ref) => Stream.value(ConnectionStatus.connected),
+      ),
       // Penanda status luar jam operasional (jika true, UI menampilkan
       // penanda ungu dan menyembunyikan daftar bus; ini independen dari
       // waktu sebenarnya dan tidak memengaruhi koneksi socket).
-      outsideHoursProvider.overrideWith((ref) => Stream.value(outsideHoursStatus)),
+      outsideHoursProvider
+          .overrideWith((ref) => Stream.value(outsideHoursStatus)),
     ];
 
 Widget _app(ProviderContainer container) {
@@ -106,11 +110,12 @@ Finder _corridorIcon(String corridor) => find.ancestor(
     );
 
 /// Warna latar ikon bulat koridor pada baris pemilih.
-Color? _iconColor(WidgetTester tester, String corridor) =>
-    (tester.widget<Container>(
-      _corridorIcon(corridor),
-    ).decoration as BoxDecoration)
-        .color;
+Color? _iconColor(WidgetTester tester, String corridor) => (tester
+        .widget<Container>(
+          _corridorIcon(corridor),
+        )
+        .decoration as BoxDecoration)
+    .color;
 
 /// Preferensi palsu (in-memory) supaya layar utama bisa dibuat tanpa
 /// SharedPreferences asli.
@@ -205,22 +210,79 @@ void main() {
     expect(container.read(selectedCorridorProvider), 'K1');
   });
 
-  testWidgets('tanpa bus, hanya halaman "Semua" (tanpa TabBarView)',
+  testWidgets('tanpa bus: tab koridor tetap tampil dan pesan "belum ada bus"',
       (tester) async {
     final container = _container(const <Bus>[]);
     await tester.pumpWidget(_app(container));
     await tester.pumpAndSettle();
 
-    expect(find.byType(TabBarView), findsNothing);
-    expect(find.text('Belum ada bus terdeteksi di sekitar Anda.'),
-        findsOneWidget);
+    // Dataset K1/K3 tetap menjadi sumber tab walau tidak ada bus aktif.
+    expect(find.byType(TabBarView), findsOneWidget);
+    expect(_corridorIcon('K1'), findsOneWidget);
+    expect(_corridorIcon('K3'), findsOneWidget);
+    expect(
+        find.text('Belum ada bus terdeteksi di sekitar Anda.'), findsOneWidget);
     expect(container.read(selectedCorridorProvider), isNull);
+  });
+
+  testWidgets('saat menyambung ulang: pesan status dan tombol coba lagi',
+      (tester) async {
+    final container = ProviderContainer(overrides: [
+      ..._overrides(const <Bus>[]),
+      connectionStatusProvider.overrideWith(
+        (ref) => Stream.value(ConnectionStatus.reconnecting),
+      ),
+    ]);
+    addTearDown(container.dispose);
+    await tester.pumpWidget(_app(container));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Menyambung ulang ke server…'), findsOneWidget);
+    expect(find.text('Coba lagi'), findsOneWidget);
+  });
+
+  testWidgets('izin lokasi ditolak: tampil pesan & tombol coba lagi',
+      (tester) async {
+    final container = ProviderContainer(overrides: [
+      ..._overrides(const <Bus>[]),
+      userLocationProvider.overrideWith(
+        (ref) => Stream<LatLng>.error(
+          const LocationException(LocationErrorKind.permissionDenied),
+        ),
+      ),
+    ]);
+    addTearDown(container.dispose);
+    await tester.pumpWidget(_app(container));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Izin lokasi diperlukan'), findsOneWidget);
+    expect(find.textContaining('Izinkan akses lokasi'), findsOneWidget);
+    expect(find.text('Coba lagi'), findsOneWidget);
+  });
+
+  testWidgets('izin lokasi ditolak permanen: arahkan ke Pengaturan',
+      (tester) async {
+    final container = ProviderContainer(overrides: [
+      ..._overrides(const <Bus>[]),
+      userLocationProvider.overrideWith(
+        (ref) => Stream<LatLng>.error(
+          const LocationException(LocationErrorKind.permissionDeniedForever),
+        ),
+      ),
+    ]);
+    addTearDown(container.dispose);
+    await tester.pumpWidget(_app(container));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Buka Pengaturan'), findsOneWidget);
+    expect(find.text('Coba lagi'), findsOneWidget);
   });
 
   testWidgets('di luar jam operasional: penanda ungu, bus tidak tampil',
       (tester) async {
     final container = ProviderContainer(overrides: [
-      ..._overrides([_bus('16', 'K3', lng: 100.3015)], outsideHoursStatus: true),
+      ..._overrides([_bus('16', 'K3', lng: 100.3015)],
+          outsideHoursStatus: true),
       // Layanan "sedang tidak tersedia" (ungu), namun data bus tetap masuk.
       connectionStatusProvider.overrideWith(
         (ref) => Stream.value(ConnectionStatus.outsideHours),

@@ -24,6 +24,7 @@ import 'widgets/corridor_selector.dart';
 import 'widgets/format.dart';
 import 'widgets/halte_timeline_sheet.dart';
 import 'widgets/live_status_pill.dart';
+import 'widgets/location_error_view.dart';
 import 'widgets/map/map_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -84,15 +85,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     unawaited(FollowService.stopFollow());
   }
 
+  Future<void> _showEvent({
+    required int id,
+    required String title,
+    required String body,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    return FollowService.showEventNotification(
+      id: id,
+      title: title,
+      body: body,
+      channelName: l10n.notifEventChannelName,
+      channelDescription: l10n.notifEventChannelDescription,
+    );
+  }
+
   void _onBusPinned(String key) {
     _firedAlerts.clear();
     // Pemulihan otomatis saat app dibuka bukan aksi pengguna → jangan bunyi.
-    final isRestore =
-        DateTime.now().difference(_sessionStartedAt) < const Duration(seconds: 5);
+    final isRestore = DateTime.now().difference(_sessionStartedAt) <
+        const Duration(seconds: 5);
     if (isRestore) return;
     final bus = _findFollowedBus(key);
     final l10n = AppLocalizations.of(context);
-    unawaited(FollowService.showEventNotification(
+    unawaited(_showEvent(
       id: 9101,
       title: l10n.notifFollowingTitle,
       body: l10n.notifFollowingBody(_busLabel(bus, key)),
@@ -139,7 +155,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final label = _busLabel(bus, null);
     switch (candidate.type) {
       case FollowAlertType.approachingBoard:
-        await FollowService.showEventNotification(
+        await _showEvent(
           id: 9102,
           title: l10n.notifApproachBoardTitle,
           body: l10n.notifApproachBoardBody(
@@ -149,13 +165,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         );
       case FollowAlertType.atBoard:
-        await FollowService.showEventNotification(
+        await _showEvent(
           id: 9103,
           title: l10n.notifAtBoardTitle,
           body: l10n.notifAtBoardBody(label, candidate.halteName),
         );
       case FollowAlertType.approachingAlight:
-        await FollowService.showEventNotification(
+        await _showEvent(
           id: 9104,
           title: l10n.notifApproachAlightTitle,
           body: l10n.notifApproachAlightBody(
@@ -165,7 +181,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         );
       case FollowAlertType.atAlight:
-        await FollowService.showEventNotification(
+        await _showEvent(
           id: 9105,
           title: l10n.notifAtAlightTitle,
           body: l10n.notifAtAlightBody(label, candidate.halteName),
@@ -190,7 +206,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final parts = key.split('|');
       final corridor = parts.isNotEmpty ? parts.first : key;
       final busNumber = parts.length > 1 ? parts[1] : '';
-      return busNumber.isNotEmpty ? 'Bus $corridor-$busNumber' : 'Bus $corridor';
+      return busNumber.isNotEmpty
+          ? 'Bus $corridor-$busNumber'
+          : 'Bus $corridor';
     }
     final corridor = bus?.corridor ?? '';
     return corridor.isNotEmpty ? 'Bus $corridor' : 'bus';
@@ -207,11 +225,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final status = ref.watch(connectionStatusProvider).valueOrNull;
     final locationAsync = ref.watch(userLocationProvider);
     final nearby = ref.watch(nearbyBusesProvider);
-    // Di luar jam: pakai seluruh koridor dari dataset agar info tiap koridor
-    // tetap bisa dibuka walau tidak ada bus beroperasi.
-    final corridors = ref.watch(
-      isOutsideHours ? allCorridorsProvider : availableCorridorsProvider,
-    );
+    // Tab koridor selalu memakai gabungan K1–K6 dari dataset dengan koridor
+    // yang sedang mengirim data, supaya tab tidak hilang saat suatu koridor
+    // kebetulan tidak punya bus aktif.
+    final corridors = ref.watch(homeCorridorsProvider);
 
     final listView = _BusListView(
       isOutsideHours: isOutsideHours,
@@ -226,9 +243,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (isOutsideHours) {
       body = ConstrainedContent(child: listView);
     } else if (locationAsync.hasError) {
-      body = ErrorStateView(
-        message: locationAsync.error.toString(),
+      body = LocationErrorView(
+        error: locationAsync.error!,
         onRetry: () => ref.invalidate(userLocationProvider),
+        secondaryAction: TextButton.icon(
+          onPressed: () => _openMap(context),
+          icon: const Icon(Icons.map_outlined),
+          label: Text(l10n.mapOpen),
+        ),
       );
     } else if (locationAsync.isLoading || !locationAsync.hasValue) {
       body = LoadingStateView(message: l10n.gettingLocation);
@@ -252,8 +274,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(width: 10),
             Flexible(
               child: LiveStatusPill(
-                status:
-                    isOutsideHours ? ConnectionStatus.outsideHours : status,
+                status: isOutsideHours ? ConnectionStatus.outsideHours : status,
                 onTap: () {},
               ),
             ),
@@ -416,8 +437,9 @@ class _BusListViewState extends ConsumerState<_BusListView>
     _tabs = TabController(
       length: widget.corridors.length + 1,
       vsync: this,
-      initialIndex: _indexOf(widget.corridors, ref.read(selectedCorridorProvider))
-          .clamp(0, widget.corridors.length),
+      initialIndex:
+          _indexOf(widget.corridors, ref.read(selectedCorridorProvider))
+              .clamp(0, widget.corridors.length),
     );
     _tabs.addListener(_syncSelectedCorridor);
   }
@@ -494,14 +516,19 @@ class _BusListViewState extends ConsumerState<_BusListView>
     final buses = corridor == null
         ? widget.nearby
         : widget.nearby
-            .where((b) => b.bus.corridor == corridor)
+            .where((b) => b.bus.corridor.toUpperCase() == corridor)
             .toList(growable: false);
     final key = ValueKey<String>(corridor ?? '__all__');
 
     final content = widget.isOutsideHours
         ? const _OutsideHoursView()
         : buses.isEmpty
-            ? _EmptyState(key: key, status: widget.status)
+            ? _EmptyState(
+                key: key,
+                status: widget.status,
+                corridor: corridor,
+                onRefresh: widget.onRefresh,
+              )
             : corridor == null
                 ? _FlatBusList(key: key, buses: buses)
                 : _GroupedBusList(key: key, buses: buses);
@@ -729,25 +756,63 @@ class _CorridorTabs extends StatelessWidget {
 
 class _EmptyState extends StatelessWidget {
   final ConnectionStatus? status;
+  final String? corridor;
+  final Future<void> Function() onRefresh;
 
-  const _EmptyState({super.key, this.status});
+  const _EmptyState({
+    super.key,
+    this.status,
+    this.corridor,
+    required this.onRefresh,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final isOutsideHours = status == ConnectionStatus.outsideHours;
-    final message = isOutsideHours
-        ? l10n.outsideHoursMessage
-        : l10n.noBusesMessage;
-    final icon =
-        isOutsideHours ? Icons.schedule : Icons.directions_bus_outlined;
+
+    final (IconData icon, String message, Widget? action) = switch (status) {
+      null || ConnectionStatus.connecting => (
+          Icons.wifi_tethering,
+          l10n.busesConnecting,
+          null,
+        ),
+      ConnectionStatus.reconnecting => (
+          Icons.sync,
+          l10n.busesReconnecting,
+          _retryButton(l10n),
+        ),
+      ConnectionStatus.disconnected => (
+          Icons.wifi_off,
+          l10n.busesDisconnected,
+          _retryButton(l10n),
+        ),
+      ConnectionStatus.connected => (
+          Icons.directions_bus_outlined,
+          corridor == null
+              ? l10n.noBusesMessage
+              : l10n.busesEmptyCorridor(corridor!),
+          null,
+        ),
+      ConnectionStatus.outsideHours => (
+          Icons.schedule,
+          l10n.outsideHoursMessage,
+          null,
+        ),
+    };
 
     return EmptyStateView(
       icon: icon,
       message: message,
+      action: action,
       scrollable: true,
     );
   }
+
+  Widget _retryButton(AppLocalizations l10n) => FilledButton.icon(
+        onPressed: () => unawaited(onRefresh()),
+        icon: const Icon(Icons.refresh),
+        label: Text(l10n.retry),
+      );
 }
 
 /// Tampilan penuh saat layanan sedang tidak melayani penumpang (di luar jam

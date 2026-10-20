@@ -77,6 +77,7 @@ class MainActivity : FlutterActivity() {
             .putExtra(FollowService.EXTRA_ROUTE, args?.get("route") as? String ?: "")
             .putExtra(FollowService.EXTRA_DIRECTION, args?.get("direction") as? String ?: "")
             .putExtra(FollowService.EXTRA_HALTES, encodeHaltes(args?.get("haltes")))
+            .putExtra(FollowService.EXTRA_LABELS, args?.get("labels") as? String ?: "{}")
             .putExtra(
                 FollowService.EXTRA_COLOR,
                 (args?.get("color") as? Number)?.toInt()
@@ -127,11 +128,20 @@ class MainActivity : FlutterActivity() {
         val title = (args?.get("title") as? String) ?: "TPLive"
         val body = (args?.get("body") as? String) ?: ""
         val id = ((args?.get("id") as? Number)?.toInt()) ?: 9101
-        notifyEvent(title, body, id)
+        val channelName = (args?.get("channelName") as? String) ?: "Kedatangan bus"
+        val channelDescription =
+            (args?.get("channelDescription") as? String) ?: "Pemberitahuan kedatangan bus yang diikuti"
+        notifyEvent(title, body, id, channelName, channelDescription)
         result.success(true)
     }
 
-    private fun notifyEvent(title: String, body: String, id: Int) {
+    private fun notifyEvent(
+        title: String,
+        body: String,
+        id: Int,
+        channelName: String,
+        channelDescription: String,
+    ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
             PackageManager.PERMISSION_GRANTED
@@ -140,7 +150,7 @@ class MainActivity : FlutterActivity() {
         }
 
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        ensureEventChannel(manager)
+        ensureEventChannel(manager, channelName, channelDescription)
 
         val intent = Intent(this, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -167,15 +177,18 @@ class MainActivity : FlutterActivity() {
         manager.notify(id, builder.build())
     }
 
-    private fun ensureEventChannel(manager: NotificationManager) {
+    private fun ensureEventChannel(
+        manager: NotificationManager,
+        channelName: String,
+        channelDescription: String,
+    ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-        if (manager.getNotificationChannel(EVENT_CHANNEL_ID) != null) return
         val channel = NotificationChannel(
             EVENT_CHANNEL_ID,
-            "Kedatangan bus",
+            channelName,
             NotificationManager.IMPORTANCE_HIGH,
         ).apply {
-            description = "Pemberitahuan kedatangan bus yang diikuti"
+            description = channelDescription
             enableVibration(true)
             vibrationPattern = longArrayOf(0, 250, 150, 250)
         }

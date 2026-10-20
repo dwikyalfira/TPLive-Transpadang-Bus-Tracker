@@ -503,8 +503,9 @@ class _HalteTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final corridors = entry.corridors.toList()..sort();
-    final accent =
-        corridors.isEmpty ? theme.colorScheme.primary : corridorColor(corridors.first);
+    final accent = corridors.isEmpty
+        ? theme.colorScheme.primary
+        : corridorColor(corridors.first);
     final accentIconColor = ensureContrast(
       accent,
       Color.alphaBlend(accent.withOpacity(0.15), theme.colorScheme.surface),
@@ -514,7 +515,8 @@ class _HalteTile extends StatelessWidget {
       onTap: onTap,
       leading: CircleAvatar(
         backgroundColor: accent.withOpacity(0.15),
-        child: Icon(Icons.directions_bus_outlined, color: accentIconColor, size: 20),
+        child: Icon(Icons.directions_bus_outlined,
+            color: accentIconColor, size: 20),
       ),
       title: Text(
         entry.name,
@@ -634,6 +636,17 @@ class _FavoriteStar extends StatelessWidget {
 
 // --- Tab Tempat ---
 
+/// Pesan galat pencarian tempat sesuai jenis kegagalan dan bahasa aplikasi.
+String _geocodingMessage(AppLocalizations l10n, Object error) {
+  if (error is! GeocodingException) return l10n.placeSearchError;
+  return switch (error.kind) {
+    GeocodingErrorKind.timeout => l10n.placeSearchTimeout,
+    GeocodingErrorKind.noConnection => l10n.placeSearchNoConnection,
+    GeocodingErrorKind.invalidResponse => l10n.placeSearchInvalidResponse,
+    GeocodingErrorKind.httpError => l10n.placeSearchHttp(error.statusCode ?? 0),
+  };
+}
+
 class _PlaceTab extends ConsumerWidget {
   final ValueChanged<GeocodingResult> onSelect;
 
@@ -654,9 +667,7 @@ class _PlaceTab extends ConsumerWidget {
     return results.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => ErrorStateView(
-        message: error is GeocodingException
-            ? error.message
-            : l10n.placeSearchError,
+        message: _geocodingMessage(l10n, error),
         onRetry: () => ref.invalidate(destinationResultsProvider),
       ),
       data: (items) {
@@ -666,11 +677,8 @@ class _PlaceTab extends ConsumerWidget {
             message: l10n.placeNotFound,
           );
         }
-        final favoriteIds = ref
-            .watch(savedPlacesProvider)
-            .favorites
-            .map((p) => p.id)
-            .toSet();
+        final favoriteIds =
+            ref.watch(savedPlacesProvider).favorites.map((p) => p.id).toSet();
         return ListView.builder(
           padding: const EdgeInsets.only(bottom: 24),
           itemCount: items.length,
@@ -704,4 +712,3 @@ class _PlaceTab extends ConsumerWidget {
     );
   }
 }
-

@@ -19,12 +19,20 @@ import '../domain/heading_tracker.dart';
 import '../domain/map_marker.dart';
 import '../domain/map_stop.dart';
 
+/// Jenis kegagalan lokasi, dipetakan ke teks oleh lapisan UI agar pesan
+/// mengikuti bahasa aplikasi (bukan hardcoded di provider).
+enum LocationErrorKind {
+  serviceDisabled,
+  permissionDenied,
+  permissionDeniedForever,
+}
+
 /// Exception ramah untuk masalah lokasi.
 class LocationException implements Exception {
-  final String message;
-  const LocationException(this.message);
+  final LocationErrorKind kind;
+  const LocationException(this.kind);
   @override
-  String toString() => message;
+  String toString() => kind.name;
 }
 
 /// Dataset halte per koridor (dimuat sekali dari aset).
@@ -143,9 +151,7 @@ String busFollowKey(String corridor, String busNumber) =>
 final userLocationProvider = StreamProvider<LatLng>((ref) async* {
   final serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
-    throw const LocationException(
-      'Layanan lokasi (GPS) nonaktif. Aktifkan lokasi untuk melanjutkan.',
-    );
+    throw const LocationException(LocationErrorKind.serviceDisabled);
   }
 
   var permission = await Geolocator.checkPermission();
@@ -153,12 +159,10 @@ final userLocationProvider = StreamProvider<LatLng>((ref) async* {
     permission = await Geolocator.requestPermission();
   }
   if (permission == LocationPermission.denied) {
-    throw const LocationException('Izin lokasi ditolak.');
+    throw const LocationException(LocationErrorKind.permissionDenied);
   }
   if (permission == LocationPermission.deniedForever) {
-    throw const LocationException(
-      'Izin lokasi ditolak permanen. Aktifkan dari Pengaturan aplikasi.',
-    );
+    throw const LocationException(LocationErrorKind.permissionDeniedForever);
   }
 
   final stream = Geolocator.getPositionStream(
@@ -176,9 +180,20 @@ final availableCorridorsProvider = Provider<List<String>>((ref) {
   final buses = ref.watch(busesProvider).valueOrNull ?? const <Bus>[];
   final corridors = <String>{
     for (final bus in buses)
-      if (bus.corridor.isNotEmpty) bus.corridor,
+      if (bus.corridor.isNotEmpty) bus.corridor.toUpperCase(),
   };
   final sorted = corridors.toList()..sort();
+  return sorted;
+});
+
+/// Koridor untuk tab di Home: gabungan K1–K6 dari dataset dengan koridor yang
+/// benar-benar mengirim data. Dengan begitu tab tidak "hilang" hanya karena
+/// suatu koridor sedang tidak punya bus aktif.
+final homeCorridorsProvider = Provider<List<String>>((ref) {
+  final dataset = ref.watch(allCorridorsProvider);
+  final live = ref.watch(availableCorridorsProvider);
+  final codes = <String>{...dataset, ...live};
+  final sorted = codes.toList()..sort();
   return sorted;
 });
 
@@ -334,8 +349,8 @@ final corridorRouteDatasetProvider =
 
 /// Geometri jalur koridor yang digambar manual (GeoJSON di `assets/routes/`).
 /// Diprioritaskan di atas [corridorRouteDatasetProvider].
-final manualCorridorRouteProvider =
-    FutureProvider<CorridorRouteDataset>((ref) => loadManualCorridorRouteDataset());
+final manualCorridorRouteProvider = FutureProvider<CorridorRouteDataset>(
+    (ref) => loadManualCorridorRouteDataset());
 
 /// Halte fisik unik untuk peta (hasil penggabungan pergi/pulang & lintas
 /// koridor). Lihat [buildMapStops].

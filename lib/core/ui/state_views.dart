@@ -113,6 +113,9 @@ class ErrorStateView extends StatelessWidget {
   final String message;
   final String? title;
   final VoidCallback? onRetry;
+
+  /// Aksi khusus (mis. beberapa tombol). Bila diisi, [onRetry] diabaikan.
+  final Widget? action;
   final IconData icon;
 
   const ErrorStateView({
@@ -120,6 +123,7 @@ class ErrorStateView extends StatelessWidget {
     required this.message,
     this.title,
     this.onRetry,
+    this.action,
     this.icon = Icons.error_outline,
   });
 
@@ -134,13 +138,14 @@ class ErrorStateView extends StatelessWidget {
         iconBackground: scheme.errorContainer.withOpacity(0.5),
         title: title,
         message: message,
-        action: onRetry == null
-            ? null
-            : FilledButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh),
-                label: Text(l10n.retry),
-              ),
+        action: action ??
+            (onRetry == null
+                ? null
+                : FilledButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(l10n.retry),
+                  )),
       ),
     );
   }

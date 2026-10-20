@@ -44,3 +44,5 @@ app.*.map.json
 
 # Keluaran script (bisa dibuat ulang): scripts/export_corridor_routes_geojson.ps1
 /routes_edit/
+# Keluaran script (bisa dibuat ulang): scripts/export_corridor_gpx.ps1
+/routes_gpx/

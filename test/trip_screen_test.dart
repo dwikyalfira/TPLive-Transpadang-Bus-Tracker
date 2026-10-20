@@ -116,6 +116,28 @@ Widget _appWithLiveBus() {
   );
 }
 
+Widget _appWithLocationError() {
+  return ProviderScope(
+    overrides: [
+      geocodingServiceProvider.overrideWithValue(_FakeGeocoder()),
+      halteDatasetProvider.overrideWith((ref) => _dataset()),
+      userLocationProvider.overrideWith(
+        (ref) => Stream<LatLng>.error(
+          const LocationException(LocationErrorKind.permissionDenied),
+        ),
+      ),
+      busesProvider.overrideWith((ref) => Stream.value(const <Bus>[])),
+      savedPlacesStoreProvider.overrideWithValue(SavedPlacesStore(_prefs)),
+    ],
+    child: const MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: Locale('id'),
+      home: TripScreen(),
+    ),
+  );
+}
+
 void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
@@ -142,6 +164,21 @@ void main() {
     expect(find.textContaining('naik di A'), findsOneWidget);
     expect(find.textContaining('turun di D'), findsOneWidget);
     expect(find.textContaining('langsung'), findsOneWidget);
+  });
+
+  testWidgets('GPS error: tampil penjelasan & opsi pilih halte sebagai asal',
+      (tester) async {
+    await tester.pumpWidget(_appWithLocationError());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Pilih tujuan'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('D').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Izin lokasi diperlukan'), findsOneWidget);
+    expect(find.text('Pilih halte sebagai asal'), findsOneWidget);
+    expect(find.text('Coba lagi'), findsOneWidget);
   });
 
   testWidgets('cari tempat lalu tampilkan rute', (tester) async {

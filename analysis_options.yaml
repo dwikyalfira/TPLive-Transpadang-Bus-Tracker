@@ -9,6 +9,12 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  # Berkas hasil `flutter gen-l10n` dibuat otomatis; jangan dianggap temuan
+  # analyzer (mis. `use_super_parameters` pada konstruktor locale).
+  exclude:
+    - lib/l10n/app_localizations*.dart
+
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`

@@ -47,6 +47,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get retry => 'Try again';
 
   @override
+  String get locationErrorTitle => 'Location unavailable';
+
+  @override
+  String get locationServiceOffTitle => 'GPS is off';
+
+  @override
+  String get locationServiceOffMessage => 'Turn on your device GPS so bus distances and ETAs can be calculated.';
+
+  @override
+  String get locationPermissionTitle => 'Location permission required';
+
+  @override
+  String get locationPermissionMessage => 'Allow location access so bus distances and ETAs can be calculated.';
+
+  @override
+  String get locationPermissionForeverMessage => 'Location permission was permanently denied. Enable it in the app settings.';
+
+  @override
+  String get locationOpenSettings => 'Open settings';
+
+  @override
+  String get locationEnable => 'Turn on location';
+
+  @override
+  String get planPickStopInstead => 'Choose a stop as origin';
+
+  @override
+  String get busesConnecting => 'Connecting to the server…';
+
+  @override
+  String get busesReconnecting => 'Reconnecting to the server…';
+
+  @override
+  String get busesDisconnected => 'Not connected to the bus server.';
+
+  @override
+  String busesEmptyCorridor(String corridor) {
+    return 'No buses on corridor $corridor right now.';
+  }
+
+  @override
   String get mapTitle => 'Network Map';
 
   @override
@@ -128,6 +169,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifPermissionDenied => 'Notification permission denied. Allow notifications to follow a bus.';
+
+  @override
+  String notifFollowTitle(String bus, String corridor) {
+    return 'Bus $bus · Corridor $corridor';
+  }
+
+  @override
+  String notifFollowTitleGeneric(String corridor) {
+    return 'Following bus $corridor';
+  }
+
+  @override
+  String notifHeadingTo(String stop) {
+    return 'Heading to $stop';
+  }
+
+  @override
+  String notifDistanceToNext(String distance) {
+    return '$distance to the next stop';
+  }
+
+  @override
+  String notifEta(String minutes) {
+    return ' · ±$minutes min';
+  }
+
+  @override
+  String get notifSearchingNext => 'Finding the next stop…';
+
+  @override
+  String get notifSearchingSignal => 'Searching for bus signal…';
+
+  @override
+  String get notifDestinationFallback => 'Follow the bus until you reach your destination';
+
+  @override
+  String get notifStopAction => 'Stop';
+
+  @override
+  String notifStopFallback(String index) {
+    return 'Stop $index';
+  }
+
+  @override
+  String get notifChannelName => 'Following a bus';
+
+  @override
+  String get notifChannelDescription => 'Notification for the bus you are following';
+
+  @override
+  String get notifEventChannelName => 'Bus arrivals';
+
+  @override
+  String get notifEventChannelDescription => 'Alerts for the bus you are following';
 
   @override
   String followFailed(String message) {
@@ -458,6 +553,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get placeSearchError => 'An error occurred while searching for places.';
+
+  @override
+  String get placeSearchTimeout => 'Search is taking too long. Check your internet connection.';
+
+  @override
+  String get placeSearchNoConnection => 'No internet connection.';
+
+  @override
+  String get placeSearchInvalidResponse => 'Invalid search response.';
+
+  @override
+  String placeSearchHttp(int status) {
+    return 'Search failed (HTTP $status). Try again later.';
+  }
 
   @override
   String get settingsTooltip => 'Settings';

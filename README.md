@@ -35,7 +35,7 @@ bus positions over **WebSocket** and includes a multi-corridor trip planner.
 
 **TPLive** adalah aplikasi Android untuk memantau posisi bus TransPadang secara
 langsung (*live*). Aplikasi menampilkan daftar bus terdekat dari lokasi pengguna
-beserta jarak, estimasi waktu kedatangan (ETA), tujuan, kecepatan, dan arah bus.
+beserta jarak, estimasi waktu kedatangan (ETA), dan tujuan bus.
 Pengguna dapat memfilter per koridor (K1–K6), melihat detail halte yang akan dilalui,
 serta **mengikuti** satu bus — aplikasi akan mengirim notifikasi saat bus hampir tiba
 di halte naik dan halte turun.
@@ -183,8 +183,8 @@ melakukan panggilan berlebihan.
 **Pola arsitektur** per fitur: `data` → `domain` → `presentation`.
 
 - `TransWsDataSource` menangani satu koneksi, **auto-reconnect** dengan
-  *exponential backoff + jitter*, langganan `subscribeAll`, dan jeda saat aplikasi
-  masuk latar belakang.
+  *exponential backoff + jitter*, langganan `subscribeAll`, dan pengawas
+  keaktifan yang menyambung ulang saat aplikasi kembali aktif.
 - `HalteTracker` memetakan posisi bus ke urutan halte koridornya, menentukan arah
   (`pergi`/`pulang`), halte saat ini & berikutnya, serta terminus asal/tujuan.
 - `HeadingTracker` memperkirakan arah gerak nyata dari riwayat posisi (vector sum
@@ -442,8 +442,8 @@ Per Nominatim's usage policy, the app sends a clear User-Agent and avoids excess
 **Architecture pattern** per feature: `data` → `domain` → `presentation`.
 
 - `TransWsDataSource` manages a single connection, **auto-reconnect** with
-  *exponential backoff + jitter*, the `subscribeAll` subscription, and pausing while the
-  app is in the background.
+  *exponential backoff + jitter*, the `subscribeAll` subscription, and a liveness
+  watchdog that reconnects when the app resumes or the socket goes silent.
 - `HalteTracker` maps a bus position onto its corridor's stop sequence, resolves the
   direction (`pergi`/`pulang`), current & next stops, and origin/destination terminuses.
 - `HeadingTracker` estimates the real movement heading from position history (a

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 
 import '../features/tracking/data/halte_data.dart';
@@ -60,6 +62,7 @@ class FollowService {
     required String direction,
     required List<Halte> haltes,
     required int accentColor,
+    required Map<String, String> labels,
   }) async {
     await _channel.invokeMethod('startFollow', {
       'corridor': corridor,
@@ -69,6 +72,7 @@ class FollowService {
       'route': route,
       'direction': direction,
       'color': accentColor,
+      'labels': jsonEncode(labels),
       'haltes': [
         for (final h in haltes)
           {
@@ -98,12 +102,17 @@ class FollowService {
     required String title,
     required String body,
     int id = 9101,
+    String? channelName,
+    String? channelDescription,
   }) async {
     try {
       await _channel.invokeMethod('showEventNotification', {
         'title': title,
         'body': body,
         'id': id,
+        if (channelName != null) 'channelName': channelName,
+        if (channelDescription != null)
+          'channelDescription': channelDescription,
       });
     } on PlatformException {
       // Abaikan bila layer notifikasi native belum siap.

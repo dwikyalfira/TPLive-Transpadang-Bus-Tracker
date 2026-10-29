@@ -42,6 +42,13 @@
   "mapOpen": "Lihat peta",
   "mapRecenter": "Ke lokasi saya",
   "mapAttribution": "© OpenStreetMap contributors",
+  "mapAttributionMapbox": "© Mapbox © OpenStreetMap",
+  "mapModeTitle": "Gaya peta",
+  "mapModeTheme": "Ikuti tema",
+  "mapModeLight": "Terang",
+  "mapModeDark": "Gelap",
+  "mapModeSatellite": "Satelit",
+  "mapFocusBus": "Fokus ke bus",
   "mapStopServedBy": "Dilayani oleh",
   "mapStopSemantics": "Halte {name}",
   "@mapStopSemantics": {
@@ -261,6 +268,23 @@
     }
   },
 
+  "arrivalEta": "≈ {minutes} mnt ke lokasi Anda",
+  "@arrivalEta": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "arrivalEtaShort": "≈ {minutes} mnt",
+  "@arrivalEtaShort": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "arrivalNear": "Bus di sekitar lokasi Anda",
+  "arrivalHereShort": "sudah dekat",
+  "pinnedCardMinimize": "Kecilkan kartu",
+  "mapFilterTitle": "Saring koridor",
+
   "infoNetworkTitle": "Info Jaringan TransPadang",
   "infoStatNoActiveBuses": "Tidak ada bus aktif",
   "infoStatActiveBuses": "{count} bus aktif",
@@ -389,6 +413,14 @@
   "myLocationSubtitle": "Gunakan posisi GPS perangkat saat ini",
   "favoritesTitle": "Favorit",
   "recentsTitle": "Terbaru",
+  "homeLocationSet": "Atur lokasi rumah",
+  "homeLocationPickTitle": "Pilih lokasi rumah",
+  "homeLocationRoute": "Rute ke rumah",
+  "homeLocationChange": "Ubah lokasi rumah",
+  "homeLocationRemove": "Hapus lokasi rumah",
+  "homeLocationRemoved": "Lokasi rumah dihapus.",
+  "homeLocationSaved": "Lokasi rumah disimpan.",
+  "homeLocationUndo": "Urungkan",
   "addFavorite": "Tambah ke favorit",
   "removeFavorite": "Hapus dari favorit",
   "placeMinChars": "Ketik nama tempat (minimal 3 huruf), lalu tekan cari.",

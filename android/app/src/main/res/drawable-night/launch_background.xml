@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Latar gelap polos (pre-Android 12): logo sumber berlatar putih buram,
+     jadi hindari menimpanya di atas latar gelap (akan jadi kotak putih).
+     Cukup tampilkan warna surface aplikasi agar transisi ke UI Flutter mulus. -->
+<color xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#201A17"/>

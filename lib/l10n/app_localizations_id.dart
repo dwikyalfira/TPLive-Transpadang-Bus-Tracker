@@ -100,6 +100,27 @@ class AppLocalizationsId extends AppLocalizations {
   String get mapAttribution => '© OpenStreetMap contributors';
 
   @override
+  String get mapAttributionMapbox => '© Mapbox © OpenStreetMap';
+
+  @override
+  String get mapModeTitle => 'Gaya peta';
+
+  @override
+  String get mapModeTheme => 'Ikuti tema';
+
+  @override
+  String get mapModeLight => 'Terang';
+
+  @override
+  String get mapModeDark => 'Gelap';
+
+  @override
+  String get mapModeSatellite => 'Satelit';
+
+  @override
+  String get mapFocusBus => 'Fokus ke bus';
+
+  @override
   String get mapStopServedBy => 'Dilayani oleh';
 
   @override
@@ -342,6 +363,28 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String arrivalEta(int minutes) {
+    return '≈ $minutes mnt ke lokasi Anda';
+  }
+
+  @override
+  String arrivalEtaShort(int minutes) {
+    return '≈ $minutes mnt';
+  }
+
+  @override
+  String get arrivalNear => 'Bus di sekitar lokasi Anda';
+
+  @override
+  String get arrivalHereShort => 'sudah dekat';
+
+  @override
+  String get pinnedCardMinimize => 'Kecilkan kartu';
+
+  @override
+  String get mapFilterTitle => 'Saring koridor';
+
+  @override
   String get infoNetworkTitle => 'Info Jaringan TransPadang';
 
   @override
@@ -538,6 +581,30 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get recentsTitle => 'Terbaru';
+
+  @override
+  String get homeLocationSet => 'Atur lokasi rumah';
+
+  @override
+  String get homeLocationPickTitle => 'Pilih lokasi rumah';
+
+  @override
+  String get homeLocationRoute => 'Rute ke rumah';
+
+  @override
+  String get homeLocationChange => 'Ubah lokasi rumah';
+
+  @override
+  String get homeLocationRemove => 'Hapus lokasi rumah';
+
+  @override
+  String get homeLocationRemoved => 'Lokasi rumah dihapus.';
+
+  @override
+  String get homeLocationSaved => 'Lokasi rumah disimpan.';
+
+  @override
+  String get homeLocationUndo => 'Urungkan';
 
   @override
   String get addFavorite => 'Tambah ke favorit';

@@ -95,12 +95,19 @@ flutter_launcher_icons:
 # ---------- Konfigurasi splash screen (dijalankan: dart run flutter_native_splash:create)
 flutter_native_splash:
   color: "#FFFFFF"
+  color_dark: "#201A17"
   image: "assets/logo/splash_pre12.png"
   android: true
   ios: false
   android_12:
     image: "assets/logo/splash_a12.png"
     color: "#FFFFFF"
+    color_dark: "#201A17"
+    # CATATAN: splash gelap sengaja TANPA logo (lihat values-night-v31/styles.xml
+    # & drawable-night/launch_background.xml). Logo sumber berlatar putih buram;
+    # kalau diberi image_dark tanpa latar transparan akan jadi kotak putih di
+    # atas latar gelap. Jangan jalankan `flutter_native_splash:create` sebelum
+    # membuat aset logo berlatar transparan / gelap.
 
 # The following section is specific to Flutter packages.
 flutter:

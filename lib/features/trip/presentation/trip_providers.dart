@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../tracking/data/bus_model.dart';
+import '../../tracking/data/halte_data.dart';
 import '../../tracking/domain/geo_utils.dart' as geo;
 import '../../tracking/domain/halte_tracker.dart';
 import '../../tracking/presentation/providers.dart';
@@ -48,10 +49,31 @@ class SavedPlacesState {
   final List<SavedPlace> favorites;
   final List<SavedPlace> recents;
 
+  /// Lokasi rumah (satu slot, terpisah dari [favorites]).
+  final SavedPlace? home;
+
   const SavedPlacesState({
     this.favorites = const [],
     this.recents = const [],
+    this.home,
   });
+
+  /// Salinan dengan sebagian bidang diganti.
+  ///
+  /// Semua pembaruan state memakai ini supaya bidang lain (khususnya [home])
+  /// tidak ikut terhapus saat satu daftar diubah.
+  SavedPlacesState copyWith({
+    List<SavedPlace>? favorites,
+    List<SavedPlace>? recents,
+    SavedPlace? home,
+    bool clearHome = false,
+  }) {
+    return SavedPlacesState(
+      favorites: favorites ?? this.favorites,
+      recents: recents ?? this.recents,
+      home: clearHome ? null : (home ?? this.home),
+    );
+  }
 }
 
 /// Mengelola favorit & riwayat tujuan, dipersist ke [SavedPlacesStore].
@@ -65,6 +87,7 @@ class SavedPlacesNotifier extends Notifier<SavedPlacesState> {
     return SavedPlacesState(
       favorites: store.loadFavorites(),
       recents: store.loadRecents(),
+      home: store.loadHome(),
     );
   }
 
@@ -79,7 +102,7 @@ class SavedPlacesNotifier extends Notifier<SavedPlacesState> {
     } else {
       favorites.insert(0, place);
     }
-    state = SavedPlacesState(favorites: favorites, recents: state.recents);
+    state = state.copyWith(favorites: favorites);
     await ref.read(savedPlacesStoreProvider).saveFavorites(favorites);
   }
 
@@ -89,13 +112,25 @@ class SavedPlacesNotifier extends Notifier<SavedPlacesState> {
     if (recents.length > maxRecents) {
       recents.removeRange(maxRecents, recents.length);
     }
-    state = SavedPlacesState(favorites: state.favorites, recents: recents);
+    state = state.copyWith(recents: recents);
     await ref.read(savedPlacesStoreProvider).saveRecents(recents);
   }
 
   Future<void> clearRecents() async {
-    state = SavedPlacesState(favorites: state.favorites);
+    state = state.copyWith(recents: const []);
     await ref.read(savedPlacesStoreProvider).saveRecents(const []);
+  }
+
+  /// Menyimpan lokasi rumah (satu slot; menimpa nilai lama).
+  Future<void> setHome(SavedPlace place) async {
+    state = state.copyWith(home: place);
+    await ref.read(savedPlacesStoreProvider).saveHome(place);
+  }
+
+  /// Menghapus lokasi rumah.
+  Future<void> clearHome() async {
+    state = state.copyWith(clearHome: true);
+    await ref.read(savedPlacesStoreProvider).clearHome();
   }
 }
 
@@ -113,18 +148,23 @@ final tripDestinationEndpointProvider =
     StateProvider<TripEndpoint?>((ref) => null);
 
 /// Semua halte unik dari seluruh koridor (untuk pemilih halte).
+///
+/// Dua entri dianggap halte yang sama bila **namanya sama dan posisinya jatuh
+/// di sel grid ~50 m yang sama**. Kunci berbasis nama saja dulu membuat dua
+/// "Pasar Teluk Kabung" yang berjarak ~350 m menyatu menjadi satu entri,
+/// sehingga tujuan yang dipilih pengguna bisa menunjuk halte yang salah.
 final halteEntriesProvider = Provider<List<HalteEntry>>((ref) {
   final dataset = ref.watch(halteDatasetProvider).valueOrNull;
   if (dataset == null) return const [];
 
-  final byName = <String, HalteEntry>{};
+  final byKey = <String, HalteEntry>{};
   for (final stops in dataset.corridors.values) {
     for (final dir in stops.arah.values) {
       for (final halte in dir.halte) {
-        final key = halte.nama.toLowerCase();
-        final existing = byName[key];
+        final key = halteEntryKey(halte);
+        final existing = byKey[key];
         if (existing == null) {
-          byName[key] = HalteEntry(halte: halte, corridors: {stops.kode});
+          byKey[key] = HalteEntry(halte: halte, corridors: {stops.kode});
         } else {
           existing.corridors.add(stops.kode);
         }
@@ -132,10 +172,22 @@ final halteEntriesProvider = Provider<List<HalteEntry>>((ref) {
     }
   }
 
-  final list = byName.values.toList()
+  final list = byKey.values.toList()
     ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
   return list;
 });
+
+/// Ukuran sel grid (~50 m) untuk menggabungkan entri halte yang sama.
+const double _halteCellDeg = 0.00045;
+
+/// Kunci penggabungan entri halte: nama ternormalisasi + sel grid ~50 m.
+String halteEntryKey(Halte halte) {
+  final nama =
+      halte.nama.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+  final latCell = (halte.pos.latitude / _halteCellDeg).round();
+  final lngCell = (halte.pos.longitude / _halteCellDeg).round();
+  return '$nama|$latCell:$lngCell';
+}
 
 /// Jarak lokasi pengguna ke koridor (jarak terpendek ke halte koridor).
 /// Dipakai untuk mengurutkan daftar halte tujuan: koridor terdekat lebih dulu.
@@ -211,7 +263,7 @@ final tripBusesProvider = Provider.family<List<TripBus>, TripLeg>((ref, leg) {
     if (bus.corridor != leg.corridor) continue;
 
     final estimated = headingTracker.update(bus, nowUtc);
-    final progress = HalteTracker.track(
+    final progress = HalteTracker.trackStable(
       bus,
       dataset,
       estimatedHeading: estimated,

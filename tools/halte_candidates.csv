@@ -1,0 +1,12 @@
+osm_id,osm_name,osm_lat,osm_lng,halte_id,corridor,direction,halte_name,halte_lat,halte_lng,name_score,distance_m
+4675373478,Halte DPRD 2,-0.907313,100.353120,k1-pergi-21,K1,pergi,DPRD Sumbar,-0.907072,100.352760,0.50,48
+4675373472,Halte Elang Perkasa,-0.910801,100.355481,k1-pergi-22,K1,pergi,Elang Perkasa,-0.910609,100.355499,1.00,21
+4675373458,Halte Masjid Raya Sumatera Barat,-0.923995,100.361519,k1-pergi-26,K1,pergi,Masjid Raya Sumbar,-0.923794,100.361433,1.00,24
+8144780758,Halte Imam Bonjol,-0.952577,100.363542,k1-pergi-36,K1,pergi,RTH Imam Bonjol,-0.952708,100.363513,0.67,15
+8144780758,Halte Imam Bonjol,-0.952577,100.363542,k1-pulang-01,K1,pulang,RTH Imam Bonjol,-0.952708,100.363513,0.67,15
+4675373472,Halte Elang Perkasa,-0.910801,100.355481,k1-pulang-14,K1,pulang,Elang Perkasa,-0.910631,100.355464,1.00,19
+4675373477,Halte DPRD 1,-0.907554,100.352921,k1-pulang-15,K1,pulang,DPRD Sumbar,-0.907416,100.352863,0.50,17
+8144780758,Halte Imam Bonjol,-0.952577,100.363542,k2-pergi-01,K2,pergi,Imam Bonjol,-0.952708,100.363513,1.00,15
+8144780758,Halte Imam Bonjol,-0.952577,100.363542,k2-pulang-52,K2,pulang,Imam Bonjol,-0.952708,100.363513,1.00,15
+8144780758,Halte Imam Bonjol,-0.952577,100.363542,k5-pergi-01,K5,pergi,RTH Imam Bonjol,-0.952719,100.363636,0.67,19
+8144780758,Halte Imam Bonjol,-0.952577,100.363542,k5-pulang-32,K5,pulang,RTH Imam Bonjol,-0.952719,100.363636,0.67,19

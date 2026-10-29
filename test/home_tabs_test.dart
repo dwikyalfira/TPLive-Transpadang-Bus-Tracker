@@ -12,6 +12,9 @@ import 'package:transpadang_live/features/tracking/presentation/home_screen.dart
 import 'package:transpadang_live/features/tracking/presentation/providers.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/format.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/live_status_pill.dart';
+import 'package:transpadang_live/features/trip/data/saved_places_store.dart';
+import 'package:transpadang_live/features/trip/presentation/trip_providers.dart';
+import 'package:transpadang_live/features/trip/presentation/widgets/home_place_button.dart';
 import 'package:transpadang_live/l10n/app_localizations.dart';
 
 Halte _h(double lat, double lng, String nama) =>
@@ -64,6 +67,7 @@ class _SilentBusSource implements BusSource {
 List<Override> _overrides(List<Bus> buses, {bool outsideHoursStatus = false}) =>
     [
       settingsStoreProvider.overrideWithValue(SettingsStore(_prefs)),
+      savedPlacesStoreProvider.overrideWithValue(SavedPlacesStore(_prefs)),
       halteDatasetProvider.overrideWith((ref) => _dataset()),
       // Sumber diam: mencegah socket asli (dan timer pengawasnya) hidup di
       // pengujian; daftar bus diuji lewat penyuntikan langsung di bawah.
@@ -408,5 +412,21 @@ void main() {
     // offstage, jadi perilaku reset tidak diperiksa di sini).
     await tester.pumpAndSettle();
     expect(find.text('Terang'), findsOneWidget);
+  });
+
+  testWidgets('tombol lokasi rumah berada di samping bilah pencarian',
+      (tester) async {
+    final container = _container([_bus('11', 'K1', lng: 100.3005)]);
+    await tester.pumpWidget(_app(container));
+    await tester.pumpAndSettle();
+
+    final hint = tester.getRect(find.text('Cari tujuan…'));
+    final home = tester.getRect(find.byType(HomePlaceButton));
+
+    // Sebaris (pusat vertikal hampir sama) dan tombol ada di sebelah kanan
+    // teks pencarian — bukan kartu selebar layar di bawahnya.
+    expect((home.center.dy - hint.center.dy).abs(), lessThan(12));
+    expect(home.left, greaterThan(hint.right));
+    expect(home.width, lessThanOrEqualTo(48));
   });
 }

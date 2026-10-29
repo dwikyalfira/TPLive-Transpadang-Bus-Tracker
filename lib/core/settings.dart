@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'map_mode.dart';
+
 /// Preferensi tampilan & bahasa yang dipilih pengguna.
 ///
 /// [themeMode] dan [locale] bernilai "ikut sistem" masing-masing lewat
@@ -16,10 +18,14 @@ class AppSettings {
   /// Bila benar, warna tema mengikuti wallpaper perangkat (Android 12+).
   final bool useDynamicColor;
 
+  /// Gaya basemap peta live ([MapMode.theme] = ikuti mode tampilan).
+  final MapMode mapMode;
+
   const AppSettings({
     this.themeMode = ThemeMode.system,
     this.locale,
     this.useDynamicColor = true,
+    this.mapMode = MapMode.theme,
   });
 
   AppSettings copyWith({
@@ -27,11 +33,13 @@ class AppSettings {
     Locale? locale,
     bool clearLocale = false,
     bool? useDynamicColor,
+    MapMode? mapMode,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
       locale: clearLocale ? null : (locale ?? this.locale),
       useDynamicColor: useDynamicColor ?? this.useDynamicColor,
+      mapMode: mapMode ?? this.mapMode,
     );
   }
 }
@@ -47,10 +55,12 @@ class SettingsStore {
   static const _kThemeMode = 'settings.theme_mode';
   static const _kLocale = 'settings.locale';
   static const _kDynamicColor = 'settings.dynamic_color';
+  static const _kMapMode = 'settings.map_mode';
 
   AppSettings load() {
     final theme = _prefs.getString(_kThemeMode);
     final localeCode = _prefs.getString(_kLocale);
+    final mapModeCode = _prefs.getString(_kMapMode);
     return AppSettings(
       themeMode: switch (theme) {
         'light' => ThemeMode.light,
@@ -61,6 +71,10 @@ class SettingsStore {
           ? null
           : Locale(localeCode),
       useDynamicColor: _prefs.getBool(_kDynamicColor) ?? true,
+      mapMode: MapMode.values.firstWhere(
+        (mode) => mode.name == mapModeCode,
+        orElse: () => MapMode.theme,
+      ),
     );
   }
 
@@ -72,6 +86,9 @@ class SettingsStore {
 
   Future<void> saveDynamicColor(bool enabled) =>
       _prefs.setBool(_kDynamicColor, enabled);
+
+  Future<void> saveMapMode(MapMode mode) =>
+      _prefs.setString(_kMapMode, mode.name);
 }
 
 /// Di-override di `main()` dengan instance yang sudah memuat [SharedPreferences].
@@ -99,6 +116,11 @@ class AppSettingsNotifier extends Notifier<AppSettings> {
   Future<void> setUseDynamicColor(bool enabled) async {
     state = state.copyWith(useDynamicColor: enabled);
     await ref.read(settingsStoreProvider).saveDynamicColor(enabled);
+  }
+
+  Future<void> setMapMode(MapMode mode) async {
+    state = state.copyWith(mapMode: mode);
+    await ref.read(settingsStoreProvider).saveMapMode(mode);
   }
 }
 

@@ -12,6 +12,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../trip/presentation/trip_providers.dart';
 import '../../trip/presentation/trip_screen.dart';
+import '../../trip/presentation/widgets/home_place_button.dart';
 import '../data/bus_model.dart';
 import '../data/trans_ws_datasource.dart';
 import '../domain/bus_with_distance.dart';
@@ -123,7 +124,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final dataset = ref.read(halteDatasetProvider).valueOrNull;
     if (dataset == null) return;
     final progress =
-        HalteTracker.track(bus, dataset, estimatedHeading: bus.heading);
+        HalteTracker.trackStable(bus, dataset, estimatedHeading: bus.heading);
     if (progress == null) return;
 
     final plan = ref.read(tripPlanProvider);
@@ -353,6 +354,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 /// Bilah "Cari tujuan" di bagian atas daftar bus. Diketuk untuk membuka
 /// perencana perjalanan. Pencarian adalah aksi utama, jadi diberi area yang
 /// menonjol di body — bukan sekadar ikon kecil di AppBar.
+///
+/// Padding luar diatur pemanggil (lihat baris pencarian + [HomePlaceButton])
+/// supaya bilah ini bisa berbagi baris dengan tombol lain.
 class _SearchBar extends StatelessWidget {
   final VoidCallback onTap;
 
@@ -361,37 +365,34 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-      child: Material(
-        color: Color.alphaBlend(
-          theme.colorScheme.primary.withOpacity(0.05),
-          theme.colorScheme.surface,
-        ),
+    return Material(
+      color: Color.alphaBlend(
+        theme.colorScheme.primary.withOpacity(0.05),
+        theme.colorScheme.surface,
+      ),
+      borderRadius: BorderRadius.circular(26),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(26),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(26),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                Icon(Icons.search, color: theme.colorScheme.onSurfaceVariant),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context).searchDestinationHint,
-                    style: theme.textTheme.bodyLarge
-                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(Icons.search, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context).searchDestinationHint,
+                  style: theme.textTheme.bodyLarge
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
-                Icon(
-                  Icons.travel_explore,
-                  size: 20,
-                  color: theme.colorScheme.primary,
-                ),
-              ],
-            ),
+              ),
+              Icon(
+                Icons.travel_explore,
+                size: 20,
+                color: theme.colorScheme.primary,
+              ),
+            ],
           ),
         ),
       ),
@@ -492,7 +493,17 @@ class _BusListViewState extends ConsumerState<_BusListView>
 
     return Column(
       children: [
-        _SearchBar(onTap: widget.onSearchTap),
+        // Bilah pencarian + pintasan "Lokasi rumah" dalam satu baris.
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+          child: Row(
+            children: [
+              Expanded(child: _SearchBar(onTap: widget.onSearchTap)),
+              const SizedBox(width: 8),
+              const HomePlaceButton(),
+            ],
+          ),
+        ),
         if (corridors.isEmpty)
           Expanded(child: _page(null))
         else ...[

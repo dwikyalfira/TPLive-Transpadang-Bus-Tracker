@@ -83,6 +83,42 @@ void main() {
     expect(after.where((p) => p.label == 'T5').length, 1);
   });
 
+  test('lokasi rumah tersimpan di slot sendiri, bukan di favorit', () async {
+    final container = await _container();
+    final notifier = container.read(savedPlacesProvider.notifier);
+    expect(container.read(savedPlacesProvider).home, isNull);
+
+    await notifier.setHome(_place('Rumah', lat: -0.91, lng: 100.35));
+    expect(container.read(savedPlacesProvider).home?.label, 'Rumah');
+    expect(container.read(savedPlacesProvider).favorites, isEmpty);
+
+    // Bertahan setelah container dibangun ulang (dibaca dari SharedPreferences).
+    final prefs = await SharedPreferences.getInstance();
+    final reloaded = ProviderContainer(
+      overrides: [
+        savedPlacesStoreProvider.overrideWithValue(SavedPlacesStore(prefs)),
+      ],
+    );
+    addTearDown(reloaded.dispose);
+    expect(reloaded.read(savedPlacesProvider).home?.label, 'Rumah');
+
+    // Menghapus rumah tidak menyentuh favorit.
+    await reloaded.read(savedPlacesProvider.notifier).clearHome();
+    expect(reloaded.read(savedPlacesProvider).home, isNull);
+  });
+
+  test('clearRecents tidak menghapus lokasi rumah', () async {
+    final container = await _container();
+    final notifier = container.read(savedPlacesProvider.notifier);
+    await notifier.setHome(_place('Rumah'));
+    await notifier.addRecent(_place('Tujuan'));
+
+    await notifier.clearRecents();
+
+    expect(container.read(savedPlacesProvider).recents, isEmpty);
+    expect(container.read(savedPlacesProvider).home?.label, 'Rumah');
+  });
+
   test('SavedPlace.fromEndpoint mengabaikan lokasi GPS', () {
     expect(SavedPlace.fromEndpoint(const TripEndpoint.gps()), isNull);
 

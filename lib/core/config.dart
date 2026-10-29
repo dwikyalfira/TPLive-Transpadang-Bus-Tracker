@@ -66,6 +66,28 @@ class AppConfig {
   static const double mapRouteStrokeWidth = 2.5;
   static const double mapRouteBorderWidth = 0.5;
 
+  /// Style raster Mapbox untuk tiap gaya peta (Terang/Gelap/Satelit).
+  ///
+  /// Memakai token Mapbox yang sama dengan pencarian tempat, sehingga mode
+  /// gelap tidak bergantung pada penyedia ubin pihak ketiga.
+  static const String mapboxStreetsStyle = 'mapbox/streets-v12';
+  static const String mapboxDarkStyle = 'mapbox/dark-v11';
+  static const String mapboxSatelliteStyle = 'mapbox/satellite-streets-v12';
+
+  /// Benar bila token Mapbox tersedia sehingga ubin Mapbox dapat dipakai.
+  ///
+  /// Build tanpa token (`--dart-define=MAPBOX_TOKEN=`) otomatis memakai ubin
+  /// OpenStreetMap untuk semua mode.
+  static bool get hasMapboxToken => mapboxToken.trim().isNotEmpty;
+
+  /// Template ubin raster XYZ 256 px untuk [style] Mapbox.
+  ///
+  /// [token] memungkinkan pemakaian token lain (mis. di pengujian yang ingin
+  /// menguji jalur "tanpa token"); default-nya token build aplikasi.
+  static String mapboxTileUrl(String style, {String? token}) =>
+      'https://api.mapbox.com/styles/v1/$style/tiles/256/{z}/{x}/{y}'
+      '?access_token=${token ?? mapboxToken}';
+
   // --- Pencarian tujuan (geocoding Nominatim/OSM) ---
 
   /// Host layanan geocoding Nominatim (OpenStreetMap).
@@ -125,4 +147,24 @@ class AppConfig {
 
   /// Penalti waktu tiap kali harus pindah bus (menit).
   static const int transferPenaltyMinutes = 8;
+
+  // --- Mode demo (data tiruan, khusus pengembangan) ---
+
+  /// Benar bila aplikasi dijalankan dengan data bus tiruan.
+  ///
+  ///   flutter run --dart-define=MOCK_BUS=true
+  ///   flutter run --dart-define=MOCK_BUS=true \
+  ///               --dart-define=MOCK_LOCATION=-0.9478,100.3543
+  ///
+  /// Bus tiruan bergerak menyusuri halte tiap koridor, jam operasional
+  /// diabaikan, dan tidak ada koneksi ke server. Build tanpa flag ini sama
+  /// sekali tidak memakai data tiruan.
+  static const bool useMockBus = bool.fromEnvironment('MOCK_BUS');
+
+  /// Lokasi pengguna tiruan "lat,lng" untuk mode demo (opsional).
+  ///
+  /// Berguna saat menguji di emulator/desktop yang tidak punya GPS atau saat
+  /// ingin melihat daftar "bus terdekat" dari titik tertentu.
+  static const String mockLocationRaw =
+      String.fromEnvironment('MOCK_LOCATION');
 }

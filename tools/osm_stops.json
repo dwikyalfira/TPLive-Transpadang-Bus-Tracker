@@ -1,0 +1,389 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-07-15T15:22:01Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 1923336853,
+  "lat": -0.9368447,
+  "lon": 100.3659418,
+  "tags": {
+    "bench": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Fekon",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 2916014890,
+  "lat": -0.9010577,
+  "lon": 100.3504202,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Basko",
+    "name:id": "Halte Basko",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 3051583522,
+  "lat": -0.8997476,
+  "lon": 100.3507948,
+  "tags": {
+    "amenity": "bus_station",
+    "bus": "yes",
+    "name": "Minibuses To Batusangkar",
+    "name:en": "Minibuses To Batusangkar",
+    "public_transport": "station"
+  }
+},
+{
+  "type": "node",
+  "id": 3055518170,
+  "lat": -0.9532131,
+  "lon": 100.3629827,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Damri airport bus stop"
+  }
+},
+{
+  "type": "node",
+  "id": 3745362844,
+  "lat": -0.7863187,
+  "lon": 100.2860304,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 3844119630,
+  "lat": -0.9059266,
+  "lon": 100.3509665,
+  "tags": {
+    "amenity": "bus_station",
+    "bus": "yes",
+    "name": "Buses To Payakumbuh",
+    "name:en": "Buses To Payakumbuh",
+    "public_transport": "station"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373453,
+  "lat": -0.9269201,
+  "lon": 100.3614147,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373457,
+  "lat": -0.9226700,
+  "lon": 100.3612431,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halter Stikes Indonesia",
+    "name:id": "Halter Stikes Indonesia",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373458,
+  "lat": -0.9239949,
+  "lon": 100.3615193,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Masjid Raya Sumatera Barat",
+    "name:id": "Halte Masjid Raya Sumatera Barat",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373463,
+  "lat": -0.9182423,
+  "lon": 100.3606302,
+  "tags": {
+    "bench": "yes",
+    "highway": "bus_stop",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373464,
+  "lat": -0.9186084,
+  "lon": 100.3605967,
+  "tags": {
+    "bench": "yes",
+    "highway": "bus_stop",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373471,
+  "lat": -0.9105788,
+  "lon": 100.3555816,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Al Azar",
+    "name:id": "Halte Al Azar",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373472,
+  "lat": -0.9108014,
+  "lon": 100.3554810,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Elang Perkasa",
+    "name:id": "Halte Elang Perkasa",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373477,
+  "lat": -0.9075544,
+  "lon": 100.3529212,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte DPRD 1",
+    "name:id": "Halte DPRD 1",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373478,
+  "lat": -0.9073130,
+  "lon": 100.3531197,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte DPRD 2",
+    "name:id": "Halte DPRD 2",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373480,
+  "lat": -0.9056489,
+  "lon": 100.3512337,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5052373774,
+  "lat": -0.7849835,
+  "lon": 100.2852361,
+  "tags": {
+    "amenity": "bus_station",
+    "bus": "yes",
+    "public_transport": "station"
+  }
+},
+{
+  "type": "node",
+  "id": 5300118777,
+  "lat": -0.8669590,
+  "lon": 100.3427952,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "network": "Trans Padang",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 5576147222,
+  "lat": -0.9247033,
+  "lon": 100.3509963,
+  "tags": {
+    "amenity": "bus_station",
+    "name": "NPM"
+  }
+},
+{
+  "type": "node",
+  "id": 6369283285,
+  "lat": -0.9514514,
+  "lon": 100.3589905,
+  "tags": {
+    "amenity": "bus_station",
+    "name": "bus to bungus"
+  }
+},
+{
+  "type": "node",
+  "id": 7100569562,
+  "lat": -0.7852457,
+  "lon": 100.2855962,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "DAMRI",
+    "name:en": "DAMRI",
+    "name:id": "DAMRI",
+    "name:ms": "DAMRI",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 7100569617,
+  "lat": -0.9368211,
+  "lon": 100.3612165,
+  "tags": {
+    "highway": "bus_stop"
+  }
+},
+{
+  "type": "node",
+  "id": 8144780758,
+  "lat": -0.9525766,
+  "lon": 100.3635417,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Imam Bonjol"
+  }
+},
+{
+  "type": "node",
+  "id": 11192185837,
+  "lat": -0.9347569,
+  "lon": 100.3988930,
+  "tags": {
+    "amenity": "bus_station",
+    "bus": "yes",
+    "name": "Bus to Bukittinggi",
+    "name:fr": "Bus pour Bukittinggi",
+    "phone": "+62 812-7568-1911",
+    "public_transport": "station"
+  }
+},
+{
+  "type": "node",
+  "id": 12568309668,
+  "lat": -0.9887832,
+  "lon": 100.3832042,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Halte Lantamal II",
+    "operator": "https://padangsejahteramandiri.co.id/",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 12568309670,
+  "lat": -0.9882846,
+  "lon": 100.3836437,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Halte RSAL Tarmizi Taher",
+    "operator": "https://padangsejahteramandiri.co.id/",
+    "public_transport": "platform",
+    "ref": "K4",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 12568330002,
+  "lat": -0.9956434,
+  "lon": 100.3740866,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Halte Teluk Bayur",
+    "operator": "https://padangsejahteramandiri.co.id/",
+    "public_transport": "platform",
+    "ref": "K4",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 1202686179,
+  "center": {
+    "lat": -0.8341546,
+    "lon": 100.3277615
+  },
+  "tags": {
+    "public_transport": "platform",
+    "railway": "platform"
+  }
+},
+{
+  "type": "way",
+  "id": 1278017041,
+  "center": {
+    "lat": -0.9259256,
+    "lon": 100.3660110
+  },
+  "tags": {
+    "public_transport": "platform",
+    "railway": "platform"
+  }
+}
+
+  ]
+}

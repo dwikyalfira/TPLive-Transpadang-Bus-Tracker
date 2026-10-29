@@ -100,6 +100,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapAttribution => '© OpenStreetMap contributors';
 
   @override
+  String get mapAttributionMapbox => '© Mapbox © OpenStreetMap';
+
+  @override
+  String get mapModeTitle => 'Map style';
+
+  @override
+  String get mapModeTheme => 'Follow theme';
+
+  @override
+  String get mapModeLight => 'Light';
+
+  @override
+  String get mapModeDark => 'Dark';
+
+  @override
+  String get mapModeSatellite => 'Satellite';
+
+  @override
+  String get mapFocusBus => 'Focus on bus';
+
+  @override
   String get mapStopServedBy => 'Served by';
 
   @override
@@ -342,6 +363,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String arrivalEta(int minutes) {
+    return '≈ $minutes min to your location';
+  }
+
+  @override
+  String arrivalEtaShort(int minutes) {
+    return '≈ $minutes min';
+  }
+
+  @override
+  String get arrivalNear => 'Bus is near your location';
+
+  @override
+  String get arrivalHereShort => 'nearby';
+
+  @override
+  String get pinnedCardMinimize => 'Minimize card';
+
+  @override
+  String get mapFilterTitle => 'Filter corridors';
+
+  @override
   String get infoNetworkTitle => 'TransPadang network info';
 
   @override
@@ -538,6 +581,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recentsTitle => 'Recent';
+
+  @override
+  String get homeLocationSet => 'Set home location';
+
+  @override
+  String get homeLocationPickTitle => 'Choose home location';
+
+  @override
+  String get homeLocationRoute => 'Route home';
+
+  @override
+  String get homeLocationChange => 'Change home location';
+
+  @override
+  String get homeLocationRemove => 'Remove home location';
+
+  @override
+  String get homeLocationRemoved => 'Home location removed.';
+
+  @override
+  String get homeLocationSaved => 'Home location saved.';
+
+  @override
+  String get homeLocationUndo => 'Undo';
 
   @override
   String get addFavorite => 'Add to favorites';

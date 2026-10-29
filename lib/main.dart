@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/app_navigator.dart';
 import 'core/settings.dart';
 import 'core/theme/app_theme.dart';
-import 'features/splash/presentation/splash_screen.dart';
+import 'features/tracking/presentation/home_screen.dart';
 import 'features/tracking/presentation/providers.dart';
 import 'features/tracking/presentation/widgets/pinned_bus_overlay.dart';
 import 'features/trip/data/saved_places_store.dart';
@@ -39,14 +39,42 @@ void main() async {
   // Setiap kali rute berpindah (push/pop), kembalikan kartu bus di-pin ke
   // ukuran mini.
   AppNavigatorObserver.onRouteChanged = () {
-    appProviderContainer
-        .read(pinnedCardCollapsedProvider.notifier)
-        .state = true;
+    appProviderContainer.read(pinnedCardCollapsedProvider.notifier).state =
+        true;
   };
+
+  // Pantau status aplikasi (depan/belakang) supaya koneksi live bisa ditutup
+  // saat aplikasi tidak terlihat — lihat [liveUpdatesAllowedProvider].
+  WidgetsBinding.instance
+      .addObserver(_AppLifecycleObserver(appProviderContainer));
+
   runApp(UncontrolledProviderScope(
     container: appProviderContainer,
     child: const TransPadangApp(),
   ));
+}
+
+/// Meneruskan perubahan siklus hidup aplikasi ke [appPausedProvider].
+///
+/// Hanya satu observer dipasang di akar aplikasi (bukan di tiap layar) agar
+/// status tidak saling menimpa saat beberapa layar hidup bersamaan.
+class _AppLifecycleObserver with WidgetsBindingObserver {
+  _AppLifecycleObserver(this._container);
+
+  final ProviderContainer _container;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final paused = switch (state) {
+      AppLifecycleState.paused ||
+      AppLifecycleState.hidden ||
+      AppLifecycleState.detached =>
+        true,
+      AppLifecycleState.resumed || AppLifecycleState.inactive => false,
+    };
+    final notifier = _container.read(appPausedProvider.notifier);
+    if (notifier.state != paused) notifier.state = paused;
+  }
 }
 
 class TransPadangApp extends ConsumerWidget {
@@ -86,8 +114,9 @@ class TransPadangApp extends ConsumerWidget {
               statusBarIconBrightness: brightness == Brightness.dark
                   ? Brightness.light
                   : Brightness.dark,
-              statusBarBrightness:
-                  brightness == Brightness.dark ? Brightness.dark : Brightness.light,
+              statusBarBrightness: brightness == Brightness.dark
+                  ? Brightness.dark
+                  : Brightness.light,
               systemNavigationBarColor: Colors.transparent,
               systemNavigationBarIconBrightness: brightness == Brightness.dark
                   ? Brightness.light
@@ -99,7 +128,13 @@ class TransPadangApp extends ConsumerWidget {
               child: RootOverlay(child: child ?? const SizedBox()),
             );
           },
-          home: const SplashScreen(),
+          // Langsung ke beranda: tidak ada splash buatan Flutter. Splash native
+          // Android (`LaunchTheme`) sudah menutupi jeda engine sampai frame
+          // pertama, dan semua yang dibutuhkan sebelum UI tampil (preferensi,
+          // tema, bahasa) sudah dimuat di [main] — jadi layar pembuka tambahan
+          // hanya menambah ~1,8 detik logo yang tampil dua kali. Status "belum
+          // siap" (GPS/koneksi) ditampilkan di beranda lewat `LoadingStateView`.
+          home: const HomeScreen(),
         );
       },
     );

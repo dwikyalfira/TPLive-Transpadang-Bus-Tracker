@@ -46,3 +46,6 @@ app.*.map.json
 /routes_edit/
 # Keluaran script (bisa dibuat ulang): scripts/export_corridor_gpx.ps1
 /routes_gpx/
+
+# Data memori lokal agen (jangan di-commit)
+.workbuddy-ai/

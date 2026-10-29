@@ -44,24 +44,27 @@ Bus _pinnedBus() => Bus(
       lastUpdate: DateTime.now().toUtc(),
     );
 
-List<Override> _overrides({String? followed, String? selectedCorridor}) => [
-  busesProvider.overrideWith((ref) => Stream.value([_pinnedBus()])),
-  halteDatasetProvider.overrideWith((ref) => _dataset()),
-  followedBusProvider.overrideWith((ref) => followed),
-  selectedCorridorProvider.overrideWith((ref) => selectedCorridor),
-  userLocationProvider.overrideWith(
-    (ref) => Stream.value(const LatLng(-0.90, 100.30)),
-  ),
-];
+List<Override> _overrides({
+  String? followed,
+  String? selectedCorridor,
+  LatLng userLocation = const LatLng(-0.90, 100.30),
+}) =>
+    [
+      busesProvider.overrideWith((ref) => Stream.value([_pinnedBus()])),
+      halteDatasetProvider.overrideWith((ref) => _dataset()),
+      followedBusProvider.overrideWith((ref) => followed),
+      selectedCorridorProvider.overrideWith((ref) => selectedCorridor),
+      userLocationProvider.overrideWith((ref) => Stream.value(userLocation)),
+    ];
 
-double _cardHeight(WidgetTester tester) => tester
-    .getSize(find.byKey(FloatingPinnedBusCard.contentKey))
-    .height;
+double _cardHeight(WidgetTester tester) =>
+    tester.getSize(find.byKey(FloatingPinnedBusCard.contentKey)).height;
 
 /// Meniru susunan di [MaterialApp.builder]: overlay dipasang di atas Navigator.
 Widget _app({
   String? followed,
   String? selectedCorridor,
+  LatLng userLocation = const LatLng(-0.90, 100.30),
   bool scrollableHome = false,
   ProviderContainer? container,
   List<NavigatorObserver> observers = const [],
@@ -79,14 +82,14 @@ Widget _app({
       : const Scaffold(body: Center(child: Text('halaman penyangga')));
 
   final app = MaterialApp(
-      navigatorKey: appNavigatorKey,
-      navigatorObservers: observers,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('id'),
-      builder: (context, child) => RootOverlay(child: child ?? const SizedBox()),
-      home: home,
-    );
+    navigatorKey: appNavigatorKey,
+    navigatorObservers: observers,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    locale: const Locale('id'),
+    builder: (context, child) => RootOverlay(child: child ?? const SizedBox()),
+    home: home,
+  );
 
   if (container != null) {
     return UncontrolledProviderScope(
@@ -98,6 +101,7 @@ Widget _app({
     overrides: _overrides(
       followed: followed,
       selectedCorridor: selectedCorridor,
+      userLocation: userLocation,
     ),
     child: app,
   );
@@ -121,7 +125,8 @@ Widget _appWithDetailButton({String? followed}) {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('id'),
-      builder: (context, child) => RootOverlay(child: child ?? const SizedBox()),
+      builder: (context, child) =>
+          RootOverlay(child: child ?? const SizedBox()),
       home: Scaffold(
         body: Center(
           child: Builder(
@@ -173,7 +178,7 @@ void main() {
     expect(find.byType(FloatingPinnedBusCard), findsOneWidget);
   });
 
-  testWidgets('ketuk mini → melar, ketuk besar → detail, tutup → kembali mini',
+  testWidgets('ketuk mini → melar, ketuk besar → detail (kartu disembunyikan)',
       (tester) async {
     await tester.pumpWidget(_app(followed: 'K3|57'));
     await tester.pumpAndSettle();
@@ -188,34 +193,37 @@ void main() {
     expect(find.text('Sedang di'), findsOneWidget);
     expect(find.text('Halte berikutnya'), findsOneWidget);
 
-    // Ketuk kartu besar lagi → detail terbuka, kartu kembali mini.
+    // Ketuk kartu besar lagi → detail terbuka. Kartu melayang disembunyikan
+    // karena isinya sudah ada di sheet dan hanya akan menutupi daftar halte.
     await tester.tap(find.text('Sedang di'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(FloatingPinnedBusCard), findsOneWidget);
-    expect(_cardHeight(tester), lessThan(100));
+    expect(find.byType(HalteTimelineSheet), findsOneWidget);
+    expect(find.byType(FloatingPinnedBusCard), findsNothing);
 
-    // Tutup sheet dengan mengetuk area luar. Kartu tetap mini.
+    // Tutup sheet dengan mengetuk area luar → kartu kembali, tetap mini.
     await tester.tapAt(const Offset(400, 50));
     await tester.pumpAndSettle();
+    expect(find.byType(FloatingPinnedBusCard), findsOneWidget);
     expect(_cardHeight(tester), lessThan(100));
   });
 
-  testWidgets('pin melalui detail bus → kartu mini saat terbuka & tetap mini '
-      'saat ditutup', (tester) async {
+  testWidgets('pin melalui detail bus → kartu disembunyikan saat sheet terbuka',
+      (tester) async {
     await tester.pumpWidget(_appWithDetailButton(followed: 'K3|57'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('buka detail'));
     await tester.pumpAndSettle();
 
-    // Kartu tampil hanya dalam versi kecil selama detail terbuka.
-    expect(find.byType(FloatingPinnedBusCard), findsOneWidget);
-    expect(_cardHeight(tester), lessThan(100));
+    // Selama detail terbuka kartu tidak tampil sama sekali (bukan versi mati).
+    expect(find.byType(HalteTimelineSheet), findsOneWidget);
+    expect(find.byType(FloatingPinnedBusCard), findsNothing);
 
-    // Tutup sheet → kartu tetap beristirahat mini.
+    // Tutup sheet → kartu kembali dan beristirahat mini.
     await tester.tapAt(const Offset(400, 50));
     await tester.pumpAndSettle();
+    expect(find.byType(FloatingPinnedBusCard), findsOneWidget);
     expect(_cardHeight(tester), lessThan(100));
   });
 
@@ -298,5 +306,80 @@ void main() {
 
     // Pilihan bus di peta → kartu pin global disembunyikan agar tidak menumpuk.
     expect(find.byType(FloatingPinnedBusCard), findsNothing);
+  });
+
+  testWidgets('kartu pin menampilkan estimasi bus datang ke lokasi pengguna',
+      (tester) async {
+    // Pengguna ~1 km di timur bus.
+    await tester.pumpWidget(_app(
+      followed: 'K3|57',
+      userLocation: const LatLng(-0.90, 100.31),
+    ));
+    await tester.pumpAndSettle();
+
+    // Mode mini (kartu beristirahat): estimasi sudah terlihat sebagai chip.
+    expect(find.textContaining('mnt'), findsOneWidget);
+
+    // Melar → baris lengkap di footer.
+    await tester.tap(find.byKey(FloatingPinnedBusCard.contentKey));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('ke lokasi Anda'), findsOneWidget);
+  });
+
+  testWidgets('estimasi tetap ada walau pengguna di belakang bus',
+      (tester) async {
+    // Pengguna di barat bus. Arah gerak bus tidak lagi menyembunyikan estimasi
+    // (dulu bisa hilang-muncul karena heading server + akurasi GPS berbeda).
+    await tester.pumpWidget(_app(
+      followed: 'K3|57',
+      userLocation: const LatLng(-0.90, 100.29),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('mnt'), findsOneWidget);
+
+    await tester.tap(find.byKey(FloatingPinnedBusCard.contentKey));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('ke lokasi Anda'), findsOneWidget);
+  });
+
+  testWidgets('tombol kecilkan mengembalikan kartu penuh ke mini tanpa unpin',
+      (tester) async {
+    final container =
+        ProviderContainer(overrides: _overrides(followed: 'K3|57'));
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(_app(followed: 'K3|57', container: container));
+    await tester.pumpAndSettle();
+
+    // Melar dulu.
+    await tester.tap(find.byKey(FloatingPinnedBusCard.contentKey));
+    await tester.pumpAndSettle();
+    expect(_cardHeight(tester), greaterThan(120));
+
+    // Chevron "kecilkan" → kembali mini, pin tetap.
+    await tester.tap(find.byIcon(Icons.expand_more));
+    await tester.pumpAndSettle();
+
+    expect(_cardHeight(tester), lessThan(100));
+    expect(find.byType(FloatingPinnedBusCard), findsOneWidget);
+    expect(container.read(followedBusProvider), 'K3|57');
+  });
+
+  testWidgets('tombol tutup melepas pin bus', (tester) async {
+    final container =
+        ProviderContainer(overrides: _overrides(followed: 'K3|57'));
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(_app(followed: 'K3|57', container: container));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(FloatingPinnedBusCard.contentKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FloatingPinnedBusCard), findsNothing);
+    expect(container.read(followedBusProvider), isNull);
   });
 }

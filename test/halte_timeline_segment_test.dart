@@ -3,7 +3,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transpadang_live/core/app_navigator.dart';
+import 'package:transpadang_live/core/settings.dart';
 import 'package:transpadang_live/features/tracking/data/bus_model.dart';
 import 'package:transpadang_live/features/tracking/data/corridor_route.dart';
 import 'package:transpadang_live/features/tracking/data/halte_data.dart';
@@ -71,11 +73,15 @@ Bus _pinnedBus() => Bus(
 TripEndpoint _halteEndpoint(String nama, double lat, double lng) =>
     TripEndpoint.halte(HalteEntry(halte: _h(lat, lng, nama), corridors: {'K3'}));
 
+/// Preferensi tiruan: layar peta membaca [appSettingsProvider] (gaya peta).
+late SharedPreferences _prefs;
+
 List<Override> _overrides({
   TripEndpoint? origin,
   TripEndpoint? destination,
   HalteDataset? dataset,
 }) => [
+  settingsStoreProvider.overrideWithValue(SettingsStore(_prefs)),
   busesProvider.overrideWith((ref) => Stream.value([_pinnedBus()])),
   halteDatasetProvider.overrideWith((ref) => dataset ?? _dataset()),
   userLocationProvider.overrideWith(
@@ -117,6 +123,11 @@ Widget _app(List<Override> overrides, {bool detailFromMap = false}) {
 }
 
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    _prefs = await SharedPreferences.getInstance();
+  });
+
   testWidgets('segmen naik→turun ditandai & jumlah halte dipersempit',
       (tester) async {
     await tester.pumpWidget(_app(_overrides(

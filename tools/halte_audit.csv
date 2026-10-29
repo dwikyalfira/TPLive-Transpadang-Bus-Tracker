@@ -1,0 +1,58 @@
+corridor,direction,kind,stop_a,stop_b,detail,value
+K2,pergi,backward,k2-pergi-40,k2-pergi-39,Simpang Sei Pisang (offset 3 m),367.6
+K2,pulang,dup-name,k2-pulang-03 k2-pulang-04,,pasar teluk kabung x2,2.0
+K2,pulang,same-pair,k2-pulang-03,k2-pulang-04,pasar teluk kabung,370.4
+K2,pulang,backward,k2-pulang-16,k2-pulang-15,Kantor Lurah Bungus (offset 14 m),129.1
+K2,pulang,backward,k2-pulang-44,k2-pulang-43,Kemenpu Muaro (offset 4 m),70.5
+K2,pulang,backward,k2-pulang-45,k2-pulang-44,Kantor Kesyahbandaran Muaro (offset 3 m),338.9
+K2,pulang,backward,k2-pulang-46,k2-pulang-45,LP Muaro (offset 4 m),625.7
+K2,pulang,backward,k2-pulang-47,k2-pulang-46,Plan B (offset 7 m),552.2
+K2,pulang,backward,k2-pulang-48,k2-pulang-47,Mr. DIY (offset 24 m),434.2
+K2,pulang,backward,k2-pulang-49,k2-pulang-48,Alam Indah Granite (offset 16 m),240.0
+K3,pergi,dup-name,k3-pergi-17 k3-pergi-19,,simpang belanti x2,2.0
+K3,pergi,same-pair,k3-pergi-17,k3-pergi-19,simpang belanti,560.4
+K3,pulang,backward,k3-pulang-05,k3-pulang-04,SDN 43 Sungai Sapih (offset 4 m),875.0
+K3,pulang,backward,k3-pulang-12,k3-pulang-11,Masjid An-Nur (offset 3 m),213.7
+K3,pulang,backward,k3-pulang-45,k3-pulang-44,Plan B (offset 21 m),302.0
+K3,pulang,backward,k3-pulang-46,k3-pulang-45,Mr. DIY (offset 59 m),244.7
+K3,pulang,backward,k3-pulang-47,k3-pulang-46,Museum Adityawarman (offset 451 m),99.1
+K3,pulang,backward,k3-pulang-48,k3-pulang-47,Simp. Dobi (offset 169 m),99.1
+K4,pergi,backward,k4-pergi-10,k4-pergi-09,Puskesmas Koto Panjang Ikua Koto (offset 8 m),3081.3
+K4,pergi,backward,k4-pergi-16,k4-pergi-15,Simpang Diklat RSUD (offset 12 m),456.7
+K4,pergi,backward,k4-pergi-20,k4-pergi-19,RM Dua Saudara (offset 7 m),436.3
+K4,pergi,backward,k4-pergi-21,k4-pergi-20,Simpang Pilakut (offset 6 m),3128.5
+K4,pergi,backward,k4-pergi-25,k4-pergi-24,Simpang Kalumbuk (offset 1 m),964.6
+K4,pergi,backward,k4-pergi-30,k4-pergi-29,Simpang Pisang (offset 11 m),1048.1
+K4,pergi,backward,k4-pergi-31,k4-pergi-30,Klinik Umum Fitria (offset 9 m),1222.9
+K4,pergi,backward,k4-pergi-33,k4-pergi-32,PLN Lubuk Begalung (offset 2 m),456.0
+K4,pergi,backward,k4-pergi-37,k4-pergi-36,PT Tazar (offset 31 m),108.8
+K4,pergi,length-gap,,,jalur 58.5 km vs halte 22.8 km,0.4
+K4,pulang,backward,k4-pulang-05,k4-pulang-04,Simpang Arai Pinang (offset 3 m),108.8
+K4,pulang,backward,k4-pulang-08,k4-pulang-07,PLN Lubuk Begalung (offset 2 m),201.8
+K4,pulang,backward,k4-pulang-37,k4-pulang-36,Terminal Anak Air (offset 9 m),1994.5
+K4,pulang,length-gap,,,jalur 45.1 km vs halte 22.5 km,0.5
+K5,pulang,backward,k5-pulang-09,k5-pulang-08,Masjid Nurul Hidayah (offset 4 m),521.6
+K6,pergi,zero-gap,k6-pergi-01,k6-pergi-02,Bioskop Raya -> Damar Plaza,0.0
+K6,pergi,zero-gap,k6-pergi-02,k6-pergi-03,Damar Plaza -> Rumah Dinas Wawako,0.0
+K6,pergi,zero-gap,k6-pergi-03,k6-pergi-04,Rumah Dinas Wawako -> Elizabeth,0.0
+K6,pergi,zero-gap,k6-pergi-04,k6-pergi-05,Elizabeth -> SMK 3,0.0
+K6,pergi,zero-gap,k6-pergi-05,k6-pergi-06,SMK 3 -> SMP 1,0.0
+K6,pergi,zero-gap,k6-pergi-06,k6-pergi-07,SMP 1 -> BCA,0.0
+K6,pergi,zero-gap,k6-pergi-29,k6-pergi-30,PKM Unand -> Fak. Ekonomi,0.0
+K6,pergi,zero-gap,k6-pergi-30,k6-pergi-31,Fak. Ekonomi -> Fak. Ekonomi II,0.0
+K6,pergi,zero-gap,k6-pergi-31,k6-pergi-32,Fak. Ekonomi II -> Fak. Pertanian II,0.0
+K6,pergi,zero-gap,k6-pergi-32,k6-pergi-33,Fak. Pertanian II -> Fak. Pertanian I,0.0
+K6,pergi,zero-gap,k6-pergi-33,k6-pergi-34,Fak. Pertanian I -> Futsal,0.0
+K6,pergi,zero-gap,k6-pergi-34,k6-pergi-35,Futsal -> Fak. MIPA,0.0
+K6,pergi,zero-gap,k6-pergi-35,k6-pergi-36,Fak. MIPA -> Gedung I,0.0
+K6,pergi,zero-gap,k6-pergi-36,k6-pergi-37,Gedung I -> Gedung G,0.0
+K6,pergi,zero-gap,k6-pergi-37,k6-pergi-38,Gedung G -> Fak. Farmasi,0.0
+K6,pergi,zero-gap,k6-pergi-38,k6-pergi-39,Fak. Farmasi -> Politeknik Padang,0.0
+K6,pulang,zero-gap,k6-pulang-01,k6-pulang-02,Politeknik Padang -> FIB Unand,0.0
+K6,pulang,zero-gap,k6-pulang-28,k6-pulang-29,BCA -> Bioskop Raya,0.0
+K6,pulang,backward,k6-pulang-03,k6-pulang-02,Fisip Unand (offset 2 m),2899.0
+K6,pulang,backward,k6-pulang-04,k6-pulang-03,Fak. Keperawatan (offset 2 m),2381.3
+K6,pulang,backward,k6-pulang-05,k6-pulang-04,Fak. Kedokteran (offset 2 m),594.5
+K6,pulang,backward,k6-pulang-06,k6-pulang-05,KliniK Medika (offset 1 m),299.9
+K6,pulang,backward,k6-pulang-28,k6-pulang-27,BCA (offset 2 m),2069.8
+K6,pulang,backward,k6-pulang-29,k6-pulang-28,Bioskop Raya (offset 2 m),2069.8

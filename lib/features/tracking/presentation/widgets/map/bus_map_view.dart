@@ -12,6 +12,7 @@ import '../../../domain/bus_with_distance.dart';
 import '../../../domain/halte_tracker.dart';
 import '../../../domain/map_marker.dart';
 import '../../../domain/map_stop.dart';
+import '../../../domain/user_arrival.dart';
 import '../../providers.dart';
 import '../bus_tile.dart';
 import '../floating_pinned_bus_card.dart';
@@ -38,10 +39,10 @@ class BusMapView extends ConsumerStatefulWidget {
   const BusMapView({super.key, this.focusBusKey});
 
   @override
-  ConsumerState<BusMapView> createState() => _BusMapViewState();
+  ConsumerState<BusMapView> createState() => BusMapViewState();
 }
 
-class _BusMapViewState extends ConsumerState<BusMapView> {
+class BusMapViewState extends ConsumerState<BusMapView> {
   final MapController _controller = MapController();
 
   /// Wadah provider yang ditangkap saat init, dipakai di [dispose] (setelah
@@ -145,6 +146,23 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
     _controller.move(target, AppConfig.mapInitialZoom);
   }
 
+  /// Memusatkan peta ke bus yang sedang dipilih (tombol "fokus ke bus" di
+  /// kanan-bawah peta).
+  ///
+  /// Memakai `ref.read` karena dijalankan dari callback, bukan dari `build`.
+  /// Tidak melakukan apa pun bila tidak ada bus terpilih atau busnya sudah
+  /// hilang dari data live.
+  void _focusSelectedBus() {
+    final item = _matchSelected(
+      ref.read(busesProvider).valueOrNull ?? const <Bus>[],
+      _selectedKey,
+      ref.read(mapCorridorProvider)?.toUpperCase(),
+      ref.read(mapUserLocationProvider),
+    );
+    if (item == null || !_mapReady) return;
+    _controller.move(item.bus.position, AppConfig.mapFocusZoom);
+  }
+
   void _select(BusMapMarker marker) {
     _applySelection('${marker.corridor}|${marker.number}');
   }
@@ -154,6 +172,16 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
     if (_selectedStopId != null) {
       setState(() => _selectedStopId = null);
     }
+  }
+
+  /// Menutup baris penyaring koridor (koridor terpilih tidak diubah).
+  ///
+  /// Memakai `_container` (bukan `ref`) karena dipanggil dari callback
+  /// flutter_map yang bisa tiba tepat saat widget dibuang.
+  void _collapseFilter() {
+    if (!mounted) return;
+    if (!_container.read(mapFilterExpandedProvider)) return;
+    _container.read(mapFilterExpandedProvider.notifier).state = false;
   }
 
   void _openStop(MapStop stop) {
@@ -175,11 +203,26 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
   /// Bus terpilih versi live (non-basi & lolos penyaring koridor), atau null
   /// bila tidak ada / sudah tidak tampil.
   BusWithDistance? _selectedItem() {
-    final key = _selectedKey;
+    return _matchSelected(
+      ref.watch(busesProvider).valueOrNull ?? const <Bus>[],
+      _selectedKey,
+      ref.watch(mapCorridorProvider)?.toUpperCase(),
+      ref.watch(mapUserLocationProvider),
+    );
+  }
+
+  /// Mencari bus ber-[key] di antara [buses] (murni, tanpa `ref`).
+  ///
+  /// Dipakai baik oleh `build` (lewat [ref.watch]) maupun oleh callback tombol
+  /// (lewat [ref.read]) supaya keduanya memakai aturan penyaringan yang sama:
+  /// bus basi dan bus di luar koridor terpilih dianggap tidak ada.
+  static BusWithDistance? _matchSelected(
+    List<Bus> buses,
+    String? key,
+    String? filter,
+    LatLng? location,
+  ) {
     if (key == null) return null;
-    final buses = ref.watch(busesProvider).valueOrNull ?? const <Bus>[];
-    final filter = ref.watch(mapCorridorProvider)?.toUpperCase();
-    final location = ref.watch(userLocationProvider).valueOrNull;
     final nowUtc = DateTime.now().toUtc();
     for (final bus in buses) {
       if (_keyOf(bus) != key || bus.isStale(nowUtc)) continue;
@@ -194,14 +237,26 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final markers = ref.watch(busMapMarkersProvider);
-    final userLocation = ref.watch(userLocationProvider).valueOrNull;
+    final userLocation = ref.watch(mapUserLocationProvider);
     final selected = _selectedItem();
+    final tileSource = ref.watch(
+      mapTileSourceProvider(theme.brightness == Brightness.dark),
+    );
     final dataset = ref.watch(halteDatasetProvider).valueOrNull;
     final HalteProgress? progress = (selected != null && dataset != null)
-        ? HalteTracker.track(
+        ? HalteTracker.trackStable(
             selected.bus,
             dataset,
             estimatedHeading: selected.bus.heading,
+          )
+        : null;
+
+    // Estimasi bus terpilih datang ke lokasi pengguna (null bila GPS belum ada).
+    final arrival = (selected != null && userLocation != null)
+        ? UserArrival.estimate(
+            busPosition: selected.bus.position,
+            user: userLocation,
+            speedKmh: selected.bus.speedKmh,
           )
         : null;
 
@@ -232,14 +287,20 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
               _mapReady = true;
               _tryFocus();
             },
-            onTap: (_, __) => _clearSelection(),
+            // Geseran/zoom oleh jari pengguna menutup baris penyaring koridor
+            // agar peta tidak tertutup saat sedang ditelusuri. Perubahan kamera
+            // terprogram (fokus bus, tombol lokasi) tidak ikut menutup karena
+            // `hasGesture` false.
+            onPositionChanged: (_, hasGesture) {
+              if (hasGesture) _collapseFilter();
+            },
+            onTap: (_, __) {
+              _clearSelection();
+              _collapseFilter();
+            },
           ),
           children: [
-            TileLayer(
-              urlTemplate: AppConfig.osmTileUrl,
-              userAgentPackageName: AppConfig.osmUserAgent,
-              tileProvider: ref.watch(tileProviderProvider),
-            ),
+            _tileLayer(tileSource),
             // Jalur koridor (semua koridor saat tab "Semua", atau hanya yang
             // terpilih), digambar di atas ubin namun di bawah penanda agar bus
             // & lokasi pengguna tetap terlihat/diketuk.
@@ -279,7 +340,11 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
             RichAttributionWidget(
               alignment: AttributionAlignment.bottomLeft,
               attributions: [
-                TextSourceAttribution(l10n.mapAttribution),
+                TextSourceAttribution(
+                  tileSource.fromMapbox
+                      ? l10n.mapAttributionMapbox
+                      : l10n.mapAttribution,
+                ),
               ],
             ),
           ],
@@ -294,17 +359,35 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Kontrol peta dikumpulkan di kanan-bawah: "fokus ke bus" (hanya
+                // saat ada bus terpilih) tepat di atas "ke lokasi saya". Dulu
+                // tombol fokus melayang sendiri di kanan-atas dan terlihat
+                // menggantung di tengah peta.
                 Align(
                   alignment: Alignment.centerRight,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 16),
-                    child: FloatingActionButton.small(
-                      heroTag: 'mapRecenter',
-                      tooltip: l10n.mapRecenter,
-                      onPressed: userLocation == null
-                          ? null
-                          : () => _centerOn(userLocation),
-                      child: const Icon(Icons.my_location),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (selected != null) ...[
+                          FloatingActionButton.small(
+                            heroTag: 'mapFocusBus',
+                            tooltip: l10n.mapFocusBus,
+                            onPressed: _focusSelectedBus,
+                            child: const Icon(Icons.center_focus_strong),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        FloatingActionButton.small(
+                          heroTag: 'mapRecenter',
+                          tooltip: l10n.mapRecenter,
+                          onPressed: userLocation == null
+                              ? null
+                              : () => _centerOn(userLocation),
+                          child: const Icon(Icons.my_location),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -318,15 +401,17 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
                         ? PinnedBusCardBody(
                             bus: selected.bus,
                             progress: progress,
-                            onTap: () => showBusTimeline(context, selected, fromMap: true),
+                            onTap: () => showBusTimeline(context, selected,
+                                fromMap: true),
                             onClose: _clearSelection,
                             footer: PinnedBusCardFooter(
                               bus: selected.bus,
                               destinationLabel: selected.destinationLabel,
+                              arrival: arrival,
                               trailing: FollowBusButton(
                                 bus: selected.bus,
-                                activeColor:
-                                    corridorAccent(selected.bus.corridor, theme),
+                                activeColor: corridorAccent(
+                                    selected.bus.corridor, theme),
                                 payload: FollowPayload(
                                   originLabel: progress.originLabel,
                                   destinationLabel: progress.destinationLabel,
@@ -340,7 +425,8 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
                         // Bila data halte belum siap, jatuh ke kartu daftar biasa.
                         : BusTile(
                             item: selected,
-                            onTap: () => showBusTimeline(context, selected, fromMap: true),
+                            onTap: () => showBusTimeline(context, selected,
+                                fromMap: true),
                             trailing: _CloseButton(onClose: _clearSelection),
                           ),
                   ),
@@ -381,6 +467,29 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
     );
   }
 
+  /// Matriks warna untuk "menggelapkan" ubin OSM saat build tanpa token Mapbox.
+  ///
+  /// Keluaran = kebalikan luminansi (`255 - luma`), jadi peta jadi gelap tanpa
+  /// membalik warna jalan seperti inversi penuh. Ini hanya fallback visual —
+  /// dengan token Mapbox mode gelap memakai style `dark-v11` yang asli.
+  static const ColorFilter _osmDarkFilter = ColorFilter.matrix(<double>[
+    -0.299, -0.587, -0.114, 0, 255, //
+    -0.299, -0.587, -0.114, 0, 255, //
+    -0.299, -0.587, -0.114, 0, 255, //
+    0, 0, 0, 1, 0, //
+  ]);
+
+  /// Lapisan ubin peta sesuai [source]; diberi filter gelap bila perlu.
+  Widget _tileLayer(MapTileSource source) {
+    final layer = TileLayer(
+      urlTemplate: source.urlTemplate,
+      userAgentPackageName: AppConfig.osmUserAgent,
+      tileProvider: ref.watch(tileProviderProvider),
+    );
+    if (!source.needsDarkFilter) return layer;
+    return ColorFiltered(colorFilter: _osmDarkFilter, child: layer);
+  }
+
   /// Zoom minimum untuk menampilkan halte saat penyaring "Semua" aktif.
   ///
   /// Dengan puluhan halte per koridor, menampilkannya di zoom kota membuat peta
@@ -402,9 +511,7 @@ class _BusMapViewState extends ConsumerState<BusMapView> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final showLabels = zoom >= _stopLabelZoom;
-    final size = zoom >= 14.5
-        ? (showLabels ? 13.0 : 11.0)
-        : 8.0;
+    final size = zoom >= 14.5 ? (showLabels ? 13.0 : 11.0) : 8.0;
     // Saat satu koridor disaring, hanya halte koridor itu yang digambar.
     final active = filter?.toUpperCase();
     final visible = active == null

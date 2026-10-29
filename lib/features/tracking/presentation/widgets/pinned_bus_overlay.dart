@@ -6,6 +6,7 @@ import '../../../../core/follow_service.dart';
 import '../../data/bus_model.dart';
 import '../../domain/bus_with_distance.dart';
 import '../../domain/halte_tracker.dart';
+import '../../domain/user_arrival.dart';
 import '../providers.dart';
 import 'floating_pinned_bus_card.dart';
 import 'halte_timeline_sheet.dart';
@@ -65,15 +66,17 @@ class PinnedBusOverlay extends ConsumerWidget {
     // kartu pin global agar tidak menumpuk di atasnya.
     if (ref.watch(mapBusSelectedProvider)) return const SizedBox.shrink();
 
+    // Sheet detail/timeline sedang terbuka: sembunyikan kartu sepenuhnya.
+    // Isinya (badge koridor, nomor bus, halte saat ini & berikutnya, progres)
+    // sudah ada di sheet, dan kartu melayang digambar DI ATAS sheet sehingga
+    // hanya menutupi daftar halte di bagian bawah.
+    if (ref.watch(pinnedDetailOpenProvider)) return const SizedBox.shrink();
+
     final followed = ref.watch(followedBusProvider);
     final dataset = ref.watch(halteDatasetProvider).valueOrNull;
 
-    final detailOpen = ref.watch(pinnedDetailOpenProvider);
-
-    // Kartu beristirahat dalam mini; saat detail terbuka, kartu dipaksa mini
-    // (tidak ikut memelar walau timeline digulir).
-    final collapsed =
-        detailOpen || ref.watch(pinnedCardCollapsedProvider);
+    // Kartu beristirahat dalam mini; memelar hanya bila pengguna mengetuknya.
+    final collapsed = ref.watch(pinnedCardCollapsedProvider);
 
     if (followed == null || dataset == null) return const SizedBox.shrink();
 
@@ -84,27 +87,40 @@ class PinnedBusOverlay extends ConsumerWidget {
     if (bus == null) return const SizedBox.shrink();
 
     final progress =
-        HalteTracker.track(bus, dataset, estimatedHeading: bus.heading);
+        HalteTracker.trackStable(bus, dataset, estimatedHeading: bus.heading);
     if (progress == null) return const SizedBox.shrink();
+
+    // Estimasi bus datang ke lokasi pengguna. Dibaca setelah semua guard di
+    // atas supaya GPS tidak dilanggankan saat tidak ada bus yang di-pin.
+    final userLocation = ref.watch(userLocationProvider).valueOrNull;
+    final arrival = userLocation == null
+        ? null
+        : UserArrival.estimate(
+            busPosition: bus.position,
+            user: userLocation,
+            speedKmh: bus.speedKmh,
+          );
 
     final item = BusWithDistance(
       bus: bus,
-      distanceKm: 0,
-      etaMinutes: null,
+      distanceKm: arrival?.distanceKm ?? 0,
+      etaMinutes: arrival?.etaMinutes,
+      destinationLabel: progress.destinationLabel,
       resolvedHeading: bus.heading,
     );
 
-    VoidCallback? onTap;
-    if (detailOpen) {
-      // Detail sudah terbuka; kartu mini tidak perlu disentuh.
-      onTap = null;
-    } else if (collapsed) {
-      // Mini → ketuk untuk memelar (menampilkan status & tombol tutup).
-      onTap = () =>
-          ref.read(pinnedCardCollapsedProvider.notifier).state = false;
+    // Aksi kartu, semuanya hidup dan tidak saling menutupi:
+    // * ketuk mini → memelar (mode penuh);
+    // * ketuk penuh → buka detail bus (timeline);
+    // * chevron di kartu penuh → kembali ke mini tanpa melepas pin;
+    // * X → lepas pin (berhenti mengikuti bus).
+    final VoidCallback onTap;
+    if (collapsed) {
+      onTap =
+          () => ref.read(pinnedCardCollapsedProvider.notifier).state = false;
     } else {
-      // Memelar → ketuk untuk membuka detail bus. [showBusTimeline] menandai
-      // detail terbuka (kartu jadi mini) & membersihkannya saat sheet ditutup.
+      // [showBusTimeline] menandai detail terbuka (kartu disembunyikan) &
+      // membersihkannya saat sheet ditutup.
       onTap = () {
         final navContext = appNavigatorKey.currentState?.overlay?.context;
         if (navContext != null) {
@@ -117,11 +133,15 @@ class PinnedBusOverlay extends ConsumerWidget {
       bus: bus,
       progress: progress,
       collapsed: collapsed,
+      arrival: arrival,
       footer: PinnedBusCardFooter(
         bus: bus,
         destinationLabel: progress.destinationLabel,
+        arrival: arrival,
       ),
       onTap: onTap,
+      onCollapse: () =>
+          ref.read(pinnedCardCollapsedProvider.notifier).state = true,
       onClose: () {
         ref.read(followedBusProvider.notifier).state = null;
         FollowService.stopFollow();

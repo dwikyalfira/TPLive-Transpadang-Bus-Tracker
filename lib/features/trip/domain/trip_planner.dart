@@ -215,9 +215,9 @@ class TripPlanner {
         if (identical(first, second) || first.kode == second.kode) continue;
         first.arah.forEach((firstKey, firstDir) {
           second.arah.forEach((secondKey, secondDir) {
-            for (final name in _sharedNames(firstDir, secondDir)) {
-              final aIdx = _indexOf(firstDir.halte, name);
-              final bIdx = _indexOf(secondDir.halte, name);
+            for (final transfer in _sharedTransfers(firstDir, secondDir)) {
+              final aIdx = transfer.$1;
+              final bIdx = transfer.$2;
               if (aIdx <= 0 || bIdx < 0 || bIdx >= secondDir.halte.length - 1) {
                 continue;
               }
@@ -384,12 +384,23 @@ class TripPlanner {
 
   /// Indeks halte untuk [point]: utamakan kecocokan nama [name] bila ada,
   /// jika tidak pakai halte terdekat.
+  /// Jarak (km) dalam mana nama halte dipakai sebagai penentu akhir.
+  ///
+  /// Koordinat adalah kriteria utama: pengguna memilih halte tertentu, jadi
+  /// titik terdekatlah yang benar. Nama hanya dipakai untuk memilih di antara
+  /// halte yang jaraknya berdekatan (mis. sisi jalan `pergi` vs `pulang`).
+  static const double _nameTieKm = 0.15;
+
+  /// Jarak maksimum (km) dua halte senama agar dianggap satu titik transit.
+  static const double _transferMaxKm = 0.15;
+
   static int _resolveIndex(List<Halte> halte, LatLng point, String? name) {
-    if (name != null) {
-      final idx = _indexOf(halte, name);
-      if (idx >= 0) return idx;
-    }
-    return _nearestIndex(halte, point);
+    if (halte.isEmpty) return 0;
+    final nearest = _nearestIndex(halte, point);
+    final named = _nearestNamed(halte, point, name);
+    if (named == null) return nearest;
+    final nearestD = geo.distanceKm(point, halte[nearest].pos);
+    return named.$2 <= nearestD + _nameTieKm ? named.$1 : nearest;
   }
 
   /// Seperti [_resolveIndex] tetapi dibatasi rentang indeks [start]..[endInclusive].
@@ -400,11 +411,31 @@ class TripPlanner {
     int endInclusive,
     String? name,
   ) {
-    if (name != null) {
-      final idx = _indexOf(halte, name);
-      if (idx >= start && idx <= endInclusive) return idx;
+    final nearest = _nearestIndexInRange(halte, point, start, endInclusive);
+    final named = _nearestNamed(halte, point, name, start, endInclusive);
+    if (named == null) return nearest;
+    if (nearest == null) return named.$1;
+    final nearestD = geo.distanceKm(point, halte[nearest].pos);
+    return named.$2 <= nearestD + _nameTieKm ? named.$1 : nearest;
+  }
+
+  /// Indeks halte bernama [name] terdekat dari [point] beserta jaraknya (km).
+  static (int, double)? _nearestNamed(
+    List<Halte> halte,
+    LatLng point,
+    String? name, [
+    int start = 0,
+    int? endInclusive,
+  ]) {
+    if (name == null) return null;
+    final end = endInclusive ?? halte.length - 1;
+    (int, double)? best;
+    for (var i = start; i <= end && i < halte.length; i++) {
+      if (!_sameName(halte[i].nama, name)) continue;
+      final d = geo.distanceKm(point, halte[i].pos);
+      if (best == null || d < best.$2) best = (i, d);
     }
-    return _nearestIndexInRange(halte, point, start, endInclusive);
+    return best;
   }
 
   static bool _sameName(String a, String b) =>
@@ -444,25 +475,36 @@ class TripPlanner {
     return best;
   }
 
-  static int _indexOf(List<Halte> halte, String name) {
-    for (var i = 0; i < halte.length; i++) {
-      if (halte[i].nama.toLowerCase() == name.toLowerCase()) return i;
-    }
-    return -1;
-  }
-
   static Set<String> _names(List<Halte> halte) =>
       {for (final h in halte) h.nama.toLowerCase()};
 
-  static List<String> _sharedNames(
+  /// Pasangan indeks halte yang bisa dipakai berpindah koridor.
+  ///
+  /// Dua halte dianggap satu titik transit bila **namanya sama dan jaraknya
+  /// <= [_transferMaxKm]**. Dulu pencocokan hanya memakai nama, sehingga dua
+  /// halte senama yang berjauhan (mis. "Pasar Raya" di sisi utara dan selatan)
+  /// dianggap bisa dipindah dengan berjalan kaki.
+  static List<(int, int)> _sharedTransfers(
     CorridorDirection a,
     CorridorDirection b,
   ) {
     final bNames = _names(b.halte);
-    final shared = <String>[];
-    for (final h in a.halte) {
-      if (bNames.contains(h.nama.toLowerCase())) shared.add(h.nama);
+    final out = <(int, int)>[];
+    for (var i = 0; i < a.halte.length; i++) {
+      final halte = a.halte[i];
+      if (!bNames.contains(halte.nama.toLowerCase())) continue;
+      var bestJ = -1;
+      var bestD = double.infinity;
+      for (var j = 0; j < b.halte.length; j++) {
+        if (!_sameName(b.halte[j].nama, halte.nama)) continue;
+        final d = geo.distanceKm(halte.pos, b.halte[j].pos);
+        if (d < bestD) {
+          bestD = d;
+          bestJ = j;
+        }
+      }
+      if (bestJ >= 0 && bestD <= _transferMaxKm) out.add((i, bestJ));
     }
-    return shared;
+    return out;
   }
 }

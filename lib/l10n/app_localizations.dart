@@ -279,6 +279,48 @@ abstract class AppLocalizations {
   /// **'© OpenStreetMap contributors'**
   String get mapAttribution;
 
+  /// No description provided for @mapAttributionMapbox.
+  ///
+  /// In id, this message translates to:
+  /// **'© Mapbox © OpenStreetMap'**
+  String get mapAttributionMapbox;
+
+  /// No description provided for @mapModeTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Gaya peta'**
+  String get mapModeTitle;
+
+  /// No description provided for @mapModeTheme.
+  ///
+  /// In id, this message translates to:
+  /// **'Ikuti tema'**
+  String get mapModeTheme;
+
+  /// No description provided for @mapModeLight.
+  ///
+  /// In id, this message translates to:
+  /// **'Terang'**
+  String get mapModeLight;
+
+  /// No description provided for @mapModeDark.
+  ///
+  /// In id, this message translates to:
+  /// **'Gelap'**
+  String get mapModeDark;
+
+  /// No description provided for @mapModeSatellite.
+  ///
+  /// In id, this message translates to:
+  /// **'Satelit'**
+  String get mapModeSatellite;
+
+  /// No description provided for @mapFocusBus.
+  ///
+  /// In id, this message translates to:
+  /// **'Fokus ke bus'**
+  String get mapFocusBus;
+
   /// No description provided for @mapStopServedBy.
   ///
   /// In id, this message translates to:
@@ -651,6 +693,42 @@ abstract class AppLocalizations {
   /// **'{count} halte lagi'**
   String halteRemaining(int count);
 
+  /// No description provided for @arrivalEta.
+  ///
+  /// In id, this message translates to:
+  /// **'≈ {minutes} mnt ke lokasi Anda'**
+  String arrivalEta(int minutes);
+
+  /// No description provided for @arrivalEtaShort.
+  ///
+  /// In id, this message translates to:
+  /// **'≈ {minutes} mnt'**
+  String arrivalEtaShort(int minutes);
+
+  /// No description provided for @arrivalNear.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus di sekitar lokasi Anda'**
+  String get arrivalNear;
+
+  /// No description provided for @arrivalHereShort.
+  ///
+  /// In id, this message translates to:
+  /// **'sudah dekat'**
+  String get arrivalHereShort;
+
+  /// No description provided for @pinnedCardMinimize.
+  ///
+  /// In id, this message translates to:
+  /// **'Kecilkan kartu'**
+  String get pinnedCardMinimize;
+
+  /// No description provided for @mapFilterTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Saring koridor'**
+  String get mapFilterTitle;
+
   /// No description provided for @infoNetworkTitle.
   ///
   /// In id, this message translates to:
@@ -998,6 +1076,54 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Terbaru'**
   String get recentsTitle;
+
+  /// No description provided for @homeLocationSet.
+  ///
+  /// In id, this message translates to:
+  /// **'Atur lokasi rumah'**
+  String get homeLocationSet;
+
+  /// No description provided for @homeLocationPickTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih lokasi rumah'**
+  String get homeLocationPickTitle;
+
+  /// No description provided for @homeLocationRoute.
+  ///
+  /// In id, this message translates to:
+  /// **'Rute ke rumah'**
+  String get homeLocationRoute;
+
+  /// No description provided for @homeLocationChange.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah lokasi rumah'**
+  String get homeLocationChange;
+
+  /// No description provided for @homeLocationRemove.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus lokasi rumah'**
+  String get homeLocationRemove;
+
+  /// No description provided for @homeLocationRemoved.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi rumah dihapus.'**
+  String get homeLocationRemoved;
+
+  /// No description provided for @homeLocationSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi rumah disimpan.'**
+  String get homeLocationSaved;
+
+  /// No description provided for @homeLocationUndo.
+  ///
+  /// In id, this message translates to:
+  /// **'Urungkan'**
+  String get homeLocationUndo;
 
   /// No description provided for @addFavorite.
   ///

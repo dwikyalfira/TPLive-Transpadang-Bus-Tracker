@@ -55,8 +55,9 @@ const double _busSheetMaxSize = 0.9;
 /// kartu & timeline ikut ter-refresh saat posisi bus berubah.
 ///
 /// Selama sheet terbuka, [pinnedDetailOpenProvider] bernilai benar sehingga
-/// kartu melayang bus yang di-pin hanya ditampilkan dalam versi kecil (mini).
-/// Saat sheet ditutup, penanda dibersihkan dan kartu tetap beristirahat mini.
+/// kartu melayang bus yang di-pin **disembunyikan** (isinya sudah ada di sheet
+/// ini, dan kartu hanya akan menutupi daftar halte di bawahnya).
+/// Saat sheet ditutup, penanda dibersihkan dan kartu kembali beristirahat mini.
 ///
 /// [fromMap] benar bila detail dibuka dari layar peta; tombol "Lihat di peta"
 /// lalu disembunyikan agar tidak membuka peta kedua di atas yang sudah ada.
@@ -156,7 +157,7 @@ class _HalteTimelineSheetState extends ConsumerState<HalteTimelineSheet> {
             ],
           ),
           data: (dataset) {
-            final progress = HalteTracker.track(
+            final progress = HalteTracker.trackStable(
               live.bus,
               dataset,
               estimatedHeading: live.resolvedHeading,

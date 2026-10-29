@@ -4,6 +4,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:transpadang_live/core/settings.dart';
 import 'package:transpadang_live/features/tracking/data/bus_model.dart';
 import 'package:transpadang_live/features/tracking/data/bus_source.dart';
 import 'package:transpadang_live/features/tracking/data/corridor_route.dart';
@@ -16,6 +18,8 @@ import 'package:transpadang_live/features/tracking/presentation/widgets/follow_b
 import 'package:transpadang_live/features/tracking/presentation/widgets/halte_timeline_sheet.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/map/map_screen.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/speed_dial.dart';
+import 'package:transpadang_live/features/trip/data/saved_places_store.dart';
+import 'package:transpadang_live/features/trip/presentation/trip_providers.dart';
 import 'package:transpadang_live/l10n/app_localizations.dart';
 
 Halte _h(double lat, double lng, String nama) =>
@@ -74,6 +78,8 @@ class _FakeTileProvider extends TileProvider {
 }
 
 List<Override> _overrides(List<Bus> buses) => [
+      settingsStoreProvider.overrideWithValue(SettingsStore(_prefs)),
+      savedPlacesStoreProvider.overrideWithValue(SavedPlacesStore(_prefs)),
       busSourceProvider.overrideWithValue(_SilentBusSource()),
       halteDatasetProvider.overrideWith((ref) => _dataset()),
       // Tanpa geometri mengikuti jalan: uji jatuh ke garis antar-halte.
@@ -115,15 +121,32 @@ Finder _stopMarkers() => find.byWidgetPredicate(
           (widget.key! as ValueKey<String>).value.startsWith('mapStop:'),
     );
 
+/// Membuka baris penyaring koridor (tertutup secara default).
+Future<void> _openFilter(WidgetTester tester) async {
+  await tester.tap(find.byKey(MapScreen.filterToggleKey));
+  await tester.pumpAndSettle();
+}
+
+/// Preferensi tiruan: layar peta membaca [appSettingsProvider] untuk gaya peta.
+late SharedPreferences _prefs;
+
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    _prefs = await SharedPreferences.getInstance();
+  });
+
   testWidgets('peta menampilkan judul, penyaring koridor, & penanda bus',
       (tester) async {
-    final container = _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
+    final container =
+        _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
     await tester.pumpWidget(_app(container, const MapScreen()));
     await tester.pumpAndSettle();
 
     expect(find.text('Peta Jaringan'), findsOneWidget);
     expect(find.byType(FlutterMap), findsOneWidget);
+
+    await _openFilter(tester);
     expect(find.widgetWithText(ChoiceChip, 'Semua'), findsOneWidget);
     // Koridor tampil sebagai ikon bulat (gaya sama dengan layar utama).
     expect(find.byType(CorridorIconButton), findsNWidgets(2));
@@ -134,10 +157,154 @@ void main() {
     expect(find.text('57'), findsOneWidget);
   });
 
+  testWidgets('penyaring koridor tertutup default & bisa dibuka-tutup',
+      (tester) async {
+    final container = _container([_bus('11', 'K1')]);
+    await tester.pumpWidget(_app(container, const MapScreen()));
+    await tester.pumpAndSettle();
+
+    // Tertutup: tombol hanya berisi panah — tanpa titik warna & label koridor.
+    expect(find.byType(CorridorIconButton), findsNothing);
+    expect(find.widgetWithText(ChoiceChip, 'Semua'), findsNothing);
+    expect(find.text('Semua'), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(MapScreen.filterToggleKey),
+        matching: find.byType(Text),
+      ),
+      findsNothing,
+    );
+
+    await _openFilter(tester);
+    expect(find.byType(CorridorIconButton), findsNWidgets(2));
+    expect(find.widgetWithText(ChoiceChip, 'Semua'), findsOneWidget);
+
+    // Ketuk tombol lagi → tertutup kembali.
+    await _openFilter(tester);
+    expect(find.byType(CorridorIconButton), findsNothing);
+  });
+
+  testWidgets('panah penyaring menunjuk ke samping, mengikuti arah buka',
+      (tester) async {
+    final container = _container([_bus('11', 'K1')]);
+    await tester.pumpWidget(_app(container, const MapScreen()));
+    await tester.pumpAndSettle();
+
+    final chevron = find.descendant(
+      of: find.byKey(MapScreen.filterToggleKey),
+      matching: find.byType(AnimatedRotation),
+    );
+
+    // Kapsul membuka ke samping → chevron horizontal, bukan expand_more.
+    expect(
+      find.descendant(of: chevron, matching: find.byIcon(Icons.chevron_right)),
+      findsOneWidget,
+    );
+    expect(find.byIcon(Icons.expand_more), findsNothing);
+    expect(find.byIcon(Icons.expand_less), findsNothing);
+
+    // Tertutup: panah menunjuk ke kanan (ke arah daftar akan muncul).
+    expect(tester.widget<AnimatedRotation>(chevron).turns, 0);
+
+    await _openFilter(tester);
+    // Terbuka: diputar 180° → menunjuk ke kiri (arah kapsul menyusut).
+    expect(tester.widget<AnimatedRotation>(chevron).turns, 0.5);
+    expect(find.byIcon(Icons.expand_more), findsNothing);
+  });
+
+  testWidgets('tombol penyaring menyaring koridor & meneruskannya ke a11y',
+      (tester) async {
+    final handle = tester.ensureSemantics();
+    final container =
+        _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
+    await tester.pumpWidget(_app(container, const MapScreen()));
+    await tester.pumpAndSettle();
+
+    final toggle = find.byKey(MapScreen.filterToggleKey);
+    expect(
+      tester.getSemantics(toggle),
+      containsSemantics(
+          label: 'Saring koridor', value: 'Semua', isButton: true),
+    );
+
+    await _openFilter(tester);
+    await tester.tap(find.text('K3'));
+    await tester.pumpAndSettle();
+    expect(container.read(mapCorridorProvider), 'K3');
+
+    // Label tidak lagi terlihat di tombol, jadi koridor aktif hanya bisa
+    // dibaca lewat nilai semantiknya.
+    await _openFilter(tester);
+    expect(
+      find.descendant(of: toggle, matching: find.byType(Text)),
+      findsNothing,
+    );
+    expect(
+      tester.getSemantics(toggle),
+      containsSemantics(label: 'Saring koridor', value: 'K3', isButton: true),
+    );
+    handle.dispose();
+  });
+
+  testWidgets('mengetuk peta menutup penyaring koridor', (tester) async {
+    final container = _container([_bus('11', 'K1')]);
+    await tester.pumpWidget(_app(container, const MapScreen()));
+    await tester.pumpAndSettle();
+
+    await _openFilter(tester);
+    expect(find.byType(CorridorIconButton), findsNWidgets(2));
+
+    await tester.tapAt(const Offset(700, 300));
+    // flutter_map menunda onTap ~250 ms untuk membedakan dari ketuk-ganda.
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CorridorIconButton), findsNothing);
+  });
+
+  testWidgets('menggeser peta menutup penyaring koridor', (tester) async {
+    final container = _container([_bus('11', 'K1')]);
+    await tester.pumpWidget(_app(container, const MapScreen()));
+    await tester.pumpAndSettle();
+
+    await _openFilter(tester);
+    expect(find.byType(CorridorIconButton), findsNWidgets(2));
+
+    await tester.drag(find.byType(FlutterMap), const Offset(-120, -80));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CorridorIconButton), findsNothing);
+  });
+
+  testWidgets('penyaring koridor melayang di atas peta, bukan pita AppBar',
+      (tester) async {
+    final container = _container([_bus('11', 'K1')]);
+    await tester.pumpWidget(_app(container, const MapScreen()));
+    await tester.pumpAndSettle();
+
+    // Peta menempati seluruh area di bawah AppBar (tidak ada pita 48dp).
+    final mapRect = tester.getRect(find.byType(FlutterMap));
+    final appBarRect = tester.getRect(find.byType(AppBar));
+    expect(mapRect.top, closeTo(appBarRect.bottom, 1));
+
+    // Tombol penyaring menumpuk tipis di tepi kiri-atas peta, bukan di AppBar.
+    expect(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byKey(MapScreen.filterToggleKey),
+      ),
+      findsNothing,
+    );
+    final toggleRect = tester.getRect(find.byKey(MapScreen.filterToggleKey));
+    expect(toggleRect.top, greaterThan(mapRect.top));
+    expect(toggleRect.top - mapRect.top, lessThan(24));
+    expect(toggleRect.left - mapRect.left, lessThan(24));
+  });
+
   testWidgets('penanda menampilkan panah arah hanya saat heading tersedia',
       (tester) async {
-    final container =
-        _container([_bus('11', 'K1', heading: 90), _bus('57', 'K3', lng: 100.32)]);
+    final container = _container(
+        [_bus('11', 'K1', heading: 90), _bus('57', 'K3', lng: 100.32)]);
     await tester.pumpWidget(_app(container, const MapScreen()));
     await tester.pumpAndSettle();
 
@@ -146,10 +313,12 @@ void main() {
   });
 
   testWidgets('mengetuk ikon koridor menyaring penanda bus', (tester) async {
-    final container = _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
+    final container =
+        _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
     await tester.pumpWidget(_app(container, const MapScreen()));
     await tester.pumpAndSettle();
 
+    await _openFilter(tester);
     await tester.tap(find.text('K3'));
     await tester.pumpAndSettle();
 
@@ -174,6 +343,7 @@ void main() {
     // Tab "Semua": puluhan halte terlalu padat, jadi disembunyikan dulu.
     expect(_stopMarkers(), findsNothing);
 
+    await _openFilter(tester);
     await tester.tap(find.text('K1'));
     await tester.pumpAndSettle();
 
@@ -185,6 +355,8 @@ void main() {
 
     expect(find.text('B'), findsOneWidget);
     expect(find.text('Dilayani oleh'), findsOneWidget);
+    // Ikon papan halte (bukan ikon bus) menandai sheet halte.
+    expect(find.byIcon(Icons.departure_board), findsOneWidget);
   });
 
   testWidgets('ketuk penanda menampilkan kartu bawah, bukan detail',
@@ -224,7 +396,8 @@ void main() {
   });
 
   testWidgets('ganti penyaring koridor menutup kartu bus', (tester) async {
-    final container = _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
+    final container =
+        _container([_bus('11', 'K1'), _bus('57', 'K3', lng: 100.32)]);
     await tester.pumpWidget(_app(container, const MapScreen()));
     await tester.pumpAndSettle();
 
@@ -232,6 +405,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(PinnedBusCardBody), findsOneWidget);
 
+    await _openFilter(tester);
     await tester.tap(find.text('K3'));
     await tester.pumpAndSettle();
 
@@ -273,8 +447,8 @@ void main() {
       (tester) async {
     const channel = MethodChannel('id.dwiky.transpadang_live/follow');
     final calls = <String>[];
-    tester.binding.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (call) async {
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel,
+        (call) async {
       calls.add(call.method);
       switch (call.method) {
         case 'requestNotificationPermission':
@@ -317,8 +491,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Satu-satunya pintu masuk peta: ikon di AppBar (tanpa tombol di kartu).
-    final appBarMapButton =
-        find.widgetWithIcon(IconButton, Icons.map_outlined);
+    final appBarMapButton = find.widgetWithIcon(IconButton, Icons.map_outlined);
     expect(appBarMapButton, findsOneWidget);
     expect(find.text('Lihat peta'), findsNothing);
 

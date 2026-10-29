@@ -7,6 +7,56 @@ import 'geo_utils.dart' as geo;
 /// Status satu halte relatif terhadap posisi bus.
 enum HalteMark { passed, current, next, upcoming }
 
+/// Penahan perpindahan "halte berikutnya" saat bus berhenti di dekat batas.
+///
+/// Menyimpan indeks terakhir per bus; calon baru hanya diterapkan setelah
+/// muncul [requiredHits] kali berturut-turut. Tanpa ini, satu meter goyangan
+/// GPS di dekat batas dua halte membuat penanda dan teks "halte berikutnya"
+/// berkedip.
+class HalteHysteresis {
+  /// Jumlah pembacaan berturut-turut sebelum perpindahan diterapkan.
+  final int requiredHits;
+
+  final Map<String, int> _last = <String, int>{};
+  final Map<String, int> _pending = <String, int>{};
+
+  HalteHysteresis({this.requiredHits = 2});
+
+  /// Indeks "halte berikutnya" yang dipakai untuk pembacaan [candidate].
+  int resolve(String busKey, int candidate) {
+    final previous = _last[busKey];
+    if (previous == null) {
+      _last[busKey] = candidate;
+      _pending[busKey] = 0;
+      return candidate;
+    }
+    if (candidate == previous) {
+      _pending[busKey] = 0;
+      return previous;
+    }
+    final hits = (_pending[busKey] ?? 0) + 1;
+    if (hits >= requiredHits) {
+      _last[busKey] = candidate;
+      _pending[busKey] = 0;
+      return candidate;
+    }
+    _pending[busKey] = hits;
+    return previous;
+  }
+
+  /// Lupakan riwayat satu bus (mis. setelah bus hilang dari data live).
+  void forget(String busKey) {
+    _last.remove(busKey);
+    _pending.remove(busKey);
+  }
+
+  /// Bersihkan seluruh riwayat (dipakai pengujian).
+  void reset() {
+    _last.clear();
+    _pending.clear();
+  }
+}
+
 /// Satu baris pada timeline halte.
 class HalteStep {
   final Halte halte;
@@ -73,6 +123,24 @@ class HalteProgress {
 class HalteTracker {
   HalteTracker._();
 
+  /// Instance bersama untuk [trackStable]: menahan penanda halte agar tidak
+  /// berpindah-pindah saat bus berhenti tepat di batas dua halte.
+  static final HalteHysteresis _sharedHysteresis = HalteHysteresis();
+
+  /// Seperti [track], tetapi memakai histeresis bersama.
+  ///
+  /// Dipakai lapisan UI (kartu bus, peta, timeline). Perpindahan "halte
+  /// berikutnya" baru diterapkan setelah calon baru muncul dua kali berturut,
+  /// sehingga penanda tidak berkedip saat GPS/kecepatan bus berisik di dekat
+  /// ambang. Pengujian sebaiknya memakai [track] tanpa histeresis.
+  static HalteProgress? trackStable(
+    Bus bus,
+    HalteDataset dataset, {
+    double? estimatedHeading,
+  }) =>
+      track(bus, dataset,
+          estimatedHeading: estimatedHeading, hysteresis: _sharedHysteresis);
+
   /// Koridor yang arah `pergi`-nya menuju endpoint PERTAMA pada string route
   /// (mis. "RTH Imam Bonjol - Mega Permai Lubuk Buaya" → pergi ke RTH Imam
   /// Bonjol). Untuk koridor lain, `pergi` menuju endpoint KEDUA. Pemetaan ini
@@ -88,6 +156,7 @@ class HalteTracker {
     Bus bus,
     HalteDataset dataset, {
     double? estimatedHeading,
+    HalteHysteresis? hysteresis,
   }) {
     final stops = dataset.forCorridor(bus.corridor);
     if (stops == null) return null;
@@ -97,7 +166,7 @@ class HalteTracker {
     if (dir == null || dir.halte.length < 2) return null;
 
     final key = identical(dir, stops.pulang) ? 'pulang' : 'pergi';
-    return _build(bus, dir, key, heading);
+    return _build(bus, dir, key, heading, hysteresis);
   }
 
   static double? _valid(double? v) =>
@@ -164,6 +233,7 @@ class HalteTracker {
     CorridorDirection dir,
     String key,
     double? heading,
+    HalteHysteresis? hysteresis,
   ) {
     final points = dir.halte;
     final cum = List<double>.filled(points.length, 0);
@@ -198,6 +268,18 @@ class HalteTracker {
     currentIndex = currentIndex.clamp(-1, points.length - 1);
     nextIndex = nextIndex.clamp(0, points.length - 1);
     if (currentIndex >= nextIndex) currentIndex = nextIndex - 1;
+
+    // Histeresis: tahan "halte berikutnya" di nilai lama sampai calon baru
+    // bertahan beberapa pembacaan, supaya penanda tidak bolak-balik saat bus
+    // berhenti tepat di ambang dua halte.
+    if (hysteresis != null) {
+      final held = hysteresis.resolve('${bus.corridor}|${bus.number}', nextIndex);
+      if (held != nextIndex) {
+        nextIndex = held.clamp(0, points.length - 1);
+        currentIndex = nextIndex - 1;
+        if (currentIndex < -1) currentIndex = -1;
+      }
+    }
 
     final steps = <HalteStep>[];
     for (var i = 0; i < points.length; i++) {

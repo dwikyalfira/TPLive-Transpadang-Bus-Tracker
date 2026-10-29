@@ -5,10 +5,22 @@ import 'package:latlong2/latlong.dart';
 
 /// Satu halte dengan koordinatnya.
 class Halte {
+  /// Id stabil dari aset (`k3-pergi-01`), dipakai sebagai kunci timeline dan
+  /// penanda peta agar tidak bergantung pada nama yang bisa berubah/duplikat.
+  ///
+  /// Kosong untuk data yang dibangun langsung di pengujian; pemakai harus
+  /// memakai [stableId] yang jatuh ke nama + posisi bila [id] kosong.
+  final String id;
+
   final String nama;
   final LatLng pos;
 
-  const Halte({required this.nama, required this.pos});
+  const Halte({required this.nama, required this.pos, this.id = ''});
+
+  /// Kunci yang selalu tersedia: [id] bila ada, jika tidak gabungan nama+posisi.
+  String get stableId => id.isNotEmpty
+      ? id
+      : '$nama@${pos.latitude.toStringAsFixed(5)},${pos.longitude.toStringAsFixed(5)}';
 }
 
 /// Urutan halte untuk satu arah perjalanan (pergi/pulang).
@@ -55,6 +67,7 @@ Future<HalteDataset> loadHalteDataset() async {
       final list = (v['halte'] as List).map((h) {
         final m = h as Map<String, dynamic>;
         return Halte(
+          id: (m['id'] ?? '').toString(),
           nama: (m['nama'] ?? '').toString(),
           pos: LatLng(
             (m['lat'] as num).toDouble(),

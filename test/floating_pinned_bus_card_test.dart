@@ -5,6 +5,7 @@ import 'package:transpadang_live/l10n/app_localizations.dart';
 import 'package:transpadang_live/features/tracking/data/bus_model.dart';
 import 'package:transpadang_live/features/tracking/data/halte_data.dart';
 import 'package:transpadang_live/features/tracking/domain/halte_tracker.dart';
+import 'package:transpadang_live/features/tracking/domain/user_arrival.dart';
 import 'package:transpadang_live/features/tracking/presentation/widgets/floating_pinned_bus_card.dart';
 
 Halte _h(double lat, double lng, String nama) =>
@@ -41,7 +42,13 @@ Bus _bus({double lng = 100.3005}) => Bus(
 
 /// Menempatkan kartu di dalam [Stack] ukuran layar, seperti saat melayang
 /// di atas peta.
-Widget _host(Bus bus, HalteProgress progress, {bool collapsed = false}) {
+Widget _host(
+  Bus bus,
+  HalteProgress progress, {
+  bool collapsed = false,
+  UserArrival? arrival,
+  VoidCallback? onCollapse,
+}) {
   return MaterialApp(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
@@ -54,10 +61,13 @@ Widget _host(Bus bus, HalteProgress progress, {bool collapsed = false}) {
             bus: bus,
             progress: progress,
             collapsed: collapsed,
+            arrival: arrival,
+            onCollapse: onCollapse,
             onClose: () {},
             footer: PinnedBusCardFooter(
               bus: bus,
               destinationLabel: progress.destinationLabel,
+              arrival: arrival,
             ),
           ),
         ],
@@ -65,6 +75,12 @@ Widget _host(Bus bus, HalteProgress progress, {bool collapsed = false}) {
     ),
   );
 }
+
+/// Estimasi "bus datang ke pengguna" untuk pengujian tampilan.
+UserArrival _arrival({int minutes = 5, bool here = false}) => UserArrival(
+      distanceKm: here ? 0.01 : 1.7,
+      etaMinutes: here ? 0 : minutes,
+    );
 
 void main() {
   testWidgets('menampilkan status halte saat ini & berikutnya', (tester) async {
@@ -127,8 +143,7 @@ void main() {
 
     await tester.pumpWidget(_host(_bus(), _progress()));
 
-    final size =
-        tester.getSize(find.byKey(FloatingPinnedBusCard.contentKey));
+    final size = tester.getSize(find.byKey(FloatingPinnedBusCard.contentKey));
     expect(size.height, lessThan(240));
     expect(size.width, lessThan(500));
   });
@@ -146,9 +161,60 @@ void main() {
     expect(find.text('D'), findsOneWidget);
 
     // Kartu tetap ada & tata letak jauh lebih pendek daripada mode penuh.
-    final size =
-        tester.getSize(find.byKey(FloatingPinnedBusCard.contentKey));
+    final size = tester.getSize(find.byKey(FloatingPinnedBusCard.contentKey));
     expect(size.height, lessThan(120));
+  });
+  testWidgets('tombol kecilkan tampil di mode penuh dan memanggil onCollapse',
+      (tester) async {
+    var collapsed = false;
+    await tester.pumpWidget(
+      _host(_bus(), _progress(), onCollapse: () => collapsed = true),
+    );
+
+    expect(find.byIcon(Icons.expand_more), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.expand_more));
+    expect(collapsed, isTrue);
+  });
+
+  testWidgets('tanpa onCollapse tidak ada tombol kecilkan', (tester) async {
+    await tester.pumpWidget(_host(_bus(), _progress()));
+
+    expect(find.byIcon(Icons.expand_more), findsNothing);
+    expect(find.byIcon(Icons.close), findsOneWidget);
+  });
+
+  testWidgets('mode penuh menampilkan estimasi bus ke lokasi pengguna',
+      (tester) async {
+    await tester.pumpWidget(_host(_bus(), _progress(), arrival: _arrival()));
+
+    // "≈ 5 mnt ke lokasi Anda · 1.7 km"
+    expect(find.textContaining('≈ 5 mnt ke lokasi Anda'), findsOneWidget);
+    expect(find.textContaining('1.7 km'), findsOneWidget);
+  });
+
+  testWidgets('mode ringkas menampilkan chip estimasi di kanan judul',
+      (tester) async {
+    await tester.pumpWidget(
+      _host(_bus(), _progress(), collapsed: true, arrival: _arrival()),
+    );
+
+    expect(find.text('≈ 5 mnt'), findsOneWidget);
+    // Kartu tetap ringkas (chip tidak menambah tinggi berarti).
+    final size = tester.getSize(find.byKey(FloatingPinnedBusCard.contentKey));
+    expect(size.height, lessThan(120));
+  });
+
+  testWidgets('bus yang sudah dekat disebut apa adanya', (tester) async {
+    await tester.pumpWidget(
+      _host(_bus(), _progress(),
+          collapsed: true, arrival: _arrival(here: true)),
+    );
+    expect(find.text('sudah dekat'), findsOneWidget);
+
+    await tester.pumpWidget(
+      _host(_bus(), _progress(), arrival: _arrival(here: true)),
+    );
+    expect(find.text('Bus di sekitar lokasi Anda'), findsOneWidget);
   });
 }
 

@@ -1,0 +1,650 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-29T12:06:02Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 1923336853,
+  "lat": -0.9368447,
+  "lon": 100.3659418,
+  "tags": {
+    "bench": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Fekon",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 2916014890,
+  "lat": -0.9010577,
+  "lon": 100.3504202,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Basko",
+    "name:id": "Halte Basko",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 3055518170,
+  "lat": -0.9532131,
+  "lon": 100.3629827,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Damri airport bus stop"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373453,
+  "lat": -0.9269089,
+  "lon": 100.3613767,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373457,
+  "lat": -0.9226700,
+  "lon": 100.3612431,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halter Stikes Indonesia",
+    "name:id": "Halter Stikes Indonesia",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373458,
+  "lat": -0.9237812,
+  "lon": 100.3614634,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Masjid Raya Sumatera Barat",
+    "name:id": "Halte Masjid Raya Sumatera Barat",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373463,
+  "lat": -0.9182423,
+  "lon": 100.3606302,
+  "tags": {
+    "bench": "yes",
+    "highway": "bus_stop",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373464,
+  "lat": -0.9186084,
+  "lon": 100.3605967,
+  "tags": {
+    "bench": "yes",
+    "highway": "bus_stop",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373471,
+  "lat": -0.9105788,
+  "lon": 100.3555816,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Al Azar",
+    "name:id": "Halte Al Azar",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373472,
+  "lat": -0.9108014,
+  "lon": 100.3554810,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Elang Perkasa",
+    "name:id": "Halte Elang Perkasa",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373477,
+  "lat": -0.9075544,
+  "lon": 100.3529212,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte DPRD 1",
+    "name:id": "Halte DPRD 1",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373478,
+  "lat": -0.9073130,
+  "lon": 100.3531197,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte DPRD 2",
+    "name:id": "Halte DPRD 2",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4675373480,
+  "lat": -0.9056489,
+  "lon": 100.3512337,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5300118777,
+  "lat": -0.8669590,
+  "lon": 100.3427952,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "network": "Trans Padang",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 7100569617,
+  "lat": -0.9368211,
+  "lon": 100.3612165,
+  "tags": {
+    "highway": "bus_stop"
+  }
+},
+{
+  "type": "node",
+  "id": 8144780758,
+  "lat": -0.9525766,
+  "lon": 100.3635417,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Imam Bonjol"
+  }
+},
+{
+  "type": "node",
+  "id": 12568330002,
+  "lat": -0.9956434,
+  "lon": 100.3740866,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Halte Teluk Bayur",
+    "operator": "https://padangsejahteramandiri.co.id/",
+    "public_transport": "platform",
+    "ref": "K4",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 14275884660,
+  "lat": -0.8993647,
+  "lon": 100.3910828,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte TK Aisyiah II",
+    "network": "K3",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086149,
+  "lat": -0.8992170,
+  "lon": 100.3907987,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte TK Aisyiah I",
+    "network": "K3",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086150,
+  "lat": -0.8997909,
+  "lon": 100.3937012,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Simpang Balai Baru II",
+    "network": "K3",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086151,
+  "lat": -0.9002017,
+  "lon": 100.3945397,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte Simpang Balai Baru I",
+    "network": "K3",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086152,
+  "lat": -0.8998682,
+  "lon": 100.3951638,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte Pegadaian",
+    "network": "K3 K4",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086153,
+  "lat": -0.8984666,
+  "lon": 100.3868488,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte Masjid An-Nur I",
+    "network": "K3",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086154,
+  "lat": -0.8982981,
+  "lon": 100.3862864,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte Masjid An-Nur II",
+    "network": "K3",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086155,
+  "lat": -0.8980451,
+  "lon": 100.3952139,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte Toyota Auto2000",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086156,
+  "lat": -0.8980014,
+  "lon": 100.3950040,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte Toyota Auto2000 II",
+    "public_transport": "platform",
+    "ref": "K3, K4",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086157,
+  "lat": -0.8966545,
+  "lon": 100.3948946,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte RM Cik Elok",
+    "public_transport": "platform",
+    "ref": "K3, K4",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086158,
+  "lat": -0.8935276,
+  "lon": 100.3946921,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte Mari Jaya",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086159,
+  "lat": -0.8916164,
+  "lon": 100.3945513,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte Baznas I",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086160,
+  "lat": -0.8914390,
+  "lon": 100.3947949,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte Baznas II",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086161,
+  "lat": -0.8869140,
+  "lon": 100.3933314,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Universitas Terbuka II",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086164,
+  "lat": -0.8867736,
+  "lon": 100.3935255,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Universitas Terbuka I",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14293086165,
+  "lat": -0.8853350,
+  "lon": 100.3923950,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte PLN Kuranji",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281726,
+  "lat": -0.8719679,
+  "lon": 100.3829511,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte RSI Siti Rahma II",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281727,
+  "lat": -0.8720605,
+  "lon": 100.3833425,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte RSI Siti Rahma I",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281728,
+  "lat": -0.8740551,
+  "lon": 100.3846243,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Simpang Maransi",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281729,
+  "lat": -0.8750163,
+  "lon": 100.3857973,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Taman Digital",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281730,
+  "lat": -0.8761315,
+  "lon": 100.3861080,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Pusat Pemerintahan II",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281731,
+  "lat": -0.8762790,
+  "lon": 100.3864768,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Pusat Penerintahan I",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281732,
+  "lat": -0.8777726,
+  "lon": 100.3872375,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte DPRD Kota Padang II",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281733,
+  "lat": -0.8778965,
+  "lon": 100.3876205,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte DPRD Kota Padang I",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281734,
+  "lat": -0.8808478,
+  "lon": 100.3895491,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte FKG Baiturrahmah II",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281735,
+  "lat": -0.8808442,
+  "lon": 100.3898011,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte FKG Baiturrahmah I",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281736,
+  "lat": -0.8835510,
+  "lon": 100.3915138,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte Simpang Diklat PLN Kuranji",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281737,
+  "lat": -0.8798453,
+  "lon": 100.3943136,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Halte RSUD Dr. Rasidin",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 14300281738,
+  "lat": -0.8966114,
+  "lon": 100.3950916,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Halte Hayati By Pass",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+}
+
+  ]
+}

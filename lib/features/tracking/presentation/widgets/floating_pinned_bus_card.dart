@@ -4,6 +4,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../data/bus_model.dart';
 import '../../domain/geo_utils.dart' as geo;
 import '../../domain/halte_tracker.dart';
+import '../../domain/user_arrival.dart';
 import 'format.dart';
 import 'speed_dial.dart';
 
@@ -50,8 +51,18 @@ class FloatingPinnedBusCard extends StatelessWidget {
   /// Dipanggil saat tombol tutup ditekan (mis. untuk berhenti mengikuti).
   final VoidCallback? onClose;
 
+  /// Dipanggil saat tombol "kecilkan" ditekan (kembali ke mode mini tanpa
+  /// melepas pin). Null = tombol tidak ditampilkan.
+  final VoidCallback? onCollapse;
+
   /// Rincian tambahan opsional pada mode penuh (mis. [PinnedBusCardFooter]).
   final Widget? footer;
+
+  /// Perkiraan kedatangan bus ini ke lokasi pengguna (opsional).
+  ///
+  /// Pada mode mini hanya menitnya yang tampil sebagai chip kecil di kanan
+  /// judul; pada mode penuh angkanya juga muncul di [footer] pemanggil.
+  final UserArrival? arrival;
 
   const FloatingPinnedBusCard({
     super.key,
@@ -60,7 +71,9 @@ class FloatingPinnedBusCard extends StatelessWidget {
     this.collapsed = false,
     this.onTap,
     this.onClose,
+    this.onCollapse,
     this.footer,
+    this.arrival,
   });
 
   /// Kunci untuk mengukur kartu dalam test.
@@ -84,7 +97,9 @@ class FloatingPinnedBusCard extends StatelessWidget {
             collapsed: collapsed,
             onTap: onTap,
             onClose: onClose,
+            onCollapse: onCollapse,
             footer: footer,
+            arrival: arrival,
           ),
         ),
       ],
@@ -98,13 +113,24 @@ class FloatingPinnedBusCard extends StatelessWidget {
 ///
 /// Bila [collapsed] benar hanya garis progres yang tampil. [footer] opsional
 /// menambahkan rincian (mis. kecepatan & waktu pembaruan) pada mode penuh.
+/// [onCollapse] menampilkan tombol "kecilkan" di samping tombol tutup, sehingga
+/// kartu bisa kembali ke mode mini tanpa melepas pin bus.
 class PinnedBusCardBody extends StatelessWidget {
   final Bus bus;
   final HalteProgress progress;
   final bool collapsed;
   final VoidCallback? onTap;
   final VoidCallback? onClose;
+
+  /// Dipanggil saat tombol "kecilkan" ditekan (kembali ke mode mini). Null =
+  /// tombol tidak ditampilkan — mis. pada kartu bus di peta yang tidak punya
+  /// mode mini.
+  final VoidCallback? onCollapse;
   final Widget? footer;
+
+  /// Perkiraan kedatangan bus ke lokasi pengguna; pada mode mini ditampilkan
+  /// sebagai chip "≈ N mnt" di kanan judul.
+  final UserArrival? arrival;
 
   const PinnedBusCardBody({
     super.key,
@@ -113,7 +139,9 @@ class PinnedBusCardBody extends StatelessWidget {
     this.collapsed = false,
     this.onTap,
     this.onClose,
+    this.onCollapse,
     this.footer,
+    this.arrival,
   });
 
   /// Kunci untuk mengukur kartu dalam test.
@@ -122,8 +150,16 @@ class PinnedBusCardBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accent = corridorAccent(bus.corridor, theme);
     final onAccent = onColor(accent);
+
+    // Jumlah tombol di sudut kanan-atas (kecilkan & tutup). Dipakai untuk
+    // menyisakan ruang di header supaya judul tidak tertimpa.
+    final buttonCount =
+        (onCollapse != null ? 1 : 0) + (onClose != null ? 1 : 0);
+    final headerReserve =
+        collapsed ? 0.0 : buttonCount * _CardIconButton.extent;
 
     // Latar kartu: warna koridor bus, di-tint lembut agar tetap terasa "milik"
     // bus tersebut namun teks status tetap kontras.
@@ -156,7 +192,7 @@ class PinnedBusCardBody extends StatelessWidget {
               ),
             ],
           ),
-          // Tombol tutup ditempatkan sebagai overlay (bukan di dalam aliran
+          // Tombol aksi ditempatkan sebagai overlay (bukan di dalam aliran
           // header) supaya tidak menambah tinggi baris header — mencegah
           // ruang kosong di bagian atas kartu. [AnimatedSize] default
           // meng-clip, jadi tombol harus berada di luar widget tersebut.
@@ -175,6 +211,7 @@ class PinnedBusCardBody extends StatelessWidget {
                             bus: bus,
                             accent: accent,
                             onAccent: onAccent,
+                            arrival: arrival,
                           ),
                           const SizedBox(height: 8),
                           _ProgressTrack(progress: progress, accent: accent),
@@ -182,7 +219,12 @@ class PinnedBusCardBody extends StatelessWidget {
                           _ProgressLabels(progress: progress, accent: accent),
                         ]
                       : [
-                          _Header(bus: bus, accent: accent, onAccent: onAccent),
+                          _Header(
+                            bus: bus,
+                            accent: accent,
+                            onAccent: onAccent,
+                            trailingSpace: headerReserve,
+                          ),
                           const SizedBox(height: 10),
                           _CurrentStatus(
                             step: progress.currentStep,
@@ -204,11 +246,30 @@ class PinnedBusCardBody extends StatelessWidget {
                         ],
                 ),
               ),
-              if (!collapsed && onClose != null)
+              if (!collapsed && buttonCount > 0)
                 Positioned(
                   top: 0,
                   right: 0,
-                  child: _CloseButton(onClose: onClose!),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // "Kecilkan" hanya muncul pada mode penuh, dan hanya bila
+                      // pemanggil menyediakan jalannya (kartu pin di halaman).
+                      if (onCollapse != null)
+                        _CardIconButton(
+                          icon: Icons.expand_more,
+                          iconSize: 22,
+                          semanticLabel: l10n.pinnedCardMinimize,
+                          onTap: onCollapse!,
+                        ),
+                      if (onClose != null)
+                        _CardIconButton(
+                          icon: Icons.close,
+                          semanticLabel: l10n.tooltipClose,
+                          onTap: onClose!,
+                        ),
+                    ],
+                  ),
                 ),
             ],
           ),
@@ -230,11 +291,15 @@ class PinnedBusCardFooter extends StatelessWidget {
   /// Widget opsional di ujung kanan baris (mis. tombol ikuti/pin di kartu peta).
   final Widget? trailing;
 
+  /// Perkiraan kedatangan bus ke lokasi pengguna (opsional).
+  final UserArrival? arrival;
+
   const PinnedBusCardFooter({
     super.key,
     required this.bus,
     this.destinationLabel,
     this.trailing,
+    this.arrival,
   });
 
   @override
@@ -244,6 +309,7 @@ class PinnedBusCardFooter extends StatelessWidget {
     final accent = corridorAccent(bus.corridor, theme);
     final speed = bus.speedKmh;
     final dest = destinationLabel?.trim();
+    final estimate = arrival;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -260,6 +326,10 @@ class PinnedBusCardFooter extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (estimate != null) ...[
+                    _ArrivalLine(arrival: estimate, accent: accent),
+                    const SizedBox(height: 3),
+                  ],
                   if (dest != null && dest.isNotEmpty)
                     Row(
                       children: [
@@ -298,22 +368,70 @@ class PinnedBusCardFooter extends StatelessWidget {
   }
 }
 
+/// Baris "≈ N mnt ke lokasi Anda" pada footer kartu bus.
+///
+/// Dua kemungkinan isi, semuanya jujur terhadap data yang ada:
+/// * bus praktis sudah di titik pengguna → "Bus di sekitar lokasi Anda";
+/// * selain itu → estimasi menit + jarak garis lurus saat ini.
+class _ArrivalLine extends StatelessWidget {
+  final UserArrival arrival;
+  final Color accent;
+
+  const _ArrivalLine({required this.arrival, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final eta = arrival.etaMinutes;
+
+    final String? text;
+    if (arrival.isHere) {
+      text = l10n.arrivalNear;
+    } else if (eta != null) {
+      text = '${l10n.arrivalEta(eta)} · ${formatDistance(arrival.distanceKm)}';
+    } else {
+      text = null;
+    }
+    if (text == null) return const SizedBox.shrink();
+
+    return Row(
+      children: [
+        Icon(Icons.near_me, size: 14, color: accent),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: accent, fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// Identitas ringkas pada mode mini: badge koridor + nomor bus, supaya konteks
 /// bus tetap terbaca saat kartu diringkas (mis. saat menggulir).
 class _CompactHeader extends StatelessWidget {
   final Bus bus;
   final Color accent;
   final Color onAccent;
+  final UserArrival? arrival;
 
   const _CompactHeader({
     required this.bus,
     required this.accent,
     required this.onAccent,
+    this.arrival,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final estimate = arrival;
     return Row(
       children: [
         Container(
@@ -341,22 +459,77 @@ class _CompactHeader extends StatelessWidget {
                 ?.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
+        // Estimasi ke pengguna tetap terlihat walau kartu sedang ringkas:
+        // inilah informasi yang dicari orang saat menunggu bus.
+        if (estimate != null && estimate.hasEta) ...[
+          const SizedBox(width: 8),
+          _ArrivalChip(arrival: estimate, accent: accent),
+        ],
       ],
     );
   }
 }
 
-/// Baris identitas: badge koridor dan nomor bus. Tombol tutup tidak di sini
-/// agar tidak menambah tinggi baris (lihat [_CloseButton]).
+/// Chip ringkas "≈ N mnt" / "sudah dekat" pada mode mini kartu bus.
+class _ArrivalChip extends StatelessWidget {
+  final UserArrival arrival;
+  final Color accent;
+
+  const _ArrivalChip({required this.arrival, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final eta = arrival.etaMinutes;
+    final short =
+        arrival.isHere ? l10n.arrivalHereShort : l10n.arrivalEtaShort(eta ?? 0);
+    final spoken =
+        arrival.isHere ? l10n.arrivalNear : l10n.arrivalEta(eta ?? 0);
+
+    return Semantics(
+      label: spoken,
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+        decoration: BoxDecoration(
+          color: accent.withOpacity(0.14),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.near_me, size: 12, color: accent),
+            const SizedBox(width: 3),
+            Text(
+              short,
+              style: TextStyle(
+                color: accent,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Baris identitas: badge koridor dan nomor bus. Tombol aksi tidak di sini
+/// agar tidak menambah tinggi baris (lihat [_CardIconButton]).
 class _Header extends StatelessWidget {
   final Bus bus;
   final Color accent;
   final Color onAccent;
 
+  /// Ruang kosong di kanan baris untuk tombol overlay (0, 44, atau 88 dp).
+  final double trailingSpace;
+
   const _Header({
     required this.bus,
     required this.accent,
     required this.onAccent,
+    this.trailingSpace = 44,
   });
 
   @override
@@ -389,37 +562,53 @@ class _Header extends StatelessWidget {
                 ?.copyWith(fontWeight: FontWeight.w800),
           ),
         ),
-        // Ruang cadangan agar judul tidak tertimpa tombol tutup overlay (48dp)
-        // di sudut kanan-atas kartu.
-        const SizedBox(width: 44),
+        // Ruang cadangan agar judul tidak tertimpa tombol overlay di sudut
+        // kanan-atas kartu.
+        SizedBox(width: trailingSpace),
       ],
     );
   }
 }
 
-/// Tombol tutup kartu dengan area sentuh 48dp, ditempatkan di sudut kanan-atas
-/// kartu melalui overlay sehingga tidak memengaruhi tinggi baris header.
-class _CloseButton extends StatelessWidget {
-  final VoidCallback onClose;
+/// Tombol ikon di sudut kanan-atas kartu (kecilkan / tutup) dengan area sentuh
+/// 48dp, ditempatkan sebagai overlay sehingga tidak memengaruhi tinggi baris
+/// header.
+///
+/// Memakai [Semantics] dan bukan [Tooltip]: kartu ini juga hidup di atas
+/// Navigator (`PinnedBusOverlay`), tempat `Tooltip` melempar
+/// "No Overlay widget found".
+class _CardIconButton extends StatelessWidget {
+  /// Lebar yang disisakan tombol ini di baris header.
+  static const double extent = 44;
 
-  const _CloseButton({required this.onClose});
+  final IconData icon;
+  final double iconSize;
+  final String semanticLabel;
+  final VoidCallback onTap;
+
+  const _CardIconButton({
+    required this.icon,
+    required this.semanticLabel,
+    required this.onTap,
+    this.iconSize = 18,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Semantics(
       button: true,
-      label: AppLocalizations.of(context).tooltipClose,
+      label: semanticLabel,
       child: InkResponse(
-        onTap: onClose,
+        onTap: onTap,
         radius: 24,
         child: SizedBox(
           width: 48,
           height: 48,
           child: Center(
             child: Icon(
-              Icons.close,
-              size: 18,
+              icon,
+              size: iconSize,
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
@@ -503,9 +692,8 @@ class _NextStatus extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final s = step;
-    final eta = s == null
-        ? null
-        : geo.estimateEtaMinutes(s.distanceKm, bus.speedKmh);
+    final eta =
+        s == null ? null : geo.estimateEtaMinutes(s.distanceKm, bus.speedKmh);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -615,8 +803,8 @@ class _ProgressLabels extends StatelessWidget {
             progress.originLabel,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelSmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.1),
+            style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant, height: 1.1),
           ),
         ),
         const SizedBox(width: 8),
@@ -635,8 +823,8 @@ class _ProgressLabels extends StatelessWidget {
             textAlign: TextAlign.right,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelSmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.1),
+            style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant, height: 1.1),
           ),
         ),
       ],

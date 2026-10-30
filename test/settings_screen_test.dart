@@ -101,6 +101,32 @@ void main() {
     expect(container.read(appSettingsProvider).themeMode, ThemeMode.dark);
   });
 
+  testWidgets('tanda tangan pembuat tampil rata kiri di kaki halaman',
+      (tester) async {
+    final container = await _container();
+    await tester.pumpWidget(_app(container));
+    await tester.pumpAndSettle();
+
+    final signature = find.byKey(SettingsScreen.signatureKey);
+    await tester.scrollUntilVisible(signature, 300);
+    await tester.pumpAndSettle();
+
+    expect(signature, findsOneWidget);
+    final handle = find.text('@dwikyalfira');
+    expect(handle, findsOneWidget);
+
+    final rect = tester.getRect(handle);
+    // Rata kiri, sejajar tepi kartu (padding horizontal ListView = 16).
+    final listRect = tester.getRect(find.byType(ListView));
+    expect(rect.left, closeTo(listRect.left + 16, 1));
+    // Duduk di bawah kartu "Tentang" (bagian paling bawah halaman).
+    expect(rect.top, greaterThan(tester.getRect(find.text('TPLive')).bottom));
+
+    // Opasitas 60% supaya tetap terbaca tanpa menonjol.
+    final style = tester.widget<Text>(handle).style!;
+    expect(style.color!.opacity, closeTo(0.6, 0.01));
+  });
+
   testWidgets('bahasa & warna dinamis tersimpan', (tester) async {
     final container = await _container();
     await tester.pumpWidget(_app(container));

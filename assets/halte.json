@@ -1012,273 +1012,303 @@
     "halte": [
      {
       "id": "k3-pergi-01",
-      "nama": "Ruas Hasanuddin",
-      "lat": -0.955389,
-      "lng": 100.362579
+      "nama": "RTH Imam Bonjol Ruas Hasanuddin",
+      "lat": -0.953151,
+      "lng": 100.363288
      },
      {
       "id": "k3-pergi-02",
       "nama": "Pasar Raya",
-      "lat": -0.95348,
-      "lng": 100.36406
+      "lat": -0.951826,
+      "lng": 100.361405
      },
      {
       "id": "k3-pergi-03",
-      "nama": "Simp. Dobi",
-      "lat": -0.953269,
-      "lng": 100.363201
+      "nama": "Bank BNI Dobi",
+      "lat": -0.954524,
+      "lng": 100.359686
      },
      {
       "id": "k3-pergi-04",
-      "nama": "Museum Adityawarman",
-      "lat": -0.950677,
-      "lng": 100.363656
+      "nama": "Tugu Gempa Padang",
+      "lat": -0.956246,
+      "lng": 100.35713
      },
      {
       "id": "k3-pergi-05",
-      "nama": "Mr. DIY",
-      "lat": -0.954953,
-      "lng": 100.362266
+      "nama": "Simpang Taman Diponegoro",
+      "lat": -0.957694,
+      "lng": 100.355885
      },
      {
       "id": "k3-pergi-06",
-      "nama": "Plan B",
-      "lat": -0.955514,
-      "lng": 100.361954
+      "nama": "Plan B Hotel",
+      "lat": -0.959389,
+      "lng": 100.354598
      },
      {
       "id": "k3-pergi-07",
-      "nama": "Masjid Al Hakim",
-      "lat": -0.9551,
-      "lng": 100.3628
+      "nama": "Masjid Al Hakim Padang",
+      "lat": -0.959163,
+      "lng": 100.354169
      },
      {
       "id": "k3-pergi-08",
-      "nama": "Gedung Joang 45",
-      "lat": -0.954745,
-      "lng": 100.363629
+      "nama": "Dinas Kebudayaan Prov. Sumbar",
+      "lat": -0.954486,
+      "lng": 100.352956
      },
      {
       "id": "k3-pergi-09",
-      "nama": "Taman Budaya",
-      "lat": -0.95453,
-      "lng": 100.35509
+      "nama": "Simpang Hang Tuah Pantai Padang",
+      "lat": -0.951193,
+      "lng": 100.35243
      },
      {
       "id": "k3-pergi-10",
-      "nama": "SDN 14 Olo Ladang",
-      "lat": -0.947382,
-      "lng": 100.351839
+      "nama": "Seberang SDN 14 Olo Ladang",
+      "lat": -0.94673,
+      "lng": 100.351797
      },
      {
       "id": "k3-pergi-11",
-      "nama": "SDN 27 Olo Ladang",
-      "lat": -0.944533,
-      "lng": 100.351591
+      "nama": "Seberang SDN 27 Olo Ladang",
+      "lat": -0.944199,
+      "lng": 100.351851
      },
      {
       "id": "k3-pergi-12",
-      "nama": "Rusunawa Purus",
-      "lat": -0.937259,
-      "lng": 100.351099
+      "nama": "Taman Elo Pukek Padang",
+      "lat": -0.941624,
+      "lng": 100.351358
      },
      {
       "id": "k3-pergi-13",
-      "nama": "Pantai Puruih",
-      "lat": -0.933089,
-      "lng": 100.350652
+      "nama": "Rusunawa Purus",
+      "lat": -0.937569,
+      "lng": 100.351229
      },
      {
       "id": "k3-pergi-14",
-      "nama": "Pantai Muaro Lasak",
-      "lat": -0.928923,
-      "lng": 100.350276
+      "nama": "Pantai Puruih Padang",
+      "lat": -0.933439,
+      "lng": 100.350832
      },
      {
       "id": "k3-pergi-15",
-      "nama": "Hotel Pangeran Beach",
-      "lat": -0.923748,
-      "lng": 100.351015
+      "nama": "Monumen Merpati Muaro Lasak",
+      "lat": -0.92902,
+      "lng": 100.351004
      },
      {
       "id": "k3-pergi-16",
-      "nama": "Simpang Lolong",
-      "lat": -0.920612,
-      "lng": 100.350657
+      "nama": "Hotel Pangeran Beach",
+      "lat": -0.923881,
+      "lng": 100.351111
      },
      {
       "id": "k3-pergi-17",
-      "nama": "Simpang Belanti",
-      "lat": -0.917472,
-      "lng": 100.350344
+      "nama": "Simpang Lolong Belanti",
+      "lat": -0.920942,
+      "lng": 100.350864
      },
      {
       "id": "k3-pergi-18",
-      "nama": "SMA 1",
-      "lat": -0.914326,
-      "lng": 100.350103
+      "nama": "Stikes Dharma Landbouw",
+      "lat": -0.919461,
+      "lng": 100.350939
      },
      {
       "id": "k3-pergi-19",
-      "nama": "Simpang Belanti",
-      "lat": -0.912448,
-      "lng": 100.349946
+      "nama": "SMAN 1 Padang",
+      "lat": -0.918432,
+      "lng": 100.354458
      },
      {
       "id": "k3-pergi-20",
-      "nama": "Univ. Metamedia",
-      "lat": -0.91075,
-      "lng": 100.350386
+      "nama": "Kantor Camat Padang",
+      "lat": -0.918732,
+      "lng": 100.357009
      },
      {
       "id": "k3-pergi-21",
-      "nama": "Hermina",
-      "lat": -0.909484,
-      "lng": 100.351781
+      "nama": "Universitas Metamedia",
+      "lat": -0.919968,
+      "lng": 100.358935
      },
      {
       "id": "k3-pergi-22",
-      "nama": "Univ. Alifah",
-      "lat": -0.908242,
-      "lng": 100.353199
+      "nama": "BPKAD Prov. Sumbar",
+      "lat": -0.918558,
+      "lng": 100.360598
      },
      {
       "id": "k3-pergi-23",
-      "nama": "Transmart",
-      "lat": -0.90681,
-      "lng": 100.352344
+      "nama": "STIE AKBP Padang",
+      "lat": -0.914835,
+      "lng": 100.358383
      },
      {
       "id": "k3-pergi-24",
-      "nama": "Elang Perkasa",
-      "lat": -0.90723,
-      "lng": 100.352878
+      "nama": "RS Jantung",
+      "lat": -0.912392,
+      "lng": 100.357183
      },
      {
       "id": "k3-pergi-25",
-      "nama": "RM VII Koto Talago",
-      "lat": -0.907396,
-      "lng": 100.354138
+      "nama": "Seberang Kantor PU BWS Sumbar",
+      "lat": -0.9106,
+      "lng": 100.355928
      },
      {
       "id": "k3-pergi-26",
-      "nama": "SJS Plaza",
-      "lat": -0.904802,
-      "lng": 100.357927
+      "nama": "Simpang Presiden",
+      "lat": -0.907586,
+      "lng": 100.353793
      },
      {
       "id": "k3-pergi-27",
-      "nama": "Kampus ITP / SMPN 12",
-      "lat": -0.902153,
-      "lng": 100.362282
+      "nama": "SJS Plaza Lapai",
+      "lat": -0.903949,
+      "lng": 100.359297
      },
      {
       "id": "k3-pergi-28",
-      "nama": "Jembatan Baru Siteba",
-      "lat": -0.899653,
-      "lng": 100.363261
+      "nama": "SMPN 12 Padang",
+      "lat": -0.902082,
+      "lng": 100.362352
      },
      {
       "id": "k3-pergi-29",
-      "nama": "Simpang Berok",
-      "lat": -0.896455,
-      "lng": 100.363191
+      "nama": "Institut Teknologi Padang",
+      "lat": -0.899604,
+      "lng": 100.363178
      },
      {
       "id": "k3-pergi-30",
-      "nama": "Simp. Perum Surau Gadang",
-      "lat": -0.894858,
-      "lng": 100.364428
+      "nama": "Jembatan Baru Siteba",
+      "lat": -0.895057,
+      "lng": 100.363213
      },
      {
       "id": "k3-pergi-31",
-      "nama": "Simp. Tiga Kurao Pagang",
-      "lat": -0.896929,
-      "lng": 100.366791
+      "nama": "Simpang Berok",
+      "lat": -0.89327,
+      "lng": 100.364125
      },
      {
       "id": "k3-pergi-32",
-      "nama": "SDN 15 Surau Gadang",
-      "lat": -0.898546,
-      "lng": 100.369545
+      "nama": "Simpang Perumnas Surau Gadang",
+      "lat": -0.891368,
+      "lng": 100.36663
      },
      {
       "id": "k3-pergi-33",
-      "nama": "SMPN 22",
-      "lat": -0.898988,
-      "lng": 100.372585
+      "nama": "Simpang Tiga Kurao Pagang",
+      "lat": -0.889434,
+      "lng": 100.368977
      },
      {
       "id": "k3-pergi-34",
-      "nama": "Poltekkes Siteba",
-      "lat": -0.897324,
-      "lng": 100.375257
+      "nama": "Kompi Bantuan Yonif 133/YS",
+      "lat": -0.890671,
+      "lng": 100.370318
      },
      {
       "id": "k3-pergi-35",
-      "nama": "Camat Nanggalo",
-      "lat": -0.89669,
-      "lng": 100.377951
+      "nama": "SMPN 22 Padang",
+      "lat": -0.894425,
+      "lng": 100.371992
      },
      {
       "id": "k3-pergi-36",
-      "nama": "Masjid An-Nur",
-      "lat": -0.898271,
-      "lng": 100.386375
+      "nama": "Seberang Poltekkes Siteba Padang",
+      "lat": -0.897413,
+      "lng": 100.374942
      },
      {
       "id": "k3-pergi-37",
-      "nama": "TK Aisyiah Lolongkaran",
-      "lat": -0.899359,
-      "lng": 100.391109
+      "nama": "Kantor Camat Nanggalo",
+      "lat": -0.896558,
+      "lng": 100.37789
      },
      {
       "id": "k3-pergi-38",
-      "nama": "Simpang Balai Baru",
-      "lat": -0.899968,
-      "lng": 100.393886
+      "nama": "Simpang Pagang Dalam Siteba",
+      "lat": -0.897084,
+      "lng": 100.380111
      },
      {
       "id": "k3-pergi-39",
-      "nama": "Baznas",
-      "lat": -0.894669,
-      "lng": 100.394826
+      "nama": "Masjid An Nur Lolong Karan",
+      "lat": -0.898318,
+      "lng": 100.386237
      },
      {
       "id": "k3-pergi-40",
-      "nama": "Universitas Terbuka",
-      "lat": -0.887074,
-      "lng": 100.393525
+      "nama": "TK Aisyiah II",
+      "lat": -0.899154,
+      "lng": 100.391011
      },
      {
       "id": "k3-pergi-41",
-      "nama": "Simpang Diklat RSUD",
-      "lat": -0.886207,
-      "lng": 100.393019
+      "nama": "Simpang Balai Baru",
+      "lat": -0.899669,
+      "lng": 100.39364
      },
      {
       "id": "k3-pergi-42",
-      "nama": "FKG Baiturrahmah",
-      "lat": -0.880732,
-      "lng": 100.389564
+      "nama": "Pegadaian",
+      "lat": -0.899583,
+      "lng": 100.395914
      },
      {
       "id": "k3-pergi-43",
-      "nama": "Pusat Pemerintahan",
-      "lat": -0.877125,
-      "lng": 100.386933
+      "nama": "RM. Cik Elok",
+      "lat": -0.896376,
+      "lng": 100.39467
      },
      {
       "id": "k3-pergi-44",
-      "nama": "RS Siti Rahmah",
-      "lat": -0.871968,
-      "lng": 100.382951
+      "nama": "Baznas",
+      "lat": -0.89157,
+      "lng": 100.394391
      },
      {
       "id": "k3-pergi-45",
-      "nama": "Taman Digital / Balai Kota",
-      "lat": -0.871091,
-      "lng": 100.382358
+      "nama": "Seberang Univ. Terbuka",
+      "lat": -0.886957,
+      "lng": 100.393232
+     },
+     {
+      "id": "k3-pergi-46",
+      "nama": "PLN Kuranji",
+      "lat": -0.885208,
+      "lng": 100.392277
+     },
+     {
+      "id": "k3-pergi-47",
+      "nama": "FKG Baiturrahmah II",
+      "lat": -0.880767,
+      "lng": 100.390003
+     },
+     {
+      "id": "k3-pergi-48",
+      "nama": "Pusat Pemerintahan II",
+      "lat": -0.875865,
+      "lng": 100.386559
+     },
+     {
+      "id": "k3-pergi-49",
+      "nama": "RS Siti Rahmah II",
+      "lat": -0.87181,
+      "lng": 100.382857
+     },
+     {
+      "id": "k3-pergi-50",
+      "nama": "Taman Digital Kota Padang",
+      "lat": -0.874867,
+      "lng": 100.386022
      }
     ]
    },
@@ -1287,297 +1317,279 @@
     "halte": [
      {
       "id": "k3-pulang-01",
-      "nama": "Taman Digital / Balai Kota",
-      "lat": -0.871091,
-      "lng": 100.382358
+      "nama": "Taman Digital Kota Padang",
+      "lat": -0.875007,
+      "lng": 100.385745
      },
      {
       "id": "k3-pulang-02",
-      "nama": "RS Siti Rahmah",
-      "lat": -0.872061,
-      "lng": 100.383342
+      "nama": "Pusat Pemerintahan Balai Kota Padang",
+      "lat": -0.876273,
+      "lng": 100.386506
      },
      {
       "id": "k3-pulang-03",
-      "nama": "Pusat Pemerintahan",
-      "lat": -0.877099,
-      "lng": 100.386979
+      "nama": "DPRD Kota Padang I",
+      "lat": -0.877957,
+      "lng": 100.387708
      },
      {
       "id": "k3-pulang-04",
-      "nama": "FKG Baiturrahmah",
-      "lat": -0.880588,
-      "lng": 100.389529
+      "nama": "FKG Baiturrahmah I",
+      "lat": -0.880868,
+      "lng": 100.389867
      },
      {
       "id": "k3-pulang-05",
-      "nama": "SDN 43 Sungai Sapih",
-      "lat": -0.882199,
-      "lng": 100.390552
+      "nama": "Simpang Diklat PLN Kuranji",
+      "lat": -0.883438,
+      "lng": 100.391522
      },
      {
       "id": "k3-pulang-06",
-      "nama": "RSUD dr. Rasidin",
-      "lat": -0.88381,
-      "lng": 100.391576
+      "nama": "Universitas Terbuka",
+      "lat": -0.886911,
+      "lng": 100.393671
      },
      {
       "id": "k3-pulang-07",
-      "nama": "Simpang Diklat RSUD",
-      "lat": -0.885427,
-      "lng": 100.392589
+      "nama": "Baznas",
+      "lat": -0.891427,
+      "lng": 100.394765
      },
      {
       "id": "k3-pulang-08",
-      "nama": "Universitas Terbuka",
-      "lat": -0.887055,
-      "lng": 100.393584
+      "nama": "RM. Arafah / Hayati Bypass",
+      "lat": -0.895818,
+      "lng": 100.395346
      },
      {
       "id": "k3-pulang-09",
-      "nama": "Baznas",
-      "lat": -0.892421,
-      "lng": 100.394554
+      "nama": "Mitsubishi",
+      "lat": -0.898046,
+      "lng": 100.395146
      },
      {
       "id": "k3-pulang-10",
       "nama": "Simpang Balai Baru",
-      "lat": -0.897839,
-      "lng": 100.395085
+      "lat": -0.900153,
+      "lng": 100.394473
      },
      {
       "id": "k3-pulang-11",
-      "nama": "TK Aisyiah Lolongkaran",
-      "lat": -0.899359,
-      "lng": 100.391109
+      "nama": "TK Aisyiah/Lolongkaran",
+      "lat": -0.899229,
+      "lng": 100.391009
      },
      {
       "id": "k3-pulang-12",
-      "nama": "Masjid An-Nur",
-      "lat": -0.899717,
-      "lng": 100.392997
+      "nama": "Masjid An Nur Lolong Karan",
+      "lat": -0.898242,
+      "lng": 100.386272
      },
      {
       "id": "k3-pulang-13",
-      "nama": "Camat Nanggalo",
-      "lat": -0.896519,
-      "lng": 100.377463
+      "nama": "Simpang Pagang Dalam Siteba",
+      "lat": -0.897051,
+      "lng": 100.380057
      },
      {
       "id": "k3-pulang-14",
-      "nama": "Poltekkes Siteba",
-      "lat": -0.897676,
-      "lng": 100.374894
+      "nama": "Poltekkes Siteba Padang",
+      "lat": -0.897923,
+      "lng": 100.374333
      },
      {
       "id": "k3-pulang-15",
-      "nama": "KF Siteba",
-      "lat": -0.899166,
-      "lng": 100.372122
+      "nama": "Kimia Farma Siteba",
+      "lat": -0.898924,
+      "lng": 100.370535
      },
      {
       "id": "k3-pulang-16",
       "nama": "Pegadaian Siteba",
-      "lat": -0.898345,
-      "lng": 100.369105
+      "lat": -0.898216,
+      "lng": 100.369141
      },
      {
       "id": "k3-pulang-17",
-      "nama": "BRI Siteba",
-      "lat": -0.896768,
-      "lng": 100.366632
+      "nama": "BRI Pasar Siteba",
+      "lat": -0.896826,
+      "lng": 100.366587
      },
      {
       "id": "k3-pulang-18",
-      "nama": "Klinik Armina",
-      "lat": -0.897176,
-      "lng": 100.363858
+      "nama": "Klinik Armina Medika",
+      "lat": -0.897148,
+      "lng": 100.363916
      },
      {
       "id": "k3-pulang-19",
-      "nama": "Kampus ITP / SMPN 12",
-      "lat": -0.899764,
-      "lng": 100.363295
+      "nama": "Institut Teknologi Padang II",
+      "lat": -0.899578,
+      "lng": 100.363326
      },
      {
       "id": "k3-pulang-20",
-      "nama": "SJS Plaza",
-      "lat": -0.903936,
-      "lng": 100.359503
+      "nama": "Seberang SMPN 12 Padang",
+      "lat": -0.902217,
+      "lng": 100.362381
      },
      {
       "id": "k3-pulang-21",
-      "nama": "RM VII Koto Talago",
-      "lat": -0.90743,
-      "lng": 100.354149
+      "nama": "Dinas ESDM Provinsi Sumbar",
+      "lat": -0.904647,
+      "lng": 100.35824
      },
      {
       "id": "k3-pulang-22",
-      "nama": "Elang Perkasa",
-      "lat": -0.909708,
-      "lng": 100.351451
+      "nama": "RM. VII Koto Talago",
+      "lat": -0.907184,
+      "lng": 100.354684
      },
      {
       "id": "k3-pulang-23",
-      "nama": "Transmart",
-      "lat": -0.911128,
-      "lng": 100.350121
+      "nama": "SD Al - Azhar Padang",
+      "lat": -0.910413,
+      "lng": 100.355714
      },
      {
       "id": "k3-pulang-24",
-      "nama": "Univ. Alifah",
-      "lat": -0.914562,
-      "lng": 100.350134
+      "nama": "Kantor OJK Sumbar",
+      "lat": -0.913561,
+      "lng": 100.357929
      },
      {
       "id": "k3-pulang-25",
-      "nama": "Hermina",
-      "lat": -0.918078,
-      "lng": 100.350457
+      "nama": "Stikes Alifah",
+      "lat": -0.914806,
+      "lng": 100.358782
      },
      {
       "id": "k3-pulang-26",
-      "nama": "Masjid Raya Sumbar",
-      "lat": -0.921593,
-      "lng": 100.350796
+      "nama": "RS. Hermina Padang",
+      "lat": -0.918373,
+      "lng": 100.360633
      },
      {
       "id": "k3-pulang-27",
-      "nama": "Telkom",
-      "lat": -0.923973,
-      "lng": 100.351079
+      "nama": "Masjid Raya Sumbar",
+      "lat": -0.923683,
+      "lng": 100.361706
      },
      {
       "id": "k3-pulang-28",
-      "nama": "GOR",
-      "lat": -0.926347,
-      "lng": 100.35141
+      "nama": "Telkom Sumbar",
+      "lat": -0.926751,
+      "lng": 100.361453
      },
      {
       "id": "k3-pulang-29",
-      "nama": "BTN",
-      "lat": -0.928655,
-      "lng": 100.352055
+      "nama": "Dispora Prov. Sumbar",
+      "lat": -0.929336,
+      "lng": 100.361625
      },
      {
       "id": "k3-pulang-30",
-      "nama": "SD Percobaan",
-      "lat": -0.930512,
-      "lng": 100.353246
+      "nama": "Kantor Damkar Padang",
+      "lat": -0.932629,
+      "lng": 100.362033
      },
      {
       "id": "k3-pulang-31",
-      "nama": "Dinkop Padang",
-      "lat": -0.932704,
-      "lng": 100.354008
+      "nama": "SDN Percobaan Padang",
+      "lat": -0.934335,
+      "lng": 100.360423
      },
      {
       "id": "k3-pulang-32",
-      "nama": "Asokatama",
-      "lat": -0.935528,
-      "lng": 100.354533
+      "nama": "Simpang Bandar Purus",
+      "lat": -0.934421,
+      "lng": 100.358642
      },
      {
       "id": "k3-pulang-33",
-      "nama": "Masjid Al-Wustha",
-      "lat": -0.938468,
-      "lng": 100.354492
+      "nama": "Dinas Koperasi UMKM Kota Padang",
+      "lat": -0.934635,
+      "lng": 100.355241
      },
      {
       "id": "k3-pulang-34",
-      "nama": "Jl. Purus I",
-      "lat": -0.940405,
-      "lng": 100.354471
+      "nama": "Simpang SPBU Wowo Veteran",
+      "lat": -0.936051,
+      "lng": 100.354769
      },
      {
       "id": "k3-pulang-35",
-      "nama": "STMIKA Jayanusa",
-      "lat": -0.942341,
-      "lng": 100.354492
+      "nama": "Masjid Al Wustha Purus",
+      "lat": -0.937982,
+      "lng": 100.354823
      },
      {
       "id": "k3-pulang-36",
-      "nama": "MDTA Olo Ladang",
-      "lat": -0.944275,
-      "lng": 100.354601
-     },
-     {
-      "id": "k3-pulang-37",
-      "nama": "Button Scarves",
-      "lat": -0.945303,
-      "lng": 100.354688
-     },
-     {
-      "id": "k3-pulang-38",
-      "nama": "Masjid Al Wustha Purus",
-      "lat": -0.946292,
+      "nama": "Mitsubishi Suka Fajar Veteran",
+      "lat": -0.940578,
       "lng": 100.354877
      },
      {
+      "id": "k3-pulang-37",
+      "nama": "Gramedia",
+      "lat": -0.944,
+      "lng": 100.354802
+     },
+     {
+      "id": "k3-pulang-38",
+      "nama": "Plaza Andalas",
+      "lat": -0.949782,
+      "lng": 100.356293
+     },
+     {
       "id": "k3-pulang-39",
-      "nama": "PT Suka Fajar",
-      "lat": -0.947318,
-      "lng": 100.354982
+      "nama": "TK Adhyaksa XXVI",
+      "lat": -0.953752,
+      "lng": 100.356786
      },
      {
       "id": "k3-pulang-40",
-      "nama": "Plaza Andalas",
-      "lat": -0.948344,
-      "lng": 100.355086
+      "nama": "Seberang Gor Prayoga",
+      "lat": -0.956798,
+      "lng": 100.35463
      },
      {
       "id": "k3-pulang-41",
-      "nama": "TK Adhiyaksa",
-      "lat": -0.955577,
-      "lng": 100.355401
+      "nama": "Gedung Joang 45 Padang",
+      "lat": -0.957892,
+      "lng": 100.35331
      },
      {
       "id": "k3-pulang-42",
-      "nama": "Kopi Paripurna",
-      "lat": -0.954427,
-      "lng": 100.359637
+      "nama": "Pujasera Pantai Padang",
+      "lat": -0.959598,
+      "lng": 100.353224
      },
      {
       "id": "k3-pulang-43",
-      "nama": "Gedung Joang 45",
-      "lat": -0.954745,
-      "lng": 100.363629
+      "nama": "PW Bar and Lounge Coffe",
+      "lat": -0.957667,
+      "lng": 100.355059
      },
      {
       "id": "k3-pulang-44",
-      "nama": "Masjid Al Hakim",
-      "lat": -0.9551,
-      "lng": 100.3628
+      "nama": "SMKN 9 Padang",
+      "lat": -0.954148,
+      "lng": 100.360016
      },
      {
       "id": "k3-pulang-45",
-      "nama": "Plan B",
-      "lat": -0.955514,
-      "lng": 100.361954
+      "nama": "Pondok",
+      "lat": -0.955672,
+      "lng": 100.361142
      },
      {
       "id": "k3-pulang-46",
-      "nama": "Mr. DIY",
-      "lat": -0.954953,
-      "lng": 100.362266
-     },
-     {
-      "id": "k3-pulang-47",
-      "nama": "Museum Adityawarman",
-      "lat": -0.950677,
-      "lng": 100.363656
-     },
-     {
-      "id": "k3-pulang-48",
-      "nama": "Simp. Dobi",
-      "lat": -0.953269,
-      "lng": 100.363201
-     },
-     {
-      "id": "k3-pulang-49",
-      "nama": "Ruas Hasanuddin",
-      "lat": -0.955389,
-      "lng": 100.362579
+      "nama": "RTH Imam Bonjol Ruas Hasanuddin",
+      "lat": -0.953151,
+      "lng": 100.363288
      }
     ]
    }

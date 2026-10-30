@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
+import '../../../../core/theme/app_motion.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/trans_ws_datasource.dart';
 
@@ -88,7 +89,7 @@ class _LiveStatusPillState extends State<LiveStatusPill>
     super.initState();
     _label = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: AppMotion.long2,
       value: 1.0,
     );
     _scheduleHide();
@@ -159,8 +160,8 @@ class _LiveStatusPillState extends State<LiveStatusPill>
         hasEllipsis ? rawLabel.substring(0, rawLabel.length - 1) : rawLabel;
 
     final dot = AnimatedContainer(
-      duration: const Duration(milliseconds: 350),
-      curve: Curves.easeInOut,
+      duration: AppMotion.medium2,
+      curve: AppMotion.standard,
       width: 8,
       height: 8,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
@@ -254,7 +255,7 @@ class _AnimatedEllipsis extends StatefulWidget {
 
 class _AnimatedEllipsisState extends State<_AnimatedEllipsis> {
   static const int _dots = 3;
-  static const Duration _step = Duration(milliseconds: 400);
+  static const Duration _step = AppMotion.medium4;
 
   Timer? _timer;
   int _phase = 1;

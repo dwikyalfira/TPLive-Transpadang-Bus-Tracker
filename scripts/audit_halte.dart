@@ -2,8 +2,11 @@
 //
 //   dart run scripts/audit_halte.dart
 //
-// Membaca `assets/halte.json` + `assets/corridor_routes.json`, lalu menulis
+// Membaca `assets/halte.json` + jalur koridor, lalu menulis
 // `tools/halte_audit.csv` (satu baris per temuan) dan ringkasan ke stdout.
+//
+// Jalur acuan: `assets/routes/<K>.geojson` bila ada (menang di aplikasi),
+// selain itu `assets/corridor_routes.json`.
 //
 // Yang diperiksa:
 //   dup-name      nama halte sama muncul lebih dari sekali di satu arah
@@ -131,10 +134,54 @@ double _pathLength(List<List<double>> path) {
   return total;
 }
 
+/// Jalur manual `assets/routes/<K>.geojson`, dipakai lebih dulu daripada
+/// `corridor_routes.json` supaya audit menilai urutan halte terhadap jalur
+/// yang benar-benar digambar aplikasi. GeoJSON menyimpan [lng, lat].
+Map<String, Map<String, List<List<double>>>> _loadGeojsonRoutes() {
+  final dir = Directory('assets/routes');
+  if (!dir.existsSync()) return const {};
+  final result = <String, Map<String, List<List<double>>>>{};
+  for (final file in dir.listSync().whereType<File>()) {
+    if (!file.path.toLowerCase().endsWith('.geojson')) continue;
+    final decoded = json.decode(_readJson(file.path));
+    if (decoded is! Map<String, dynamic>) continue;
+    final features = decoded['features'];
+    if (features is! List) continue;
+    for (final feature in features) {
+      if (feature is! Map<String, dynamic>) continue;
+      final props = feature['properties'];
+      final geom = feature['geometry'];
+      if (props is! Map<String, dynamic> || geom is! Map<String, dynamic>) {
+        continue;
+      }
+      final corridor = (props['corridor'] ?? '').toString().trim().toUpperCase();
+      final direction =
+          (props['direction'] ?? '').toString().trim().toLowerCase();
+      final coords = geom['coordinates'];
+      if (corridor.isEmpty ||
+          direction.isEmpty ||
+          geom['type'] != 'LineString' ||
+          coords is! List) {
+        continue;
+      }
+      final path = <List<double>>[
+        for (final c in coords)
+          if (c is List && c.length >= 2)
+            [(c[1] as num).toDouble(), (c[0] as num).toDouble()],
+      ];
+      if (path.length < 2) continue;
+      result.putIfAbsent(corridor, () => <String, List<List<double>>>{})[
+          direction] = path;
+    }
+  }
+  return result;
+}
+
 void main() {
   final halte = json.decode(_readJson('assets/halte.json')) as Map<String, dynamic>;
   final routes =
       json.decode(_readJson('assets/corridor_routes.json')) as Map<String, dynamic>;
+  final geojsonRoutes = _loadGeojsonRoutes();
 
   final findings = <_Finding>[];
   final stopsByCorridor = <String, int>{};
@@ -209,12 +256,15 @@ void main() {
       }
 
       // 3. urutan mengikuti jalur + panjang jalur
-      final pathRaw = ((routes[corridor] as Map<String, dynamic>?)?[direction])
-          as List?;
+      final manualPath = geojsonRoutes[corridor]?[direction];
+      final pathRaw = manualPath ??
+          (((routes[corridor] as Map<String, dynamic>?)?[direction]) as List?);
       if (pathRaw == null) continue;
-      final path = [
-        for (final p in pathRaw) [((p as List)[0] as num).toDouble(), (p[1] as num).toDouble()],
-      ];
+      final path = manualPath ??
+          [
+            for (final p in pathRaw)
+              [((p as List)[0] as num).toDouble(), (p[1] as num).toDouble()],
+          ];
       var lastArc = 0.0;
       var sumGap = 0.0;
       for (var i = 0; i < stops.length; i++) {

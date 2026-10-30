@@ -163,6 +163,14 @@ final mapCorridorProvider = StateProvider<String?>((ref) => null);
 /// pengguna sedang menelusuri.
 final mapFilterExpandedProvider = StateProvider<bool>((ref) => false);
 
+/// Apakah kartu status "sedang tidak melayani penumpang" di peta sedang
+/// terbuka.
+///
+/// Terbuka: judul + jam operasional tampil sebagai kartu. Tertutup: hanya ikon
+/// bulan seukuran tombol peta yang bisa diketuk untuk membuka teks lengkap —
+/// supaya peta tidak tertutup bilah informasi saat pengguna sedang menelusuri.
+final mapStatusExpandedProvider = StateProvider<bool>((ref) => true);
+
 /// Bus yang sedang diikuti via notifikasi foreground service.
 /// Nilai berupa kunci `'<koridor>|<nomorBus>'` (null = tidak mengikuti).
 final followedBusProvider = StateProvider<String?>((ref) => null);

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_motion.dart';
 import '../../../core/ui/constrained_content.dart';
 import '../../../core/ui/state_views.dart';
 import '../../../l10n/app_localizations.dart';
@@ -626,7 +627,21 @@ class _FavoriteStar extends StatelessWidget {
     return IconButton(
       tooltip: isFavorite ? l10n.removeFavorite : l10n.addFavorite,
       onPressed: onPressed,
-      icon: Icon(isFavorite ? Icons.star : Icons.star_border),
+      // Ikon bintang memudar + membesar sedikit saat status favorit berubah,
+      // supaya ketukan terasa "dijawab" (bukan berganti seketika).
+      icon: AnimatedSwitcher(
+        duration: AppMotion.resolve(context, AppMotion.short3),
+        switchInCurve: AppMotion.emphasizedDecelerate,
+        switchOutCurve: AppMotion.emphasizedAccelerate,
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(scale: animation, child: child),
+        ),
+        child: Icon(
+          isFavorite ? Icons.star : Icons.star_border,
+          key: ValueKey<bool>(isFavorite),
+        ),
+      ),
       color: isFavorite
           ? const Color(0xFFEAA221)
           : Theme.of(context).colorScheme.onSurfaceVariant,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_motion.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/bus_model.dart';
 import '../../domain/geo_utils.dart' as geo;
@@ -199,8 +200,8 @@ class PinnedBusCardBody extends StatelessWidget {
           child: Stack(
             children: [
               AnimatedSize(
-                duration: const Duration(milliseconds: 240),
-                curve: Curves.easeInOut,
+                duration: AppMotion.medium1,
+                curve: AppMotion.standard,
                 alignment: Alignment.topCenter,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -847,70 +848,77 @@ class _ProgressTrack extends StatelessWidget {
     final idx = progress.currentIndex ?? progress.nextIndex;
     final fraction = total <= 1 ? 0.0 : (idx / (total - 1)).clamp(0.0, 1.0);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        const dot = 10.0;
-        final dotLeft = (width * fraction - dot / 2)
-            .clamp(0.0, (width - dot).clamp(0.0, double.infinity));
+    return TweenAnimationBuilder<double>(
+      // `begin` sengaja null: pada build pertama tween langsung bernilai `end`
+      // (tidak ada animasi "dari nol"), lalu perubahan berikutnya dianimasikan.
+      tween: Tween<double>(end: fraction),
+      duration: AppMotion.resolve(context, AppMotion.long2),
+      curve: AppMotion.linear,
+      builder: (context, animatedFraction, _) => LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          const dot = 10.0;
+          final dotLeft = (width * animatedFraction - dot / 2)
+              .clamp(0.0, (width - dot).clamp(0.0, double.infinity));
 
-        return SizedBox(
-          height: dot,
-          child: Stack(
-            children: [
-              // Rel dasar.
-              Positioned(
-                left: 0,
-                right: 0,
-                top: dot / 2 - 1.5,
-                child: Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: theme.dividerColor,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              // Bagian yang sudah dilalui (warna koridor bus yang di-pin).
-              Positioned(
-                left: 0,
-                top: dot / 2 - 1.5,
-                child: Container(
-                  height: 3,
-                  width: width * fraction,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              // Titik posisi bus saat ini, berwarna koridor bus yang di-pin.
-              Positioned(
-                left: dotLeft,
-                top: 0,
-                child: Container(
-                  width: dot,
-                  height: dot,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: theme.colorScheme.surface,
-                      width: 2,
+          return SizedBox(
+            height: dot,
+            child: Stack(
+              children: [
+                // Rel dasar.
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: dot / 2 - 1.5,
+                  child: Container(
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: theme.dividerColor,
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 3,
-                      ),
-                    ],
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+                // Bagian yang sudah dilalui (warna koridor bus yang di-pin).
+                Positioned(
+                  left: 0,
+                  top: dot / 2 - 1.5,
+                  child: Container(
+                    height: 3,
+                    width: width * animatedFraction,
+                    decoration: BoxDecoration(
+                      color: accent,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                // Titik posisi bus saat ini, berwarna koridor bus yang di-pin.
+                Positioned(
+                  left: dotLeft,
+                  top: 0,
+                  child: Container(
+                    width: dot,
+                    height: dot,
+                    decoration: BoxDecoration(
+                      color: accent,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: theme.colorScheme.surface,
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 3,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

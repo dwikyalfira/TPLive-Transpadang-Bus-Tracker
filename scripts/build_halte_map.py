@@ -37,16 +37,39 @@ def main() -> int:
     for arah in ("pergi", "pulang"):
         old_stops = old[CORRIDOR]["arah"][arah]["halte"]
         new_stops = new[CORRIDOR]["arah"][arah]["halte"]
+
+        # Pasangkan berdasarkan nama, bukan indeks: jumlah dan urutan halte
+        # bisa berubah total setelah survey ulang. Nama ganda dipasangkan
+        # sesuai urutan kemunculan, sisanya dianggap halte baru/dihapus.
+        unmatched: dict[str, list[dict]] = {}
+        for stop in old_stops:
+            unmatched.setdefault(stop["nama"].strip().lower(), []).append(stop)
+
         rows = []
-        for i, (o, n) in enumerate(zip(old_stops, new_stops)):
-            moved = abs(o["lat"] - n["lat"]) > 1e-6 or abs(o["lng"] - n["lng"]) > 1e-6
+        for i, n in enumerate(new_stops):
+            bucket = unmatched.get(n["nama"].strip().lower()) or []
+            o = bucket.pop(0) if bucket else None
+            moved = o is not None and (
+                abs(o["lat"] - n["lat"]) > 1e-6 or abs(o["lng"] - n["lng"]) > 1e-6
+            )
             rows.append({
                 "i": i,
                 "nama": n["nama"],
-                "old": [o["lat"], o["lng"]],
+                "old": [o["lat"], o["lng"]] if o else None,
                 "new": [n["lat"], n["lng"]],
                 "moved": moved,
             })
+
+        for bucket in unmatched.values():
+            for o in bucket:
+                rows.append({
+                    "i": len(rows),
+                    "nama": o["nama"],
+                    "old": [o["lat"], o["lng"]],
+                    "new": None,
+                    "moved": False,
+                })
+
         payload["arah"][arah] = {
             "label": new[CORRIDOR]["arah"][arah].get("label", ""),
             "stops": rows,
@@ -103,7 +126,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <body>
 <header>
   <h1>Audit koordinat halte K3</h1>
-  <p>Titik abu = data lama · titik oranye = data baru · garis putus-putus = pergeseran</p>
+  <p>Titik abu = data lama / dihapus · titik oranye = data baru / berpindah · hijau = koordinat tetap</p>
 </header>
 <main>
   <div id="map"></div>
@@ -146,7 +169,23 @@ function render(arah){
   }).addTo(layer);
 
   let changed = 0;
+  let added = 0;
+  let removed = 0;
   d.stops.forEach(s => {
+    if (!s.old){
+      added++;
+      dot(s.new, '#f47f38', 7, true).addTo(layer)
+        .bindPopup(`<div class="pop"><b>${s.nama}</b><br><span class="chip">halte baru</span><br>
+          <code>${s.new[0].toFixed(6)}, ${s.new[1].toFixed(6)}</code></div>`);
+      return;
+    }
+    if (!s.new){
+      removed++;
+      dot(s.old, '#98a2ad', 6, false).addTo(layer)
+        .bindPopup(`<div class="pop"><b>${s.nama}</b><br><span class="chip bad">dihapus</span><br>
+          <code>${s.old[0].toFixed(6)}, ${s.old[1].toFixed(6)}</code></div>`);
+      return;
+    }
     if (s.moved){
       changed++;
       L.polyline([s.old, s.new], {color:'#d7263d', weight:1.6, dashArray:'4 4', opacity:.7}).addTo(layer);
@@ -162,14 +201,20 @@ function render(arah){
   });
 
   document.getElementById('count').textContent =
-    `${d.stops.length} halte · ${changed} diubah`;
+    `${d.stops.length} baris · ${added} baru · ${removed} dihapus · ${changed} berpindah`;
   const ul = document.getElementById('list');
   ul.innerHTML = '';
-  d.stops.filter(s => s.moved).forEach(s => {
+  d.stops.filter(s => s.moved || !s.old || !s.new).forEach(s => {
     const li = document.createElement('li');
-    const d2 = map.distance(s.old, s.new);
-    li.innerHTML = `<b>${s.nama}</b><span>${d2 >= 1000 ? (d2/1000).toFixed(2)+' km' : Math.round(d2)+' m'}</span>`;
-    li.onclick = () => map.setView(s.new, 17);
+    let note = '';
+    if (!s.old) note = 'baru';
+    else if (!s.new) note = 'dihapus';
+    else {
+      const d2 = map.distance(s.old, s.new);
+      note = d2 >= 1000 ? (d2/1000).toFixed(2)+' km' : Math.round(d2)+' m';
+    }
+    li.innerHTML = `<b>${s.nama}</b><span>${note}</span>`;
+    li.onclick = () => map.setView(s.new || s.old, 17);
     ul.appendChild(li);
   });
   const seg = document.getElementById('seg');
@@ -186,7 +231,7 @@ const seg = document.getElementById('seg');
 });
 render('pergi');
 
-const all = Object.values(DATA.arah).flatMap(d => d.stops.flatMap(s => [s.old, s.new]));
+const all = Object.values(DATA.arah).flatMap(d => d.stops.flatMap(s => [s.old, s.new].filter(Boolean)));
 map.fitBounds(L.latLngBounds(all).pad(0.08));
 </script>
 </body>

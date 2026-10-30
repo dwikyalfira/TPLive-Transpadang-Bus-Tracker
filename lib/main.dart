@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/app_navigator.dart';
 import 'core/settings.dart';
+import 'core/theme/app_motion.dart';
 import 'core/theme/app_theme.dart';
 import 'features/tracking/presentation/home_screen.dart';
 import 'features/tracking/presentation/providers.dart';
@@ -103,6 +104,11 @@ class TransPadangApp extends ConsumerWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: settings.themeMode,
+          // Interpolasi tema (Terang/Gelap/Dynamic Color) dipersingkat: setiap
+          // frame meng-interpolasi seluruh `ThemeData` dan me-rebuild subtree,
+          // jadi 400 ms terasa berat di perangkat kelas menengah.
+          themeAnimationDuration: AppMotion.medium1,
+          themeAnimationCurve: AppMotion.standard,
           // Overlay global di atas Navigator: kartu bus di-pin tetap terlihat
           // di semua halaman; guliran layar atau berpindah halaman mengembalikan
           // kartu ke mini. System bar diwarnai transparan agar menyatu dengan

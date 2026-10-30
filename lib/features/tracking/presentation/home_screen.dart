@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/follow_service.dart';
+import '../../../core/theme/app_motion.dart';
 import '../../../core/ui/constrained_content.dart';
 import '../../../core/ui/fade_through_route.dart';
 import '../../../core/ui/state_views.dart';
@@ -895,7 +896,7 @@ class _SpinIconButtonState extends State<_SpinIconButton>
     super.initState();
     _spin = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 700),
+      duration: AppMotion.long2,
     )..addStatusListener(_onSpinStatus);
   }
 

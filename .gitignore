@@ -49,3 +49,8 @@ app.*.map.json
 
 # Data memori lokal agen (jangan di-commit)
 .workbuddy-ai/
+
+# Draf data lokal di root project (jangan di-commit)
+/DATA HALTE K3 PP.txt
+/HALTE datas.txt
+/test_output.txt

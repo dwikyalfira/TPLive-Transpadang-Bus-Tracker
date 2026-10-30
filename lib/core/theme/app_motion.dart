@@ -1,4 +1,4 @@
-import 'package:flutter/animation.dart';
+import 'package:flutter/widgets.dart';
 
 /// Token gerak (motion) Material 3 yang dipakai bersama seluruh aplikasi
 /// supaya durasi & kurva transisi konsisten dan tidak di-hardcode di tiap
@@ -12,6 +12,7 @@ abstract final class AppMotion {
   const AppMotion._();
 
   // --- Durasi (milidetik) ---
+  static const Duration short1 = Duration(milliseconds: 50);
   static const Duration short2 = Duration(milliseconds: 100);
   static const Duration short3 = Duration(milliseconds: 150);
   static const Duration short4 = Duration(milliseconds: 200);
@@ -34,4 +35,18 @@ abstract final class AppMotion {
   /// Fade-through memakai decelerate saat masuk dan accelerate saat keluar.
   static const Curve fadeThroughIn = emphasizedDecelerate;
   static const Curve fadeThroughOut = emphasizedAccelerate;
+
+  /// Linear: hanya untuk indikator progres (tidak boleh melambat di akhir).
+  static const Curve linear = Curves.linear;
+
+  /// Durasi yang menghormati preferensi aksesibilitas "hapus animasi"
+  /// ([MediaQueryData.disableAnimations]).
+  ///
+  /// Animasi gerak (slide/scale/ubah ukuran) dimatikan sepenuhnya; perubahan
+  /// tetap terjadi, hanya tanpa pergerakan.
+  static Duration resolve(BuildContext context, Duration duration) {
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    return reduceMotion ? Duration.zero : duration;
+  }
 }

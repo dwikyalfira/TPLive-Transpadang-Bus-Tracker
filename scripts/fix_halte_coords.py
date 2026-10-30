@@ -37,6 +37,10 @@ Usage
     python scripts/fix_halte_coords.py --corridor K3                    # audit
     python scripts/fix_halte_coords.py --corridor K3 --apply            # rewrite
     python scripts/fix_halte_coords.py --corridor K3 --report docs/x.md
+
+Koridor di `MANUAL_CORRIDORS` (saat ini K3) dilewati karena daftar haltesnya
+disurvey manual di `scripts/data/manual/`; pakai `--force` bila memang mau
+menimpanya dengan heuristik.
 """
 
 from __future__ import annotations
@@ -62,6 +66,10 @@ MIN_GAP_M = 18.0       # two consecutive stops must be at least this far apart
 MAX_OFFSET_M = 60.0    # never move a stop further than this from the corridor
 OSM_GAP_M = 250.0      # max jump when trusting an OSM node for a placed stop
 CONSENSUS_GAP_M = 900.0  # max jump when borrowing a coordinate from a corridor
+
+# Koridor yang daftar haltesnya dirawat manual (survey lapangan). Heuristik di
+# skrip ini tidak boleh menimpanya; sumbernya `scripts/data/manual/`.
+MANUAL_CORRIDORS = {"K3"}
 
 STOPWORDS = {
     "halte", "halter", "bus", "stop", "stasiun", "terminal", "padang",
@@ -529,7 +537,25 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--corridor", default="K3")
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--report")
+    ap.add_argument(
+        "--force",
+        action="store_true",
+        help="jalankan juga untuk koridor yang datanya dirawat manual",
+    )
     args = ap.parse_args(argv)
+
+    corridor = args.corridor.strip().upper()
+    args.corridor = corridor
+    if corridor in MANUAL_CORRIDORS and not args.force:
+        print(
+            f"{corridor} dirawat manual: sumbernya scripts/data/manual/"
+            f"{corridor}_pergi.txt dan {corridor}_pulang.txt, diimpor dengan "
+            "scripts/import_halte_txt.py.\n"
+            "Skrip ini tidak menyentuhnya supaya koordinat survey tidak "
+            "tertimpa nilai interpolasi/OSM. Pakai --force bila memang mau.",
+            file=sys.stderr,
+        )
+        return 2
 
     halte = load_json_allow_bom(HALTE_PATH)
     routes = load_json_allow_bom(ROUTES_PATH)

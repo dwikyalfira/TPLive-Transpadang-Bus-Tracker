@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/app_navigator.dart';
 import '../../../../core/follow_service.dart';
+import '../../../../core/theme/app_motion.dart';
 import '../../data/bus_model.dart';
 import '../../domain/bus_with_distance.dart';
 import '../../domain/halte_tracker.dart';
@@ -62,15 +63,52 @@ class PinnedBusOverlay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final card = _cardOrNull(context, ref);
+
+    // AnimatedSwitcher (bukan `if` biasa) supaya kartu memudar + meluncur naik
+    // saat bus di-pin, dan memudar keluar saat pin dilepas/ditutup — bukan
+    // hilang mendadak. `layoutBuilder` dibuat eksplisit dengan
+    // [StackFit.expand] karena [FloatingPinnedBusCard] mengisi seluruh layar
+    // lalu memposisikan dirinya sendiri di bawah.
+    return AnimatedSwitcher(
+      duration: AppMotion.medium2,
+      reverseDuration: AppMotion.short4,
+      switchInCurve: AppMotion.emphasizedDecelerate,
+      switchOutCurve: AppMotion.emphasizedAccelerate,
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          ...previousChildren,
+          if (currentChild != null) currentChild,
+        ],
+      ),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.03),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
+      ),
+      child: card ?? const SizedBox.shrink(key: ValueKey('pinned:none')),
+    );
+  }
+
+  /// Kartu yang harus tampil, atau `null` bila tidak ada yang di-pin / kartu
+  /// sedang disembunyikan (peta menampilkan kartunya sendiri, sheet detail
+  /// terbuka, atau busnya belum ada di data live).
+  Widget? _cardOrNull(BuildContext context, WidgetRef ref) {
     // Di layar peta, kartu bus terpilih sudah tampil di bagian bawah; sembunyikan
     // kartu pin global agar tidak menumpuk di atasnya.
-    if (ref.watch(mapBusSelectedProvider)) return const SizedBox.shrink();
+    if (ref.watch(mapBusSelectedProvider)) return null;
 
     // Sheet detail/timeline sedang terbuka: sembunyikan kartu sepenuhnya.
     // Isinya (badge koridor, nomor bus, halte saat ini & berikutnya, progres)
     // sudah ada di sheet, dan kartu melayang digambar DI ATAS sheet sehingga
     // hanya menutupi daftar halte di bagian bawah.
-    if (ref.watch(pinnedDetailOpenProvider)) return const SizedBox.shrink();
+    if (ref.watch(pinnedDetailOpenProvider)) return null;
 
     final followed = ref.watch(followedBusProvider);
     final dataset = ref.watch(halteDatasetProvider).valueOrNull;
@@ -78,17 +116,17 @@ class PinnedBusOverlay extends ConsumerWidget {
     // Kartu beristirahat dalam mini; memelar hanya bila pengguna mengetuknya.
     final collapsed = ref.watch(pinnedCardCollapsedProvider);
 
-    if (followed == null || dataset == null) return const SizedBox.shrink();
+    if (followed == null || dataset == null) return null;
 
     final bus = _find(
       ref.watch(busesProvider).valueOrNull ?? const <Bus>[],
       followed,
     );
-    if (bus == null) return const SizedBox.shrink();
+    if (bus == null) return null;
 
     final progress =
         HalteTracker.trackStable(bus, dataset, estimatedHeading: bus.heading);
-    if (progress == null) return const SizedBox.shrink();
+    if (progress == null) return null;
 
     // Estimasi bus datang ke lokasi pengguna. Dibaca setelah semua guard di
     // atas supaya GPS tidak dilanggankan saat tidak ada bus yang di-pin.
@@ -130,6 +168,7 @@ class PinnedBusOverlay extends ConsumerWidget {
     }
 
     return FloatingPinnedBusCard(
+      key: ValueKey('pinned:$followed'),
       bus: bus,
       progress: progress,
       collapsed: collapsed,

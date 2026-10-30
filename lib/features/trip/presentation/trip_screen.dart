@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_motion.dart';
 import '../../../core/ui/constrained_content.dart';
 import '../../../core/ui/fade_through_route.dart';
 import '../../../core/ui/state_views.dart';
@@ -212,9 +213,9 @@ class _RouteFieldRow extends StatelessWidget {
                   // ringkas (menggantikan tiga baris terpisah). Nilai yang baru
                   // dipilih dianimasikan (fade + meluncur) saat berubah.
                   AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 240),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
+                    duration: AppMotion.medium2,
+                    switchInCurve: AppMotion.emphasizedDecelerate,
+                    switchOutCurve: AppMotion.emphasizedAccelerate,
                     transitionBuilder: (child, animation) => FadeTransition(
                       opacity: animation,
                       child: SlideTransition(

@@ -24,9 +24,10 @@ void main() {
           (h) => h.nama.toLowerCase() == name.toLowerCase());
     }
 
-    // Kasus nyata: TK Aisyiah Lolongkaran → Masjid Raya Sumbar. K3 melewati
-    // Masjid Raya, tetapi koordinat halte bernama sama di K1/K3 berbeda ±1,2 km.
-    final origin = find('TK Aisyiah Lolongkaran', 'K3', 'pergi');
+    // Kasus nyata: TK Aisyiah Lolongkaran → Masjid Raya Sumbar. Arah K3
+    // "pulang" melewati Masjid Raya; koordinat halte bernama sama di K1/K3
+    // berbeda puluhan meter karena berada di sisi jalan yang berbeda.
+    final origin = find('TK Aisyiah/Lolongkaran', 'K3', 'pulang');
     final dest = find('Masjid Raya Sumbar', 'K1', 'pergi');
 
     final plan = TripPlanner.plan(
@@ -41,7 +42,7 @@ void main() {
     final top = plan.options.first;
     expect(top.transferCount, 0, reason: 'harus rute langsung, bukan transit');
     expect(top.legs.first.corridor, 'K3');
-    expect(top.legs.first.board.nama, 'TK Aisyiah Lolongkaran');
+    expect(top.legs.first.board.nama, 'TK Aisyiah/Lolongkaran');
     expect(top.legs.last.alight.nama, 'Masjid Raya Sumbar');
     expect(top.walkMinutes, 0);
 

@@ -300,6 +300,9 @@ class _ChoiceButton<T> extends StatelessWidget {
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
+  /// Kunci tanda tangan pembuat di kaki halaman (dipakai test).
+  static const Key signatureKey = ValueKey('settingsSignature');
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
@@ -378,6 +381,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _SectionLabel(text: l10n.sectionAbout),
           const _AboutCard(),
+          const _Signature(key: SettingsScreen.signatureKey),
           ],
         ),
       ),
@@ -442,6 +446,35 @@ class _AboutCard extends StatelessWidget {
           child: _AboutDisclaimer(text: l10n.aboutDisclaimer),
         ),
       ],
+    );
+  }
+}
+
+/// Tanda tangan pembuat aplikasi di kaki halaman Pengaturan.
+///
+/// Hanya teks handle `@dwikyalfira`, rata kiri (sejajar tepi kartu di atasnya)
+/// dan 60% opasitas: ini tanda pengenal, bukan pengaturan — jadi tidak boleh
+/// bersaing dengan kartu "Tentang" di atasnya.
+class _Signature extends StatelessWidget {
+  const _Signature({super.key});
+
+  /// Handle pembuat yang ditampilkan (tidak diterjemahkan).
+  static const String _handle = '@dwikyalfira';
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 28, bottom: 8),
+      child: Text(
+        _handle,
+        textAlign: TextAlign.start,
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+          letterSpacing: 0.2,
+        ),
+      ),
     );
   }
 }

@@ -1,60 +1,85 @@
-# Audit koordinat halte K3
+# Audit Halte K3
 
-## Temuan
+Laporan ini menggantikan audit lama. Daftar halte K3 sekarang berasal dari
+**survey manual** (nama + koordinat dari lapangan/Google Maps), bukan hasil
+interpolasi antar-halte lama. Nilai lama tidak dipakai lagi.
 
-- **19 halte** menempati koordinat yang sama dengan tetangganya, sehingga membentuk 4 blok tumpang tindih:
-  - `pergi` #0–#8 (9 halte): Ruas Hasanuddin, Pasar Raya, Simp. Dobi, Museum Adityawarman, Mr. DIY, Plan B, Masjid Al Hakim, Gedung Joang 45, Taman Budaya
-  - `pergi` #43–#44 (2 halte): RS Siti Rahmah, Taman Digital / Balai Kota
-  - `pulang` #0–#1 (2 halte): Taman Digital / Balai Kota, RS Siti Rahmah
-  - `pulang` #43–#48 (6 halte): Masjid Al Hakim, Plan B, Mr. DIY, Museum Adityawarman, Simp. Dobi, Ruas Hasanuddin
-  Akibatnya `HalteTracker` tidak punya segmen untuk dihitung: jarak antartetangga 0 m dan peta menggambar satu penanda untuk banyak halte.
+## Sumber data
 
-Sumber acuan, berurut menurut tingkat kepercayaan:
+| Berkas | Isi |
+| --- | --- |
+| `scripts/data/manual/K3_pulang.txt` | Taman Digital → RTH Imam Bonjol, 46 halte |
+| `scripts/data/manual/K3_pergi.txt` | RTH Imam Bonjol → Taman Digital, 50 halte |
+| `scripts/import_halte_txt.py` | importer + validasi (dry-run default, `--write` menerapkan) |
+| `assets/halte.json` | hasil: blok `K3`, id `k3-pulang-01…46` / `k3-pergi-01…50` |
 
-1. `scripts/data/halte_overrides.json` — koordinat yang sudah dicek manual.
-2. Node `highway=bus_stop` OpenStreetMap (snapshot `scripts/data/osm_halte_padang.json`, data (c) kontributor OSM, lisensi ODbL).
-3. Nama halte yang sama di koridor lain (K1/K2/K5) yang tidak menumpuk.
-4. Penyebaran merata di sepanjang jalur koridor (`interpolated`).
+Kedua berkas txt adalah sumber kebenaran. `id` digenerate ulang saat impor.
 
-- Halte diperiksa: **94**
-- Koordinat diubah (>= 3 m): **16**
-- Perlu cek lapangan: **3**
+## Validasi
 
-## Catatan struktural
+Jalur acuan: `assets/routes/K3.geojson` (geometri yang benar-benar digambar
+aplikasi). `assets/corridor_routes.json` untuk K3 sudah disalin dari geojson
+agar alat lain (audit, map preview) melihat jalur yang sama.
 
-- Jejak GPS arah `pergi` baru dimulai di Jl. Samudra (-0.950221, 100.352161), sekitar 1,2 km setelah terminus sebenarnya di Jl. Hasanuddin. Sembilan halte pertama karena itu berada di luar garis jalur yang digambar peta — posisinya benar, tapi polyline `corridor_routes.json` arah pergi belum mencakup blok itu. Perlu rekam ulang jejak arah pergi untuk segmen tersebut.
-- Urutan halte di blok pusat kota (Pasar Raya → Simp. Dobi → Museum Adityawarman → Mr. DIY → Plan B → Masjid Al Hakim → Gedung Joang 45) belum mengikuti jalan: Museum Adityawarman berada ~500 m di utara Mr. DIY, jadi rute urutannya belum monoton. Koordinat sudah benar, urutannya yang masih perlu diputuskan.
+| Metrik | `pulang` | `pergi` |
+| --- | --- | --- |
+| Jumlah halte | 46 | 50 |
+| Total jarak antar-halte | 16,59 km | 18,87 km |
+| Panjang jalur | 17,47 km | 21,30 km |
+| Rasio jarak/jalur | 0,95 | 0,89 |
+| Gap terpendek | 148 m | 54 m |
+| Gap < 25 m (blok menumpuk) | 0 | 0 |
+| Offset > 60 m dari jalur | 4 | 2 |
 
-## Perlu cek lapangan
+Offset > 60 m berasal dari shelter yang memang berada di sisi jalan, bukan
+kesalahan koordinat:
 
-| Arah | Halte | Lat | Lng | Catatan |
-|------|-------|-----|-----|---------|
-| pergi | Masjid Al Hakim | -0.955100 | 100.362800 | interpolasi antara Plan B dan Gedung Joang 45 | PERLU CEK LAPANGAN |
-| pergi | Taman Budaya | -0.954530 | 100.355090 | OSM 'Taman Budaya Padang' (leisure/gallery) | PERLU CEK LAPANGAN |
-| pulang | Masjid Al Hakim | -0.955100 | 100.362800 | interpolasi antara Plan B dan Gedung Joang 45 | PERLU CEK LAPANGAN |
+- `pulang`: Kantor Damkar Padang 76 m, Plaza Andalas 114 m, TK Adhyaksa XXVI
+  145 m, Pondok 124 m
+- `pergi`: Monumen Merpati Muaro Lasak 73 m, Pegadaian 78 m
 
-## Arah `pergi` — jalur 16.01 km
+Tidak ada nama ganda dalam satu arah, dan `dart run scripts/audit_halte.dart`
+melaporkan **0 temuan** untuk K3.
 
-| # | Halte | Lat lama | Lng lama | Lat baru | Lng baru | Geser | Sumber |
-|---|-------|----------|----------|----------|----------|-------|--------|
-| 0 | Ruas Hasanuddin | -0.950226 | 100.352127 | -0.955389 | 100.362579 | 1296 m | override — ujung loop pulang (Jl. Hasanuddin) |
-| 1 | Pasar Raya | -0.950226 | 100.352127 | -0.953480 | 100.364060 | 1375 m | override — koridor K2 (pergi 'Pasar Raya') |
-| 2 | Simp. Dobi | -0.950226 | 100.352127 | -0.953269 | 100.363201 | 1277 m | override — koridor K2 (pulang 'Simp. Dobi') |
-| 3 | Museum Adityawarman | -0.950226 | 100.352127 | -0.950677 | 100.363656 | 1283 m | override — koridor K5 (pulang 'Museum Adityawarman') |
-| 4 | Mr. DIY | -0.950226 | 100.352127 | -0.954953 | 100.362266 | 1244 m | override — koridor K2 (pulang 'Mr. DIY') |
-| 5 | Plan B | -0.950226 | 100.352127 | -0.955514 | 100.361954 | 1241 m | override — koridor K2 (pulang 'Plan B') |
-| 6 | Masjid Al Hakim | -0.950226 | 100.352127 | -0.955100 | 100.362800 | 1305 m | override — interpolasi antara Plan B dan Gedung Joang 45 | PERLU CEK LAPANGAN |
-| 7 | Gedung Joang 45 | -0.950226 | 100.352127 | -0.954745 | 100.363629 | 1374 m | override — K3 pulang (satu-satunya nilai yang tidak menumpuk) |
-| 8 | Taman Budaya | -0.950226 | 100.352127 | -0.954530 | 100.355090 | 581 m | override — OSM 'Taman Budaya Padang' (leisure/gallery) | PERLU CEK LAPANGAN |
-| 43 | RS Siti Rahmah | -0.871082 | 100.382369 | -0.871968 | 100.382951 | 118 m | osm:14300281726 — node OSM 'Halte RSI Siti Rahma II' |
+## Perubahan dari data lama
 
-## Arah `pulang` — jalur 20.88 km
+| Arah | Halte lama | Halte baru | Nama yang sama | Nama hilang | Nama baru |
+| --- | --- | --- | --- | --- | --- |
+| `pergi` | 45 | 50 | 7 | 37 | 43 |
+| `pulang` | 49 | 46 | 7 | 42 | 39 |
 
-| # | Halte | Lat lama | Lng lama | Lat baru | Lng baru | Geser | Sumber |
-|---|-------|----------|----------|----------|----------|-------|--------|
-| 1 | RS Siti Rahmah | -0.871082 | 100.382369 | -0.872061 | 100.383342 | 153 m | override — OSM node 14300281727 'Halte RSI Siti Rahma I' |
-| 43 | Masjid Al Hakim | -0.955383 | 100.362576 | -0.955100 | 100.362800 | 40 m | override — interpolasi antara Plan B dan Gedung Joang 45 | PERLU CEK LAPANGAN |
-| 44 | Plan B | -0.955383 | 100.362576 | -0.955514 | 100.361954 | 71 m | override — koridor K2 (pulang 'Plan B') |
-| 45 | Mr. DIY | -0.955383 | 100.362576 | -0.954953 | 100.362266 | 59 m | override — koridor K2 (pulang 'Mr. DIY') |
-| 46 | Museum Adityawarman | -0.955383 | 100.362576 | -0.950677 | 100.363656 | 537 m | override — koridor K5 (pulang 'Museum Adityawarman') |
-| 47 | Simp. Dobi | -0.955383 | 100.362576 | -0.953269 | 100.363201 | 245 m | override — koridor K2 (pulang 'Simp. Dobi') |
+Perpindahan terbesar untuk halte yang namanya dipertahankan:
+
+- `pulang`: Masjid Raya Sumbar 1.235 m, Masjid Al Wustha Purus 924 m,
+  Simpang Balai Baru 266 m, Plaza Andalas 209 m
+- `pergi`: Jembatan Baru Siteba 511 m, Simpang Berok 369 m, Pasar Raya 348 m
+
+Halte yang dihapus dari K3 `pulang` berdasarkan koreksi survey: BPKAD Prov.
+Sumbar (milik arah pergi), Seberang Poltekkes Siteba Padang (arah pergi),
+Museum Adityawarman (tidak ada haltenya di ruas ini).
+
+Dua arah dipakai bersama oleh 3 nama yang menyatu di peta (nama sama, jarak
+≤ 30 m): Masjid An Nur Lolong Karan, Simpang Pagang Dalam Siteba, RTH Imam
+Bonjol Ruas Hasanuddin. Total 96 entri → 93 marker unik.
+
+## Cara memperbarui
+
+```powershell
+# 1. edit scripts/data/manual/K3_pulang.txt / K3_pergi.txt (Notepad, UTF-8)
+# 2. dry-run: lihat tabel jarak + offset
+python scripts/import_halte_txt.py --corridor K3 --dir pulang --file scripts/data/manual/K3_pulang.txt
+python scripts/import_halte_txt.py --corridor K3 --dir pergi  --file scripts/data/manual/K3_pergi.txt
+
+# 3. terapkan
+python scripts/import_halte_txt.py --corridor K3 --dir pulang --file scripts/data/manual/K3_pulang.txt --write
+python scripts/import_halte_txt.py --corridor K3 --dir pergi  --file scripts/data/manual/K3_pergi.txt  --write
+
+# 4. verifikasi
+dart run scripts/audit_halte.dart
+flutter test test/trip_planner_test.dart
+```
+
+`python scripts/fix_halte_coords.py --corridor K3` sekarang berhenti dengan
+kode 2 karena K3 masuk `MANUAL_CORRIDORS`; skrip itu tidak boleh menimpa
+koordinat survey dengan nilai interpolasi/OSM. Gunakan `--force` hanya bila
+memang ingin menjalankan heuristik lama.

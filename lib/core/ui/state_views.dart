@@ -1,11 +1,40 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../theme/app_motion.dart';
 
 /// Tampilan status kosong / memuat / galat yang seragam mengikuti gaya
 /// Material 3: ikon di dalam lingkaran tonal, judul opsional, pesan, dan
 /// aksi opsional. Menggantikan beberapa salinan yang sebelumnya tersebar
 /// di tiap layar.
+
+/// Animasi masuk halus (memudar + naik 10 dp) untuk seluruh tampilan status.
+///
+/// Hanya memengaruhi `Opacity`/`Transform`, jadi tata letak tidak berubah dan
+/// teks tetap ada di pohon widget sejak frame pertama (aman untuk pembaca
+/// layar maupun pengujian).
+class _StateEntrance extends StatelessWidget {
+  final Widget child;
+
+  const _StateEntrance({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: AppMotion.resolve(context, AppMotion.medium2),
+      curve: AppMotion.emphasizedDecelerate,
+      child: child,
+      builder: (context, t, child) => Opacity(
+        opacity: t,
+        child: Transform.translate(
+          offset: Offset(0, 10 * (1 - t)),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
 
 /// Wadah tata letak bersama untuk seluruh tampilan status.
 class _StateLayout extends StatelessWidget {
@@ -28,41 +57,43 @@ class _StateLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: iconBackground,
-              shape: BoxShape.circle,
+    return _StateEntrance(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: iconBackground,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 36, color: iconColor),
             ),
-            child: Icon(icon, size: 36, color: iconColor),
-          ),
-          const SizedBox(height: 20),
-          if (title != null) ...[
+            const SizedBox(height: 20),
+            if (title != null) ...[
+              Text(
+                title!,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+            ],
             Text(
-              title!,
+              message,
               textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
-            const SizedBox(height: 8),
+            if (action != null) ...[
+              const SizedBox(height: 24),
+              action!,
+            ],
           ],
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          ),
-          if (action != null) ...[
-            const SizedBox(height: 24),
-            action!,
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -160,21 +191,23 @@ class LoadingStateView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CircularProgressIndicator(),
-          if (message != null) ...[
-            const SizedBox(height: 16),
-            Text(
-              message!,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
+      child: _StateEntrance(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            if (message != null) ...[
+              const SizedBox(height: 16),
+              Text(
+                message!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

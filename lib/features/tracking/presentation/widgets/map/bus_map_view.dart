@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../../../core/config.dart';
+import '../../../../../core/theme/app_motion.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../data/bus_model.dart';
 import '../../../domain/bus_with_distance.dart';
@@ -184,6 +185,17 @@ class BusMapViewState extends ConsumerState<BusMapView> {
     _container.read(mapFilterExpandedProvider.notifier).state = false;
   }
 
+  /// Melipat kartu status "sedang tidak melayani penumpang" jadi ikon saja.
+  ///
+  /// Dipanggil saat peta diketuk: begitu pengguna mulai menelusuri peta, bilah
+  /// informasi selebar layar hanya menghalangi. Teksnya bisa dibuka lagi dengan
+  /// mengetuk ikon bulan di kiri-atas (lihat `_OutsideHoursStatus`).
+  void _collapseStatusCard() {
+    if (!mounted) return;
+    if (!_container.read(mapStatusExpandedProvider)) return;
+    _container.read(mapStatusExpandedProvider.notifier).state = false;
+  }
+
   void _openStop(MapStop stop) {
     if (_selectedStopId != stop.id) {
       setState(() => _selectedStopId = stop.id);
@@ -290,13 +302,19 @@ class BusMapViewState extends ConsumerState<BusMapView> {
             // Geseran/zoom oleh jari pengguna menutup baris penyaring koridor
             // agar peta tidak tertutup saat sedang ditelusuri. Perubahan kamera
             // terprogram (fokus bus, tombol lokasi) tidak ikut menutup karena
-            // `hasGesture` false.
+            // `hasGesture` false. Kartu status di luar jam operasional ikut
+            // dilipat dengan alasan yang sama.
             onPositionChanged: (_, hasGesture) {
-              if (hasGesture) _collapseFilter();
+              if (!hasGesture) return;
+              _collapseFilter();
+              _collapseStatusCard();
             },
             onTap: (_, __) {
               _clearSelection();
               _collapseFilter();
+              // Mengetuk peta juga menyembunyikan teks status di luar jam
+              // operasional; ikonnya tetap ada untuk membuka lagi.
+              _collapseStatusCard();
             },
           ),
           children: [
@@ -355,82 +373,153 @@ class BusMapViewState extends ConsumerState<BusMapView> {
           bottom: 8,
           child: SafeArea(
             top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Kontrol peta dikumpulkan di kanan-bawah: "fokus ke bus" (hanya
-                // saat ada bus terpilih) tepat di atas "ke lokasi saya". Dulu
-                // tombol fokus melayang sendiri di kanan-atas dan terlihat
-                // menggantung di tengah peta.
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (selected != null) ...[
-                          FloatingActionButton.small(
-                            heroTag: 'mapFocusBus',
-                            tooltip: l10n.mapFocusBus,
-                            onPressed: _focusSelectedBus,
-                            child: const Icon(Icons.center_focus_strong),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                        FloatingActionButton.small(
-                          heroTag: 'mapRecenter',
-                          tooltip: l10n.mapRecenter,
-                          onPressed: userLocation == null
-                              ? null
-                              : () => _centerOn(userLocation),
-                          child: const Icon(Icons.my_location),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (selected != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    child: progress != null
-                        // Kartu bergaya sama dengan kartu bus yang di-pin,
-                        // ditambah rincian ala detail bus (kecepatan, tujuan,
-                        // waktu pembaruan). Ketuk kartu membuka detail halte.
-                        ? PinnedBusCardBody(
-                            bus: selected.bus,
-                            progress: progress,
-                            onTap: () => showBusTimeline(context, selected,
-                                fromMap: true),
-                            onClose: _clearSelection,
-                            footer: PinnedBusCardFooter(
-                              bus: selected.bus,
-                              destinationLabel: selected.destinationLabel,
-                              arrival: arrival,
-                              trailing: FollowBusButton(
-                                bus: selected.bus,
-                                activeColor: corridorAccent(
-                                    selected.bus.corridor, theme),
-                                payload: FollowPayload(
-                                  originLabel: progress.originLabel,
-                                  destinationLabel: progress.destinationLabel,
-                                  route: selected.bus.route,
-                                  directionKey: progress.arahKey,
-                                  haltes: progress.direction.halte,
-                                ),
+            // Tinggi area bawah (tombol + kartu bus) ikut dianimasikan supaya
+            // tombol "ke lokasi saya" tidak melompat saat kartu muncul/hilang.
+            child: AnimatedSize(
+              duration: AppMotion.resolve(context, AppMotion.medium2),
+              curve: AppMotion.standard,
+              alignment: Alignment.bottomCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Kontrol peta dikumpulkan di kanan-bawah: "fokus ke bus" (hanya
+                  // saat ada bus terpilih) tepat di atas "ke lokasi saya". Dulu
+                  // tombol fokus melayang sendiri di kanan-atas dan terlihat
+                  // menggantung di tengah peta.
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Tombol fokus memudar + membesar masuk, bukan
+                          // muncul mendadak begitu bus diketuk.
+                          AnimatedSwitcher(
+                            duration:
+                                AppMotion.resolve(context, AppMotion.short4),
+                            switchInCurve: AppMotion.emphasizedDecelerate,
+                            switchOutCurve: AppMotion.emphasizedAccelerate,
+                            transitionBuilder: (child, animation) =>
+                                FadeTransition(
+                              opacity: animation,
+                              child: ScaleTransition(
+                                scale: animation,
+                                child: child,
                               ),
                             ),
+                            child: selected == null
+                                ? const SizedBox(
+                                    key: ValueKey('mapFocusBus:none'),
+                                  )
+                                : Padding(
+                                    key: const ValueKey('mapFocusBus:shown'),
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: FloatingActionButton.small(
+                                      heroTag: 'mapFocusBus',
+                                      tooltip: l10n.mapFocusBus,
+                                      onPressed: _focusSelectedBus,
+                                      child: const Icon(
+                                          Icons.center_focus_strong),
+                                    ),
+                                  ),
+                          ),
+                          FloatingActionButton.small(
+                            heroTag: 'mapRecenter',
+                            tooltip: l10n.mapRecenter,
+                            onPressed: userLocation == null
+                                ? null
+                                : () => _centerOn(userLocation),
+                            child: const Icon(Icons.my_location),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Kartu bus terpilih: memudar + meluncur naik saat dipilih,
+                  // dan memudar keluar saat pilihan dibatalkan.
+                  AnimatedSwitcher(
+                    duration: AppMotion.resolve(context, AppMotion.medium2),
+                    reverseDuration:
+                        AppMotion.resolve(context, AppMotion.short4),
+                    switchInCurve: AppMotion.emphasizedDecelerate,
+                    switchOutCurve: AppMotion.emphasizedAccelerate,
+                    layoutBuilder: (currentChild, previousChildren) => Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: <Widget>[
+                        ...previousChildren,
+                        if (currentChild != null) currentChild,
+                      ],
+                    ),
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.25),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    ),
+                    child: selected == null
+                        ? const SizedBox(
+                            key: ValueKey('mapBusCard:none'),
+                            width: double.infinity,
+                            height: 0,
                           )
-                        // Bila data halte belum siap, jatuh ke kartu daftar biasa.
-                        : BusTile(
-                            item: selected,
-                            onTap: () => showBusTimeline(context, selected,
-                                fromMap: true),
-                            trailing: _CloseButton(onClose: _clearSelection),
+                        : Padding(
+                            key: ValueKey(
+                              'mapBusCard:${selected.bus.corridor}|'
+                              '${selected.bus.number}',
+                            ),
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                            child: progress != null
+                                // Kartu bergaya sama dengan kartu bus yang
+                                // di-pin, ditambah rincian ala detail bus
+                                // (kecepatan, tujuan, waktu pembaruan). Ketuk
+                                // kartu membuka detail halte.
+                                ? PinnedBusCardBody(
+                                    bus: selected.bus,
+                                    progress: progress,
+                                    onTap: () => showBusTimeline(
+                                        context, selected,
+                                        fromMap: true),
+                                    onClose: _clearSelection,
+                                    footer: PinnedBusCardFooter(
+                                      bus: selected.bus,
+                                      destinationLabel:
+                                          selected.destinationLabel,
+                                      arrival: arrival,
+                                      trailing: FollowBusButton(
+                                        bus: selected.bus,
+                                        activeColor: corridorAccent(
+                                            selected.bus.corridor, theme),
+                                        payload: FollowPayload(
+                                          originLabel: progress.originLabel,
+                                          destinationLabel:
+                                              progress.destinationLabel,
+                                          route: selected.bus.route,
+                                          directionKey: progress.arahKey,
+                                          haltes: progress.direction.halte,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                // Bila data halte belum siap, jatuh ke kartu
+                                // daftar biasa.
+                                : BusTile(
+                                    item: selected,
+                                    onTap: () => showBusTimeline(
+                                        context, selected,
+                                        fromMap: true),
+                                    trailing: _CloseButton(
+                                        onClose: _clearSelection),
+                                  ),
                           ),
                   ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -602,7 +691,12 @@ class _StopMarkerPin extends StatelessWidget {
                 width: 44,
                 height: 44,
                 child: Center(
-                  child: Container(
+                  // [AnimatedContainer] supaya halte yang dipilih membesar
+                  // (dan berganti warna saat filter berubah) dengan halus,
+                  // bukan melompat satu frame.
+                  child: AnimatedContainer(
+                    duration: AppMotion.resolve(context, AppMotion.short4),
+                    curve: AppMotion.standard,
                     width: dotSize,
                     height: dotSize,
                     decoration: BoxDecoration(
@@ -713,20 +807,32 @@ class _BusMarkerPin extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             if (highlighted)
-              Container(
-                key: const Key('busMarkerHighlight'),
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: color, width: 2.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withOpacity(0.35),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    ),
-                  ],
+              // Cincin sorot tumbuh + memudar masuk saat bus dipilih, bukan
+              // muncul mendadak. Kuncinya tetap di [Container] dalam supaya
+              // pengujian/pembaca layar menemukannya seperti sebelumnya.
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0.7, end: 1),
+                duration: AppMotion.resolve(context, AppMotion.medium2),
+                curve: AppMotion.emphasizedDecelerate,
+                builder: (context, t, child) => Opacity(
+                  opacity: t,
+                  child: Transform.scale(scale: t, child: child),
+                ),
+                child: Container(
+                  key: const Key('busMarkerHighlight'),
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: color, width: 2.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withOpacity(0.35),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             if (direction != null)

@@ -402,8 +402,8 @@ class _TimelineState extends State<_Timeline> {
       Scrollable.ensureVisible(
         ctx,
         alignment: 0.5,
-        duration: first ? Duration.zero : const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
+        duration: first ? Duration.zero : AppMotion.medium4,
+        curve: AppMotion.standard,
       );
     });
   }

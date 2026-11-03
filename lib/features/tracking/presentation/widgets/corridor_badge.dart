@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import 'format.dart';
 
 /// Badge koridor bulat yang seragam (warna koridor + teks kode kontras).
@@ -30,12 +31,19 @@ class CorridorBadge extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: onColor(color),
-          fontWeight: FontWeight.bold,
-          fontSize: fontSize ?? (size * 0.34),
+      // FittedBox: kode tetap di dalam lingkaran saat font sistem diperbesar.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: onColor(color),
+              fontWeight: FontWeight.bold,
+              fontSize: fontSize ?? (size * 0.34),
+            ),
+          ),
         ),
       ),
     );
@@ -69,7 +77,7 @@ class EdgeBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       decoration: BoxDecoration(
         color: filled ? color : color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: AppShape.smallRadius,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

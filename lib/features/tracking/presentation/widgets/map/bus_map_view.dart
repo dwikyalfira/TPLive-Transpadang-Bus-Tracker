@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../../../core/config.dart';
 import '../../../../../core/theme/app_motion.dart';
+import '../../../../../core/theme/app_theme.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../data/bus_model.dart';
 import '../../../domain/bus_with_distance.dart';
@@ -759,7 +760,7 @@ class _StopLabel extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface.withOpacity(0.92),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: AppShape.smallRadius,
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Text(
@@ -918,8 +919,8 @@ class _CloseButton extends StatelessWidget {
         onTap: onClose,
         radius: 20,
         child: SizedBox(
-          width: 36,
-          height: 36,
+          width: 48,
+          height: 48,
           child: Center(
             child: Icon(
               Icons.close,

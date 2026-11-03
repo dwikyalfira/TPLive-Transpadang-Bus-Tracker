@@ -54,3 +54,12 @@ app.*.map.json
 /DATA HALTE K3 PP.txt
 /HALTE datas.txt
 /test_output.txt
+
+# Berisi token lokal (salin dari dart_defines.example.json)
+/dart_defines.json
+
+# Keystore rilis (jangan di-commit)
+/android/key.properties
+/android/keystore/
+*.jks
+*.keystore

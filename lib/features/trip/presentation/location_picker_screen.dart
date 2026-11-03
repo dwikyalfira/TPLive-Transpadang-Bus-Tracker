@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_motion.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/constrained_content.dart';
 import '../../../core/ui/state_views.dart';
 import '../../../l10n/app_localizations.dart';
@@ -168,7 +169,7 @@ class _SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final radius = BorderRadius.circular(14);
+    final radius = AppShape.largeRadius;
 
     return TextField(
       controller: controller,
@@ -446,7 +447,7 @@ class _GpsTile extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
       child: Material(
         color: theme.colorScheme.primaryContainer.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppShape.largeRadius,
         clipBehavior: Clip.antiAlias,
         child: ListTile(
           onTap: onTap,

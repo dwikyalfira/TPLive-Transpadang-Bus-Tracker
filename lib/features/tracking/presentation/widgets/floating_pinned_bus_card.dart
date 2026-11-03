@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_motion.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/bus_model.dart';
 import '../../domain/geo_utils.dart' as geo;
@@ -439,7 +440,7 @@ class _CompactHeader extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
           decoration: BoxDecoration(
             color: accent,
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: AppShape.smallRadius,
           ),
           child: Text(
             bus.corridor.isEmpty ? '?' : bus.corridor,
@@ -494,7 +495,7 @@ class _ArrivalChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         decoration: BoxDecoration(
           color: accent.withOpacity(0.14),
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: AppShape.smallRadius,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -542,7 +543,7 @@ class _Header extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
             color: accent,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: AppShape.smallRadius,
           ),
           child: Text(
             bus.corridor.isEmpty ? '?' : bus.corridor,

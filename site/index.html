@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TPLive — Lacak Bus TransPadang</title>
+  <meta name="description" content="Lacak posisi bus TransPadang secara real-time, cari rute, dan lihat estimasi kedatangan. Gratis, open source, tanpa iklan.">
+  <meta name="theme-color" content="#F47F38">
+  <meta property="og:title" content="TPLive — Lacak Bus TransPadang">
+  <meta property="og:description" content="Posisi bus TransPadang real-time, pencarian rute, dan estimasi kedatangan.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="favicon.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="./"><img src="icon-192.png" alt="" width="40" height="40">TPLive</a>
+      <nav>
+        <a href="#fitur" data-i18n="nav_features">Fitur</a>
+        <a href="privacy.html" data-i18n="nav_privacy">Privasi</a>
+        <button class="lang" id="lang" type="button" aria-label="Switch language">EN</button>
+      </nav>
+    </header>
+
+    <main>
+      <div class="hero">
+        <img class="logo" src="icon-512.png" alt="Logo TPLive" width="112" height="112">
+        <h1 data-i18n="hero_title">Lacak bus TransPadang, langsung dari ponselmu</h1>
+        <p class="lead" data-i18n="hero_lead">Lihat posisi bus secara real-time, cari rute ke tujuanmu, dan tahu kapan bus tiba. Gratis, tanpa iklan, tanpa akun.</p>
+        <div class="cta">
+          <a class="btn filled" href="app/" data-i18n="cta_web">Buka Web App</a>
+          <a class="btn tonal" href="https://github.com/dwikyalfira/TPLive-Transpadang-Bus-Tracker/releases/latest/download/TPLive.apk" data-i18n="cta_apk">Unduh APK Android</a>
+        </div>
+        <p class="note" data-i18n="hours">Bus beroperasi pukul 06.00–19.00 WIB; di luar jam itu posisi bus tidak tersedia.</p>
+      </div>
+
+      <section id="fitur">
+        <h2 data-i18n="features_h">Fitur</h2>
+        <div class="grid">
+          <div class="card"><h3 data-i18n="f1_t">Posisi bus real-time</h3><p data-i18n="f1_d">Peta menampilkan bus di semua koridor K1–K6 dan diperbarui otomatis.</p></div>
+          <div class="card"><h3 data-i18n="f2_t">Cari tujuan</h3><p data-i18n="f2_d">Ketik tempat tujuan, TPLive menyarankan halte naik dan turun terdekat.</p></div>
+          <div class="card"><h3 data-i18n="f3_t">Estimasi kedatangan</h3><p data-i18n="f3_d">Perkiraan waktu bus tiba di halte berikutnya dan di dekat lokasimu.</p></div>
+          <div class="card"><h3 data-i18n="f4_t">Ikuti bus (Android)</h3><p data-i18n="f4_d">Notifikasi saat bus hampir tiba di halte naik atau turun. Hanya di aplikasi Android.</p></div>
+          <div class="card"><h3 data-i18n="f5_t">Terang, gelap &amp; Material You</h3><p data-i18n="f5_d">Tampilan mengikuti tema perangkat; di Android warna mengikuti wallpaper.</p></div>
+          <div class="card"><h3 data-i18n="f6_t">Dua bahasa</h3><p data-i18n="f6_d">Bahasa Indonesia dan English.</p></div>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="how_h">Cara pakai</h2>
+        <ol class="steps">
+          <li data-i18n="s1">Buka Web App atau pasang APK, lalu izinkan akses lokasi agar bus terdekat diurutkan dari posisimu.</li>
+          <li data-i18n="s2">Pilih koridor, atau ketuk bilah “Cari tujuan” untuk mencari rute.</li>
+          <li data-i18n="s3">Ketuk bus untuk melihat daftar halte, halte berikutnya, dan estimasi tiba.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 data-i18n="faq_h">Pertanyaan umum</h2>
+        <details><summary data-i18n="q1">Apakah TPLive aplikasi resmi?</summary><p data-i18n="a1">Bukan. TPLive adalah proyek independen open source dan tidak berafiliasi dengan Pemerintah Kota Padang atau pengelola TransPadang.</p></details>
+        <details><summary data-i18n="q2">Dari mana data bus berasal?</summary><p data-i18n="a2">Dari layanan data publik TransPadang. Ketersediaan dan akurasinya bergantung pada layanan itu dan dapat berubah tanpa pemberitahuan.</p></details>
+        <details><summary data-i18n="q3">Mengapa tidak ada bus di layar?</summary><p data-i18n="a3">Layanan hanya mengirim data pukul 06.00–19.00 WIB. Di luar jam itu, atau bila bus belum mengirim posisi, daftar akan kosong.</p></details>
+        <details><summary data-i18n="q4">Apakah lokasiku dikirim ke server?</summary><p data-i18n="a4">Tidak ke server TPLive — kami tidak punya server. Lokasi dipakai di perangkatmu untuk mengurutkan bus dan menghitung estimasi. Lihat Kebijakan Privasi.</p></details>
+        <details><summary data-i18n="q5">Mengapa fitur “Ikuti bus” tidak ada di web?</summary><p data-i18n="a5">Notifikasi tetap saat aplikasi di latar belakang memerlukan layanan Android native, sehingga hanya tersedia di aplikasi Android.</p></details>
+      </section>
+
+      <section>
+        <div class="disclaimer" data-i18n="disclaimer">TPLive adalah proyek independen dan tidak berafiliasi dengan Pemerintah Kota Padang. Nama “TransPadang” dan data terkait adalah milik pihak terkait. Estimasi waktu dihitung dari jarak garis lurus dan kecepatan bus, bukan jaringan jalan, jadi hanya perkiraan.</div>
+      </section>
+    </main>
+
+    <footer>
+      <a href="https://github.com/dwikyalfira/TPLive-Transpadang-Bus-Tracker">GitHub</a>
+      <a href="https://github.com/dwikyalfira/TPLive-Transpadang-Bus-Tracker/releases" data-i18n="f_rel">Rilis</a>
+      <a href="privacy.html" data-i18n="nav_privacy">Privasi</a>
+      <a href="https://github.com/dwikyalfira/TPLive-Transpadang-Bus-Tracker/blob/main/LICENSE">MIT License</a>
+    </footer>
+  </div>
+
+  <script>
+    var EN = {
+      nav_features: 'Features', nav_privacy: 'Privacy',
+      hero_title: 'Track TransPadang buses, right from your phone',
+      hero_lead: 'See live bus positions, find routes to your destination, and know when the bus arrives. Free, no ads, no account.',
+      cta_web: 'Open Web App', cta_apk: 'Download Android APK',
+      hours: 'Buses run 06:00–19:00 WIB (UTC+7); outside those hours no positions are available.',
+      features_h: 'Features',
+      f1_t: 'Live bus positions', f1_d: 'The map shows buses on every corridor K1–K6 and updates automatically.',
+      f2_t: 'Search a destination', f2_d: 'Type where you are going and TPLive suggests the nearest boarding and alighting stops.',
+      f3_t: 'Arrival estimates', f3_d: 'Estimated time until the bus reaches the next stop and the stop near you.',
+      f4_t: 'Follow a bus (Android)', f4_d: 'Get notified when the bus is about to reach your boarding or alighting stop. Android app only.',
+      f5_t: 'Light, dark & Material You', f5_d: 'Follows your device theme; on Android the colours follow your wallpaper.',
+      f6_t: 'Two languages', f6_d: 'Bahasa Indonesia and English.',
+      how_h: 'How to use',
+      s1: 'Open the Web App or install the APK, then allow location access so nearby buses are sorted from your position.',
+      s2: 'Pick a corridor, or tap the “Search destination” bar to find a route.',
+      s3: 'Tap a bus to see its stops, the next stop and the estimated arrival.',
+      faq_h: 'FAQ',
+      q1: 'Is TPLive official?', a1: 'No. TPLive is an independent open-source project, not affiliated with the Padang city government or the TransPadang operator.',
+      q2: 'Where does the bus data come from?', a2: 'From TransPadang’s public data service. Availability and accuracy depend on that service and can change without notice.',
+      q3: 'Why are there no buses on screen?', a3: 'The service only sends data 06:00–19:00 WIB. Outside those hours, or when a bus has not reported, the list is empty.',
+      q4: 'Is my location sent to a server?', a4: 'Not to a TPLive server — there is none. Location is used on your device to sort buses and compute estimates. See the Privacy Policy.',
+      q5: 'Why is “Follow bus” missing on the web?', a5: 'Notifications that persist in the background need a native Android service, so they exist only in the Android app.',
+      disclaimer: 'TPLive is an independent project and is not affiliated with the Padang city government. The name “TransPadang” and related data belong to their owners. Arrival times are computed from straight-line distance and bus speed, not the road network, so treat them as estimates.',
+      f_rel: 'Releases'
+    };
+    var ID = {};
+    document.querySelectorAll('[data-i18n]').forEach(function (el) { ID[el.dataset.i18n] = el.innerHTML; });
+    var btn = document.getElementById('lang');
+    function setLang(l) {
+      var dict = l === 'en' ? EN : ID;
+      document.documentElement.lang = l;
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        if (dict[el.dataset.i18n] != null) el.innerHTML = dict[el.dataset.i18n];
+      });
+      btn.textContent = l === 'en' ? 'ID' : 'EN';
+      try { localStorage.setItem('lang', l); } catch (e) {}
+    }
+    btn.addEventListener('click', function () {
+      setLang(document.documentElement.lang === 'en' ? 'id' : 'en');
+    });
+    var saved = null;
+    try { saved = localStorage.getItem('lang'); } catch (e) {}
+    if (saved === 'en' || (!saved && (navigator.language || '').toLowerCase().indexOf('id') !== 0)) setLang('en');
+  </script>
+</body>
+</html>

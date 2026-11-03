@@ -10,9 +10,11 @@ bus positions over **WebSocket** and includes a multi-corridor trip planner.
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-%3E%3D3.3.4-0175C2?logo=dart&logoColor=white)](https://dart.dev)
-[![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white)](https://www.android.com)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Web-3DDC84?logo=android&logoColor=white)](https://dwikyalfira.github.io/TPLive-Transpadang-Bus-Tracker/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#lisensi)
 
+> **Coba online / Try it:** [Halaman unduh & Web App](https://dwikyalfira.github.io/TPLive-Transpadang-Bus-Tracker/) · [Kebijakan Privasi](https://dwikyalfira.github.io/TPLive-Transpadang-Bus-Tracker/privacy.html)
+>
 > **Navigasi bahasa / Language navigation:**
 > [Bahasa Indonesia](#bahasa-indonesia) · [English](#english)
 
@@ -253,8 +255,11 @@ dart run flutter_launcher_icons
 dart run flutter_native_splash:create
 ```
 
-> **Platform:** hanya **Android** yang didukung (splash native dan layanan "Ikuti bus"
-> ditulis untuk Android). Folder `ios/` hanya sisa template Flutter.
+> **Platform:** **Android** (penuh) dan **Web** (tanpa "Ikuti bus"/notifikasi, karena
+> membutuhkan layanan Android native; warna dinamis juga disembunyikan). Folder `ios/`
+> hanya sisa template Flutter. Web build:
+> `flutter build web --release --base-href /<repo>/app/ --dart-define-from-file=dart_defines.json`
+> (halaman unduh statis ada di `site/`; `pages.yml` menerbitkan keduanya ke GitHub Pages).
 >
 > **Penandatanganan rilis:** tanpa konfigurasi, APK rilis ditandatangani kunci debug
 > (cukup untuk dipasang manual, tetapi kunci debug berbeda di tiap komputer sehingga

@@ -45,6 +45,9 @@ dependencies:
   # Realtime bus positions
   web_socket_channel: ^2.4.5
 
+  # HTTP klien lintas platform (geocoding); `dart:io` HttpClient tidak ada di web
+  http: ^1.2.0
+
   # Device location
   geolocator: ^11.0.0
 

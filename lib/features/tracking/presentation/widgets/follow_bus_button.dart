@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,6 +46,9 @@ class FollowBusButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Notifikasi foreground service hanya ada di Android; di web tombolnya
+    // disembunyikan agar tidak menjadi elemen mati.
+    if (kIsWeb) return const SizedBox.shrink();
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final key = busFollowKey(bus.corridor, bus.number);

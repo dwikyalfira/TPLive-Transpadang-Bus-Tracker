@@ -1,15 +1,15 @@
 /* TPLive landing page — implements /DESIGN.md. Token names match the doc. */
 :root {
-  --primary: #9d4400;
+  --primary: #c2410c;
   --on-primary: #ffffff;
-  --primary-container: #ffdbca;
-  --on-primary-container: #331100;
-  --surface: #fffbff;
-  --on-surface: #201a17;
-  --surface-variant: #f4ded4;
-  --on-surface-variant: #52443d;
-  --outline: #85746b;
-  --outline-variant: #d7c2b9;
+  --primary-container: #ffedd5;
+  --on-primary-container: #7c2d12;
+  --surface: #ffffff;
+  --on-surface: #1c1917;
+  --surface-variant: #f5f5f4;
+  --on-surface-variant: #57534e;
+  --outline: #78716c;
+  --outline-variant: #e7e5e4;
   --brand: #f47f38;
 
   --k1: #c8163f; --k2: #eaa221; --k3: #5cc49a;
@@ -19,21 +19,36 @@
   --ease: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-in: cubic-bezier(0.05, 0.7, 0.1, 1);
   --gutter: 16px;
-  color-scheme: light dark;
+  color-scheme: light;
 }
+/* Dark: follows the system unless the visitor picked a theme (data-theme). */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --primary: #ffb690;
-    --on-primary: #542100;
-    --primary-container: #783200;
-    --on-primary-container: #ffdbca;
-    --surface: #201a17;
-    --on-surface: #ece0db;
-    --surface-variant: #52443d;
-    --on-surface-variant: #d7c2b9;
-    --outline: #a08d84;
-    --outline-variant: #52443d;
+  :root:not([data-theme="light"]) {
+    --primary: #fb923c;
+    --on-primary: #1c0a00;
+    --primary-container: #7c2d12;
+    --on-primary-container: #ffedd5;
+    --surface: #141211;
+    --on-surface: #f5f5f4;
+    --surface-variant: #1f1c1b;
+    --on-surface-variant: #a8a29e;
+    --outline: #78716c;
+    --outline-variant: #292524;
+    color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --primary: #fb923c;
+  --on-primary: #1c0a00;
+  --primary-container: #7c2d12;
+  --on-primary-container: #ffedd5;
+  --surface: #141211;
+  --on-surface: #f5f5f4;
+  --surface-variant: #1f1c1b;
+  --on-surface-variant: #a8a29e;
+  --outline: #78716c;
+  --outline-variant: #292524;
+  color-scheme: dark;
 }
 @media (min-width: 600px) { :root { --gutter: 24px; } }
 
@@ -74,6 +89,20 @@ header.top { display: flex; align-items: center; gap: 12px; padding: 14px 0; }
   font: 600 .875rem/1 inherit; cursor: pointer;
 }
 .lang:hover { background: var(--surface-variant); }
+
+.theme {
+  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid var(--outline); background: none; color: var(--on-surface); cursor: pointer;
+}
+.theme:hover { background: var(--surface-variant); }
+.theme svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.theme .sun { display: none; }
+:root[data-theme="dark"] .theme .sun { display: block; }
+:root[data-theme="dark"] .theme .moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme .sun { display: block; }
+  :root:not([data-theme="light"]) .theme .moon { display: none; }
+}
 
 /* Buttons */
 .btn {

@@ -34,31 +34,36 @@ geometry and corridor colour**, not from decoration.
   (6 corridors, 286 stops, hours, version).
 
 ## 2. Colour
-Seed `#F47F38` (logo orange), `ColorScheme.fromSeed` (the exact app values).
-Website tokens are CSS custom properties with these names/values; dark values
-apply under `prefers-color-scheme: dark`.
+Direction: **clean neutral + one orange accent.** Neutrals are stone greys with no
+brown/pink tint; orange appears only on actions, links and the route line.
+Corridor colours stay fixed (they mean a corridor). Website tokens are CSS custom
+properties with these names/values. Dark applies via `prefers-color-scheme` and is
+overridden by the visitor's manual choice (`data-theme="light|dark"`).
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| `--primary` | `#9D4400` | `#FFB690` | links, filled buttons, key accents |
-| `--on-primary` | `#FFFFFF` | `#542100` | text on primary |
-| `--primary-container` | `#FFDBCA` | `#783200` | tonal highlights, selected |
-| `--on-primary-container` | `#331100` | `#FFDBCA` | text on primary container |
-| `--surface` | `#FFFBFF` | `#201A17` | page background |
-| `--on-surface` | `#201A17` | `#ECE0DB` | body text |
-| `--surface-variant` | `#F4DED4` | `#52443D` | panels, chips |
-| `--on-surface-variant` | `#52443D` | `#D7C2B9` | secondary text |
-| `--outline` | `#85746B` | `#A08D84` | borders needing 3:1 |
-| `--outline-variant` | `#D7C2B9` | `#52443D` | hairlines, dividers |
+| `--primary` | `#C2410C` | `#FB923C` | links, filled buttons, key accents |
+| `--on-primary` | `#FFFFFF` | `#1C0A00` | text on primary |
+| `--primary-container` | `#FFEDD5` | `#7C2D12` | tonal buttons, highlights |
+| `--on-primary-container` | `#7C2D12` | `#FFEDD5` | text on primary container |
+| `--surface` | `#FFFFFF` | `#141211` | page background |
+| `--on-surface` | `#1C1917` | `#F5F5F4` | body text |
+| `--surface-variant` | `#F5F5F4` | `#1F1C1B` | panels, phone-frame background |
+| `--on-surface-variant` | `#57534E` | `#A8A29E` | secondary text |
+| `--outline` | `#78716C` | `#78716C` | borders needing 3:1 |
+| `--outline-variant` | `#E7E5E4` | `#292524` | hairlines, dividers |
 | `--brand` | `#F47F38` | `#F47F38` | logo/route line only, never body text |
+
+**Theme toggle:** a 48 px icon button in the header (moon in light, sun in dark).
+Default follows the system; the first click stores `light`/`dark` in
+`localStorage` and overrides it. `theme.js` loads synchronously in `<head>` to
+avoid a flash, and swaps the `<picture>` screenshot source to match.
 
 **Corridor colours** (fixed identity, from `corridorColor`): K1 `#C8163F`,
 K2 `#EAA221`, K3 `#5CC49A`, K4 `#5F9A4F`, K5 `#1F2A6B`, K6 `#1E9BDB`. Text on a
 corridor chip: dark (`#000000DE`) on K2/K3, white on others (`onCorridorColor`).
-Outside-hours purple: `#7B1FA2` (light) / `#CE93D8` (dark).
-
-Contrast: body text ≥ 4.5:1, large text/UI ≥ 3:1. `--brand` orange on light
-surface fails for text, so text/links use `--primary`.
+Contrast: body text ≥ 4.5:1, large text/UI ≥ 3:1. `--brand` orange on white
+fails for text, so text/links use `--primary` (`#C2410C` = 5.2:1 on white).
 
 ## 3. Typography
 System stack (no web-font download; many users are on mobile data):
@@ -102,7 +107,7 @@ Touch targets ≥ 48 × 48 px.
   `--brand` ring); the last stop is filled. Used for the "how it works" steps.
 - **Phone frame**: device screenshot with 28 px radius, 1 px outline, no
   fake notch/buttons. Light and dark screenshots swap with the colour scheme
-  (`<picture>` + `prefers-color-scheme`).
+  (`<picture>` + `prefers-color-scheme`, overridden by the toggle).
 - **Status note** (disclaimer, hours): left 4 px `--brand` bar on
   `--surface-variant`, caption text.
 - **Details/FAQ**: native `<details>`, 1 px hairline separators, no boxes.

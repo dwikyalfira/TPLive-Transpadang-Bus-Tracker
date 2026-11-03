@@ -1,0 +1,4 @@
+storeFile=../keystore/tplive-release.jks
+storePassword=GANTI_INI
+keyAlias=tplive
+keyPassword=GANTI_INI

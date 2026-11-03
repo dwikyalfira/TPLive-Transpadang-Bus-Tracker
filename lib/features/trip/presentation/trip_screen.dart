@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_motion.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/constrained_content.dart';
 import '../../../core/ui/fade_through_route.dart';
 import '../../../core/ui/state_views.dart';
@@ -110,7 +111,7 @@ class _RouteField extends StatelessWidget {
 
     return Material(
       color: scheme.surfaceVariant.withOpacity(0.5),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: AppShape.largeRadius,
       clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -525,8 +526,8 @@ class _RouteSteps extends StatelessWidget {
 
   Widget _node(ThemeData theme, _Step step) {
     return Container(
-      width: 22,
-      height: 22,
+      width: 24,
+      height: 24,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: step.nodeColor,
@@ -535,10 +536,11 @@ class _RouteSteps extends StatelessWidget {
       child: step.code != null
           ? Text(
               step.code!,
-              style: TextStyle(
+              // Setara labelSmall (11sp), batas terkecil skala tipografi M3.
+              style: theme.textTheme.labelSmall?.copyWith(
                 color: onCorridorColor(step.code!),
-                fontSize: 9,
                 fontWeight: FontWeight.w700,
+                height: 1,
               ),
             )
           : Icon(step.icon, size: 13, color: step.iconColor),

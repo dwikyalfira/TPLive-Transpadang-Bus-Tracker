@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
 import '../../../../core/theme/app_motion.dart';
+import '../../../../core/theme/status_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/trans_ws_datasource.dart';
 
@@ -49,7 +50,7 @@ class LiveStatusPill extends StatefulWidget {
       case ConnectionStatus.reconnecting:
         return (l10n.statusReconnecting, const Color(0xFFF9A825));
       case ConnectionStatus.outsideHours:
-        return (l10n.statusOutsideHoursShort, const Color(0xFF7B1FA2));
+        return (l10n.statusOutsideHoursShort, StatusColors.night);
       case ConnectionStatus.disconnected:
         return (l10n.statusPillDisconnected, const Color(0xFFC62828));
       case null:
@@ -155,6 +156,7 @@ class _LiveStatusPillState extends State<LiveStatusPill>
     );
     // Label berakhiran "…" menampilkan titik animasi; teks dasarnya dipisah
     // agar titik-titiknya bisa beranimasi (efek mengetik) tanpa mengubah teks.
+    final textColor = _legibleOn(Theme.of(context).brightness, color);
     final hasEllipsis = rawLabel.endsWith('…');
     final baseLabel =
         hasEllipsis ? rawLabel.substring(0, rawLabel.length - 1) : rawLabel;
@@ -167,76 +169,99 @@ class _LiveStatusPillState extends State<LiveStatusPill>
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
 
+    // Pill-nya kecil, tetapi area sentuhnya dipertahankan setinggi 48 dp
+    // (pedoman target sentuh Material 3) tanpa memperlebar pill.
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: widget.onTap != null ? _onTap : null,
-      child: Tooltip(
-        message: rawLabel,
-        child: Semantics(
-          label: rawLabel,
-          child: AnimatedBuilder(
-            animation: _label,
-            builder: (context, _) {
-              final t = _label.value.clamp(0.0, 1.0);
-              return Container(
-                padding: EdgeInsets.lerp(
-                  const EdgeInsets.all(6),
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  t,
-                ),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.10 + 0.02 * t),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: color.withOpacity(0.5)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    dot,
-                    Flexible(
-                      child: ClipRect(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          widthFactor: t,
-                          heightFactor: t,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 6),
-                            child: Opacity(
-                              opacity: t,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      baseLabel,
-                                      softWrap: false,
-                                      // Titik animasi digambar
-                                      // [_AnimatedEllipsis]; jangan biarkan
-                                      // Flutter menambahkan elipsisnya
-                                      // sendiri agar titik tidak tampak dobel.
-                                      overflow: TextOverflow.clip,
-                                      style: _labelStyle.copyWith(color: color),
-                                    ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 48),
+        child: Align(
+          widthFactor: 1,
+          child: Tooltip(
+            message: rawLabel,
+            child: Semantics(
+              label: rawLabel,
+              button: widget.onTap != null,
+              excludeSemantics: true,
+              child: AnimatedBuilder(
+                animation: _label,
+                builder: (context, _) {
+                  final t = _label.value.clamp(0.0, 1.0);
+                  return Container(
+                    padding: EdgeInsets.lerp(
+                      const EdgeInsets.all(6),
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      t,
+                    ),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.10 + 0.02 * t),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: color.withOpacity(0.5)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        dot,
+                        Flexible(
+                          child: ClipRect(
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              widthFactor: t,
+                              heightFactor: t,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 6),
+                                child: Opacity(
+                                  opacity: t,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          baseLabel,
+                                          softWrap: false,
+                                          // Titik animasi digambar
+                                          // [_AnimatedEllipsis]; jangan biarkan
+                                          // Flutter menambahkan elipsisnya
+                                          // sendiri agar titik tidak tampak dobel.
+                                          overflow: TextOverflow.clip,
+                                          style: _labelStyle.copyWith(
+                                              color: textColor),
+                                        ),
+                                      ),
+                                      if (hasEllipsis)
+                                        _AnimatedEllipsis(
+                                          style: _labelStyle.copyWith(
+                                              color: textColor),
+                                        ),
+                                    ],
                                   ),
-                                  if (hasEllipsis)
-                                    _AnimatedEllipsis(
-                                      style: _labelStyle.copyWith(color: color),
-                                    ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            },
+                  );
+                },
+              ),
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+/// Menggeser terang-gelap [color] agar teks di atas tint-nya tetap terbaca
+/// (kontras ≥ 4,5:1): lebih gelap di tema terang, lebih terang di tema gelap.
+Color _legibleOn(Brightness brightness, Color color) {
+  final hsl = HSLColor.fromColor(color);
+  final lightness = brightness == Brightness.dark
+      ? hsl.lightness.clamp(0.72, 1.0)
+      : hsl.lightness.clamp(0.0, 0.3);
+  return hsl.withLightness(lightness.toDouble()).toColor();
 }
 
 /// Tiga titik yang tampil bergantian (efek mengetik) untuk label yang berakhir

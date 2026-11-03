@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/follow_service.dart';
 import '../../../core/theme/app_motion.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/status_colors.dart';
 import '../../../core/ui/constrained_content.dart';
 import '../../../core/ui/fade_through_route.dart';
 import '../../../core/ui/state_views.dart';
@@ -371,10 +373,10 @@ class _SearchBar extends StatelessWidget {
         theme.colorScheme.primary.withOpacity(0.05),
         theme.colorScheme.surface,
       ),
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: AppShape.extraLargeRadius,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: AppShape.extraLargeRadius,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
@@ -657,7 +659,7 @@ class _DestinationHeader extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: band,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: AppShape.mediumRadius,
         ),
         child: Row(
           children: [
@@ -847,7 +849,7 @@ class _OutsideHoursView extends StatelessWidget {
             Icon(
               Icons.nightlight_round,
               size: 64,
-              color: const Color(0xFF7B1FA2).withOpacity(0.8),
+              color: StatusColors.nightFor(theme.brightness).withOpacity(0.8),
             ),
             const SizedBox(height: 16),
             Text(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/corridor_info.dart';
 import '../providers.dart';
@@ -144,10 +145,10 @@ class _CorridorRow extends StatelessWidget {
           accent.withOpacity(kCorridorCardTintOpacity),
           theme.colorScheme.surface,
         ),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppShape.largeRadius,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppShape.largeRadius,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(
@@ -293,7 +294,7 @@ class _FareInfoSection extends StatelessWidget {
                 accent.withOpacity(kCorridorCardTintOpacity),
                 theme.colorScheme.surface,
               ),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppShape.largeRadius,
             ),
             child: Column(
               children: [

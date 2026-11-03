@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../../../core/theme/app_theme.dart';
 import '../../../core/settings.dart';
 import '../../../core/ui/constrained_content.dart';
 import '../../../l10n/app_localizations.dart';
@@ -68,7 +69,7 @@ class _SettingsCard extends StatelessWidget {
         scheme.surface,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppShape.largeRadius,
         side: BorderSide(color: scheme.outlineVariant.withOpacity(0.6)),
       ),
       child: Column(

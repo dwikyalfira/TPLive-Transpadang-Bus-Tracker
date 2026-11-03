@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/map_mode.dart';
 import '../../../../../core/settings.dart';
 import '../../../../../core/theme/app_motion.dart';
+import '../../../../../core/theme/status_colors.dart';
 import '../../../../../core/ui/reveal.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../providers.dart';
@@ -348,11 +349,6 @@ class _OutsideHoursStatus extends StatelessWidget {
     required this.onToggle,
   });
 
-  /// Ungu malam: pekat di tema terang, dicerahkan di tema gelap supaya
-  /// kontras ikon/judul terhadap `surface` gelap tetap cukup.
-  static const Color _night = Color(0xFF7B1FA2);
-  static const Color _nightDark = Color(0xFFCE93D8);
-
   /// Ukuran tombol ikon = tinggi kapsul penyaring koridor, jadi kedua tombol di
   /// kolom kiri peta tampil sejajar dan sama besar.
   static const double _circleSize = _corridorBarHeight;
@@ -360,7 +356,7 @@ class _OutsideHoursStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final accent = theme.brightness == Brightness.dark ? _nightDark : _night;
+    final accent = StatusColors.nightFor(theme.brightness);
 
     // Bentuk & gerak sama dengan kapsul penyaring: [RevealRow] menyingkap isi
     // dari tepi kiri sambil memudarkannya, jadi ikon tidak "melompat" dan teks

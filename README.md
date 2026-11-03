@@ -245,13 +245,23 @@ flutter pub get
 # 2. Jalankan (lokalisasi ter-generate otomatis karena generate: true)
 flutter run
 
-# 3. Build APK release
-flutter build apk --release
+# 3. Build APK release (token Mapbox opsional; lihat CONTRIBUTING.md)
+flutter build apk --release --dart-define-from-file=dart_defines.json
 
 # 4. (Opsional, sekali) regenerasi ikon & splash
 dart run flutter_launcher_icons
 dart run flutter_native_splash:create
 ```
+
+> **Platform:** hanya **Android** yang didukung (splash native dan layanan "Ikuti bus"
+> ditulis untuk Android). Folder `ios/` hanya sisa template Flutter.
+>
+> **Penandatanganan rilis:** tanpa konfigurasi, APK rilis ditandatangani kunci debug
+> (cukup untuk dipasang manual, tetapi kunci debug berbeda di tiap komputer sehingga
+> APK dari komputer lain tidak bisa memperbarui yang terpasang). Untuk kunci tetap,
+> buat keystore lalu salin `android/key.properties.example` menjadi
+> `android/key.properties` (di-gitignore). Rilis juga memakai R8 (minify + shrink
+> resources); uji APK rilis sebelum dibagikan.
 
 Regenerasi kelas terjemahan secara manual bila perlu:
 
@@ -275,8 +285,7 @@ flutter gen-l10n
 
 ### Lisensi
 
-Dirilis di bawah lisensi **MIT**. Lihat berkas `LICENSE` bila tersedia, atau tambahkan
-sebelum publikasi. Nama "TransPadang" dan data terkait adalah milik pemerintah Kota Padang.
+Dirilis di bawah lisensi **MIT**. Lihat berkas [`LICENSE`](LICENSE). Nama "TransPadang" dan data terkait adalah milik pemerintah Kota Padang.
 
 ---
 

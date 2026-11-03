@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -50,7 +51,15 @@ class LocationErrorView extends StatelessWidget {
         ),
     };
 
+    // Browser tidak punya halaman pengaturan lokasi yang bisa dibuka dari
+    // aplikasi: pengguna mengizinkan lewat ikon gembok di bilah alamat, lalu
+    // mencoba lagi.
     final primary = switch (kind) {
+      _ when kIsWeb => FilledButton.icon(
+          onPressed: onRetry,
+          icon: const Icon(Icons.refresh),
+          label: Text(l10n.retry),
+        ),
       LocationErrorKind.serviceDisabled => FilledButton.icon(
           onPressed: () => unawaited(Geolocator.openLocationSettings()),
           icon: const Icon(Icons.location_on_outlined),
@@ -68,8 +77,9 @@ class LocationErrorView extends StatelessWidget {
         ),
     };
 
-    final showRetry = kind == LocationErrorKind.serviceDisabled ||
-        kind == LocationErrorKind.permissionDeniedForever;
+    final showRetry = !kIsWeb &&
+        (kind == LocationErrorKind.serviceDisabled ||
+            kind == LocationErrorKind.permissionDeniedForever);
 
     return ErrorStateView(
       title: title,

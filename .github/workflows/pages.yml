@@ -1,0 +1,59 @@
+name: Deploy site
+
+# Menerbitkan halaman unduh (site/) dan web app Flutter (/app/) ke GitHub Pages.
+# Prasyarat sekali: Settings → Pages → Source = "GitHub Actions".
+# Secret opsional MAPBOX_TOKEN (batasi URL-nya ke domain Pages); tanpa token,
+# peta dan pencarian memakai OpenStreetMap/Nominatim.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.19.6
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - name: Build web
+        run: >
+          flutter build web --release
+          --base-href /${{ github.event.repository.name }}/app/
+          --dart-define=MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }}
+      - name: Assemble site
+        run: |
+          mkdir -p _site/app
+          cp -r site/. _site/
+          cp -r build/web/. _site/app/
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

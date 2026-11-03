@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
 import '../../../core/config.dart';
@@ -93,9 +94,9 @@ class GeocodingException implements Exception {
 /// kosong, otomatis jatuh ke **Nominatim (OpenStreetMap)** yang mengikuti
 /// kebijakan penggunaannya: satu permintaan pada satu waktu, User-Agent jelas.
 class GeocodingService {
-  final HttpClient _client;
+  final http.Client _client;
 
-  GeocodingService({HttpClient? client}) : _client = client ?? HttpClient();
+  GeocodingService({http.Client? client}) : _client = client ?? http.Client();
 
   /// Mencari tempat berdasarkan teks [query] di sekitar Padang.
   Future<List<GeocodingResult>> search(
@@ -160,7 +161,8 @@ class GeocodingService {
     final decoded = await _getJson(
       uri,
       timeout: timeout,
-      headers: {HttpHeaders.userAgentHeader: AppConfig.geocoderUserAgent},
+      // Browser melarang skrip mengatur User-Agent; di web biarkan bawaan.
+      headers: kIsWeb ? null : {'User-Agent': AppConfig.geocoderUserAgent},
     );
     if (decoded is! List) return const [];
     return decoded
@@ -178,28 +180,30 @@ class GeocodingService {
     Map<String, String>? headers,
   }) async {
     try {
-      final request = await _client.getUrl(uri).timeout(timeout);
-      request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-      headers?.forEach((name, value) => request.headers.set(name, value));
-      final response = await request.close().timeout(timeout);
-      final body =
-          await response.transform(utf8.decoder).join().timeout(timeout);
+      final response = await _client.get(uri, headers: {
+        'Accept': 'application/json',
+        ...?headers,
+      }).timeout(timeout);
 
-      if (response.statusCode != HttpStatus.ok) {
+      if (response.statusCode != 200) {
         throw GeocodingException(
           GeocodingErrorKind.httpError,
           statusCode: response.statusCode,
         );
       }
-      return jsonDecode(body);
+      return jsonDecode(utf8.decode(response.bodyBytes));
     } on TimeoutException {
       throw const GeocodingException(GeocodingErrorKind.timeout);
-    } on SocketException {
-      throw const GeocodingException(GeocodingErrorKind.noConnection);
+    } on GeocodingException {
+      rethrow;
     } on FormatException {
       throw const GeocodingException(GeocodingErrorKind.invalidResponse);
+    } on Exception {
+      // http.ClientException di web; SocketException/HandshakeException di
+      // mobile (tidak diimpor di sini karena dart:io tidak ada di web).
+      throw const GeocodingException(GeocodingErrorKind.noConnection);
     }
   }
 
-  void close() => _client.close(force: true);
+  void close() => _client.close();
 }

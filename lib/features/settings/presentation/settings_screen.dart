@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -343,14 +344,18 @@ class SettingsScreen extends ConsumerWidget {
                   onSelected: notifier.setThemeMode,
                 ),
               ),
-              const _CardDivider(),
-              SwitchListTile(
-                secondary: const Icon(Icons.palette_outlined),
-                title: Text(l10n.dynamicColorTitle),
-                subtitle: Text(l10n.dynamicColorSubtitle),
-                value: settings.useDynamicColor,
-                onChanged: notifier.setUseDynamicColor,
-              ),
+              // Warna dinamis (Material You) mengikuti wallpaper Android;
+              // browser tidak punya padanannya, jadi pilihannya disembunyikan.
+              if (!kIsWeb) ...[
+                const _CardDivider(),
+                SwitchListTile(
+                  secondary: const Icon(Icons.palette_outlined),
+                  title: Text(l10n.dynamicColorTitle),
+                  subtitle: Text(l10n.dynamicColorSubtitle),
+                  value: settings.useDynamicColor,
+                  onChanged: notifier.setUseDynamicColor,
+                ),
+              ],
             ],
           ),
           _SectionLabel(text: l10n.sectionLanguage),

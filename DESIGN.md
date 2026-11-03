@@ -108,6 +108,14 @@ Touch targets ≥ 48 × 48 px.
 - **Phone frame**: device screenshot with 28 px radius, 1 px outline, no
   fake notch/buttons. Light and dark screenshots swap with the colour scheme
   (`<picture>` + `prefers-color-scheme`, overridden by the toggle).
+- **Top app bar**: sticky, solid `--surface`, 1 px `--outline-variant` hairline once
+  the page has scrolled. Hides when scrolling down (after it has left the top) and
+  returns on any upward scroll or keyboard focus inside it (`nav.js`). Holds
+  brand, Privacy link, theme toggle, language toggle; every control ≥ 48 px.
+- **Back-to-top button**: 52 px rounded-square (16 px radius) in
+  `--primary-container`, fixed bottom-right (16 px + safe-area inset). Appears after
+  600 px of scroll, scrolls to top (instant under reduced motion) and moves focus to
+  the brand link.
 - **Status note** (disclaimer, hours): left 4 px `--brand` bar on
   `--surface-variant`, caption text.
 - **Details/FAQ**: native `<details>`, 1 px hairline separators, no boxes.

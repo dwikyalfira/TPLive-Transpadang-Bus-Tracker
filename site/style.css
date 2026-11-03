@@ -75,7 +75,29 @@ a:hover { text-decoration-thickness: 2px; }
 .wrap { max-width: 1040px; margin: 0 auto; padding: 0 var(--gutter); }
 
 /* Header */
-header.top { display: flex; align-items: center; gap: 12px; padding: 14px 0; }
+/* Top app bar: sticky, hides on scroll down, returns on scroll up (nav.js). */
+.appbar {
+  position: sticky; top: 0; z-index: 20;
+  background: var(--surface); border-bottom: 1px solid transparent;
+  transition: transform .3s var(--ease), border-color .2s var(--ease);
+}
+.appbar.is-scrolled { border-bottom-color: var(--outline-variant); }
+.appbar.is-hidden { transform: translateY(-100%); }
+.appbar:focus-within { transform: none; }
+.top { display: flex; align-items: center; gap: 12px; padding-top: 10px; padding-bottom: 10px; }
+
+/* Back-to-top button (shown after scrolling) */
+.fab {
+  position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 15;
+  width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center;
+  border: 0; cursor: pointer; background: var(--primary-container); color: var(--on-primary-container);
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  opacity: 0; transform: translateY(12px); pointer-events: none; visibility: hidden;
+  transition: opacity .2s var(--ease), transform .3s var(--ease-in), visibility 0s linear .3s;
+}
+.fab.show { opacity: 1; transform: none; pointer-events: auto; visibility: visible; transition-delay: 0s; }
+.fab:hover { box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.fab svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .brand {
   display: flex; align-items: center; gap: 10px; margin-right: auto;
   font-weight: 700; font-size: 1.125rem; color: inherit; text-decoration: none;
@@ -245,4 +267,4 @@ article.doc hr { border: 0; border-top: 1px solid var(--outline-variant); margin
   .hero .phone { animation-delay: .1s; }
   @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
 }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn, .appbar, .fab { transition: none; } }

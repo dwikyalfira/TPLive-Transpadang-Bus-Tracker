@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ import '../../../../../l10n/app_localizations.dart';
 import '../../../data/bus_model.dart';
 import '../../../domain/bus_with_distance.dart';
 import '../../../domain/halte_tracker.dart';
+import '../../../domain/map_detail.dart';
 import '../../../domain/map_marker.dart';
 import '../../../domain/map_stop.dart';
 import '../../../domain/user_arrival.dart';
@@ -59,8 +61,31 @@ class BusMapViewState extends ConsumerState<BusMapView> {
   String? _selectedKey;
 
   /// Id halte terpilih ([MapStop.id]) yang diberi cincin sorot, null = tidak
-  /// ada.
-  String? _selectedStopId;
+  /// ada. Berupa notifier supaya hanya lapisan halte yang dibangun ulang.
+  final ValueNotifier<String?> _selectedStop = ValueNotifier<String?>(null);
+
+  /// Level detail jalur & halte menurut zoom (lihat `map_detail.dart`).
+  ///
+  /// Sengaja bukan `MapCamera.of(context).zoom`: itu membangun ulang lapisan di
+  /// setiap frame geseran, sedangkan level hanya berubah di ambang zoom.
+  final ValueNotifier<int> _routeLevel =
+      ValueNotifier<int>(routeDetailLevel(AppConfig.mapInitialZoom));
+  final ValueNotifier<int> _stopLevel =
+      ValueNotifier<int>(stopZoomLevel(AppConfig.mapInitialZoom));
+
+  /// Lapisan berat yang dibuat sekali dan dipakai ulang (instance yang sama →
+  /// Flutter tidak membangunnya lagi saat peta dibangun ulang tiap data bus
+  /// masuk). Masing-masing mendengarkan notifier/provider-nya sendiri.
+  late final Widget _routeLayer = _RouteLayer(level: _routeLevel);
+  late final Widget _stopLayer = _StopLayer(
+    level: _stopLevel,
+    selected: _selectedStop,
+    onOpen: _openStop,
+  );
+
+  /// Ubin peta ikut di-cache selama sumbernya tidak berubah.
+  Widget? _tileLayerCache;
+  String? _tileLayerKey;
 
   /// Peta sudah siap menerima perintah [MapController.move] (`onMapReady`).
   bool _mapReady = false;
@@ -73,6 +98,9 @@ class BusMapViewState extends ConsumerState<BusMapView> {
   @override
   void dispose() {
     _controller.dispose();
+    _selectedStop.dispose();
+    _routeLevel.dispose();
+    _stopLevel.dispose();
     // Lepas penanda agar kartu pin global kembali tampil begitu keluar peta.
     _container.read(mapBusSelectedProvider.notifier).state = false;
     super.dispose();
@@ -171,9 +199,7 @@ class BusMapViewState extends ConsumerState<BusMapView> {
 
   void _clearSelection() {
     _applySelection(null);
-    if (_selectedStopId != null) {
-      setState(() => _selectedStopId = null);
-    }
+    _selectedStop.value = null;
   }
 
   /// Menutup baris penyaring koridor (koridor terpilih tidak diubah).
@@ -198,9 +224,7 @@ class BusMapViewState extends ConsumerState<BusMapView> {
   }
 
   void _openStop(MapStop stop) {
-    if (_selectedStopId != stop.id) {
-      setState(() => _selectedStopId = stop.id);
-    }
+    _selectedStop.value = stop.id;
     showMapStopSheet(context, stop);
   }
 
@@ -305,7 +329,12 @@ class BusMapViewState extends ConsumerState<BusMapView> {
             // terprogram (fokus bus, tombol lokasi) tidak ikut menutup karena
             // `hasGesture` false. Kartu status di luar jam operasional ikut
             // dilipat dengan alasan yang sama.
-            onPositionChanged: (_, hasGesture) {
+            onPositionChanged: (position, hasGesture) {
+              final zoom = position.zoom;
+              if (zoom != null) {
+                _routeLevel.value = routeDetailLevel(zoom);
+                _stopLevel.value = stopZoomLevel(zoom);
+              }
               if (!hasGesture) return;
               _collapseFilter();
               _collapseStatusCard();
@@ -322,32 +351,13 @@ class BusMapViewState extends ConsumerState<BusMapView> {
             _tileLayer(tileSource),
             // Jalur koridor (semua koridor saat tab "Semua", atau hanya yang
             // terpilih), digambar di atas ubin namun di bawah penanda agar bus
-            // & lokasi pengguna tetap terlihat/diketuk.
-            PolylineLayer(
-              polylineCulling: true,
-              polylines: [
-                for (final path in ref.watch(corridorPathsProvider))
-                  Polyline(
-                    points: path.points,
-                    color: corridorAccent(path.corridor, theme),
-                    strokeWidth: AppConfig.mapRouteStrokeWidth,
-                    borderColor: theme.colorScheme.surface,
-                    borderStrokeWidth: AppConfig.mapRouteBorderWidth,
-                  ),
-              ],
-            ),
+            // & lokasi pengguna tetap terlihat/diketuk. Titiknya disederhanakan
+            // menurut zoom dan lapisannya tidak ikut dibangun ulang tiap data
+            // bus masuk.
+            _routeLayer,
             // Halte digambar di bawah bus/lokasi pengguna agar penanda bus
             // tetap menang saat diketuk.
-            Consumer(
-              builder: (context, ref, _) {
-                final camera = MapCamera.of(context);
-                final stops = ref.watch(mapStopsProvider);
-                final filter = ref.watch(mapCorridorProvider);
-                return MarkerLayer(
-                  markers: _stopMarkers(context, stops, filter, camera.zoom),
-                );
-              },
-            ),
+            _stopLayer,
             MarkerLayer(
               markers: [
                 // Titik lokasi digambar lebih dulu agar penanda bus selalu di
@@ -421,8 +431,8 @@ class BusMapViewState extends ConsumerState<BusMapView> {
                                       heroTag: 'mapFocusBus',
                                       tooltip: l10n.mapFocusBus,
                                       onPressed: _focusSelectedBus,
-                                      child: const Icon(
-                                          Icons.center_focus_strong),
+                                      child:
+                                          const Icon(Icons.center_focus_strong),
                                     ),
                                   ),
                           ),
@@ -514,8 +524,8 @@ class BusMapViewState extends ConsumerState<BusMapView> {
                                     onTap: () => showBusTimeline(
                                         context, selected,
                                         fromMap: true),
-                                    trailing: _CloseButton(
-                                        onClose: _clearSelection),
+                                    trailing:
+                                        _CloseButton(onClose: _clearSelection),
                                   ),
                           ),
                   ),
@@ -571,37 +581,136 @@ class BusMapViewState extends ConsumerState<BusMapView> {
 
   /// Lapisan ubin peta sesuai [source]; diberi filter gelap bila perlu.
   Widget _tileLayer(MapTileSource source) {
+    // `watch` tetap dipanggil tiap build supaya provider (autoDispose) tidak
+    // dibuang; instance-nya ikut jadi kunci cache.
+    final provider = ref.watch(tileProviderProvider);
+    final key =
+        '${source.urlTemplate}|${source.needsDarkFilter}|${identityHashCode(provider)}';
+    if (_tileLayerKey == key && _tileLayerCache != null) {
+      return _tileLayerCache!;
+    }
     final layer = TileLayer(
       urlTemplate: source.urlTemplate,
       userAgentPackageName: AppConfig.osmUserAgent,
-      tileProvider: ref.watch(tileProviderProvider),
+      tileProvider: provider,
+      // Tanpa animasi fade-in per ubin (satu AnimationController tiap ubin,
+      // dibangun ulang tiap frame geseran) dan pembaruan ubin dibatasi saat
+      // peta digeser — mengurangi pekerjaan per frame tanpa mengubah tampilan
+      // setelah peta diam.
+      tileDisplay: const TileDisplay.instantaneous(),
+      tileUpdateTransformer:
+          TileUpdateTransformers.throttle(const Duration(milliseconds: 80)),
     );
-    if (!source.needsDarkFilter) return layer;
-    return ColorFiltered(colorFilter: _osmDarkFilter, child: layer);
+    _tileLayerKey = key;
+    return _tileLayerCache = source.needsDarkFilter
+        ? ColorFiltered(colorFilter: _osmDarkFilter, child: layer)
+        : layer;
+  }
+}
+
+/// Jalur koridor di peta.
+///
+/// Memakai versi jalur yang disederhanakan sesuai [level] zoom
+/// ([corridorPathLodProvider]); garis tepi tipis dilewati di zoom jauh karena
+/// tidak terlihat dan menggandakan pekerjaan menggambar.
+class _RouteLayer extends ConsumerWidget {
+  final ValueListenable<int> level;
+
+  const _RouteLayer({required this.level});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    return ValueListenableBuilder<int>(
+      valueListenable: level,
+      builder: (context, level, _) {
+        return Consumer(
+          builder: (context, ref, _) {
+            final paths = ref.watch(corridorPathLodProvider(level));
+            final borderWidth =
+                level <= 1 ? 0.0 : AppConfig.mapRouteBorderWidth;
+            return PolylineLayer(
+              polylineCulling: true,
+              polylines: [
+                for (final path in paths)
+                  Polyline(
+                    points: path.points,
+                    color: corridorAccent(path.corridor, theme),
+                    strokeWidth: AppConfig.mapRouteStrokeWidth,
+                    borderColor: theme.colorScheme.surface,
+                    borderStrokeWidth: borderWidth,
+                  ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+/// Penanda halte di peta.
+///
+/// Dibangun ulang hanya saat level zoom berganti ([stopZoomLevel]), halte
+/// terpilih berubah, atau penyaring koridor/data berubah — bukan di tiap frame
+/// geseran seperti saat memakai `MapCamera.of`.
+class _StopLayer extends ConsumerWidget {
+  final ValueListenable<int> level;
+  final ValueListenable<String?> selected;
+  final void Function(MapStop stop) onOpen;
+
+  const _StopLayer({
+    required this.level,
+    required this.selected,
+    required this.onOpen,
+  });
+
+  /// Warna titik halte: warna koridor yang sedang disaring, warna koridornya
+  /// saat hanya satu koridor melayani, dan warna netral untuk halte transit.
+  static Color _stopColor(MapStop stop, String? filter, ThemeData theme) {
+    if (filter != null) return corridorColor(filter);
+    if (stop.corridors.length == 1) return corridorColor(stop.corridors.first);
+    return theme.colorScheme.onSurfaceVariant;
   }
 
-  /// Zoom minimum untuk menampilkan halte saat penyaring "Semua" aktif.
-  ///
-  /// Dengan puluhan halte per koridor, menampilkannya di zoom kota membuat peta
-  /// penuh titik; saat satu koridor dipilih, haltenya selalu tampil.
-  static const double _stopAllMinZoom = 15.5;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ValueListenableBuilder<int>(
+      valueListenable: level,
+      builder: (context, level, _) {
+        return ValueListenableBuilder<String?>(
+          valueListenable: selected,
+          builder: (context, selectedId, _) {
+            return Consumer(
+              builder: (context, ref, _) {
+                final stops = ref.watch(mapStopsProvider);
+                final filter = ref.watch(mapCorridorProvider);
+                return MarkerLayer(
+                  markers: _markers(context, stops, filter, level, selectedId),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
 
-  /// Zoom minimum untuk menampilkan label nama halte.
-  static const double _stopLabelZoom = 17;
-
-  List<Marker> _stopMarkers(
+  List<Marker> _markers(
     BuildContext context,
     List<MapStop> stops,
     String? filter,
-    double zoom,
+    int level,
+    String? selectedId,
   ) {
-    if (stops.isEmpty || (filter == null && zoom < _stopAllMinZoom)) {
-      return const [];
-    }
+    // Tab "Semua": halte baru tampil dari level 2 (zoom 15,5) — puluhan halte
+    // per koridor membuat peta penuh titik di zoom kota. Saat satu koridor
+    // dipilih, haltenya selalu tampil.
+    if (stops.isEmpty || (filter == null && level < 2)) return const [];
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final showLabels = zoom >= _stopLabelZoom;
-    final size = zoom >= 14.5 ? (showLabels ? 13.0 : 11.0) : 8.0;
+    final showLabels = level >= 3;
+    final size = level >= 1 ? (showLabels ? 13.0 : 11.0) : 8.0;
     // Saat satu koridor disaring, hanya halte koridor itu yang digambar.
     final active = filter?.toUpperCase();
     final visible = active == null
@@ -622,22 +731,14 @@ class BusMapViewState extends ConsumerState<BusMapView> {
             name: stop.name,
             color: _stopColor(stop, filter, theme),
             size: size,
-            selected: stop.id == _selectedStopId,
+            selected: stop.id == selectedId,
             interchange: stop.isInterchange,
             showLabel: showLabels,
             semanticsLabel: l10n.mapStopSemantics(stop.name),
-            onTap: () => _openStop(stop),
+            onTap: () => onOpen(stop),
           ),
         ),
     ];
-  }
-
-  /// Warna titik halte: warna koridor yang sedang disaring, warna koridornya
-  /// saat hanya satu koridor melayani, dan warna netral untuk halte transit.
-  Color _stopColor(MapStop stop, String? filter, ThemeData theme) {
-    if (filter != null) return corridorColor(filter);
-    if (stop.corridors.length == 1) return corridorColor(stop.corridors.first);
-    return theme.colorScheme.onSurfaceVariant;
   }
 }
 

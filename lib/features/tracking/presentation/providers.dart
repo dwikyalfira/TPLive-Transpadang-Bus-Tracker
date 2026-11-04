@@ -19,6 +19,7 @@ import '../domain/corridor_info.dart';
 import '../domain/corridor_path.dart';
 import '../domain/halte_tracker.dart';
 import '../domain/heading_tracker.dart';
+import '../domain/map_detail.dart';
 import '../domain/map_marker.dart';
 import '../domain/map_stop.dart';
 
@@ -528,6 +529,24 @@ final mapStopsProvider = Provider<List<MapStop>>((ref) {
   final dataset = ref.watch(halteDatasetProvider).valueOrNull;
   if (dataset == null) return const [];
   return buildMapStops(dataset);
+});
+
+/// [corridorPathsProvider] yang disederhanakan untuk level detail [level]
+/// (lihat `routeDetailLevel`). Dihitung sekali per level lalu di-cache, jadi
+/// berpindah zoom tidak menghitung ulang jalur yang sudah pernah dipakai.
+final corridorPathLodProvider =
+    Provider.family<List<CorridorPath>, int>((ref, level) {
+  final paths = ref.watch(corridorPathsProvider);
+  final tolerance = routeSimplifyToleranceMeters(level);
+  if (tolerance <= 0) return paths;
+  return [
+    for (final path in paths)
+      CorridorPath(
+        corridor: path.corridor,
+        directionKey: path.directionKey,
+        points: simplifyPolyline(path.points, tolerance),
+      ),
+  ];
 });
 
 /// Jalur koridor (polilin) yang digambar di peta.

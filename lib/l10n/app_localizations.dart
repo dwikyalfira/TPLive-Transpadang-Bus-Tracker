@@ -126,7 +126,7 @@ abstract class AppLocalizations {
   /// No description provided for @statusOutsideHoursShort.
   ///
   /// In id, this message translates to:
-  /// **'Di luar jam operasional'**
+  /// **'Tidak beroperasi'**
   String get statusOutsideHoursShort;
 
   /// No description provided for @tooltipReload.
@@ -465,6 +465,18 @@ abstract class AppLocalizations {
   /// **' · ±{minutes} mnt'**
   String notifEta(String minutes);
 
+  /// No description provided for @notifEtaToUser.
+  ///
+  /// In id, this message translates to:
+  /// **'±{minutes} mnt ke Anda'**
+  String notifEtaToUser(String minutes);
+
+  /// No description provided for @notifBusNearYou.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus di sekitar Anda'**
+  String get notifBusNearYou;
+
   /// No description provided for @notifSearchingNext.
   ///
   /// In id, this message translates to:
@@ -518,6 +530,36 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pemberitahuan kedatangan bus yang diikuti'**
   String get notifEventChannelDescription;
+
+  /// No description provided for @notifOnboardBadge.
+  ///
+  /// In id, this message translates to:
+  /// **'Di dalam bus'**
+  String get notifOnboardBadge;
+
+  /// No description provided for @notifWearNoBus.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada bus di-pin'**
+  String get notifWearNoBus;
+
+  /// No description provided for @notifWearMapHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk untuk peta'**
+  String get notifWearMapHint;
+
+  /// No description provided for @notifAlightedTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda sudah turun'**
+  String get notifAlightedTitle;
+
+  /// No description provided for @notifAlightedBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Berhenti mengikuti bus.'**
+  String get notifAlightedBody;
 
   /// No description provided for @followFailed.
   ///
@@ -1233,6 +1275,186 @@ abstract class AppLocalizations {
   /// **'Ikuti warna wallpaper perangkat (Android 12+)'**
   String get dynamicColorSubtitle;
 
+  /// No description provided for @sectionBus.
+  ///
+  /// In id, this message translates to:
+  /// **'Bus'**
+  String get sectionBus;
+
+  /// No description provided for @autoStopTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Berhenti ikuti otomatis'**
+  String get autoStopTitle;
+
+  /// No description provided for @autoStopSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hentikan notifikasi bus setelah terdeteksi turun dari bus'**
+  String get autoStopSubtitle;
+
+  /// No description provided for @wearTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Smartwatch (Wear OS)'**
+  String get wearTitle;
+
+  /// No description provided for @wearSettingsSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilkan bus yang di-pin di jam; pasang app jam lewat wireless debugging'**
+  String get wearSettingsSubtitle;
+
+  /// No description provided for @wearIntro.
+  ///
+  /// In id, this message translates to:
+  /// **'Pasang app TPLive ke jam Wear OS langsung dari HP, tanpa komputer. Jam dan HP harus terhubung ke Wi-Fi yang sama.'**
+  String get wearIntro;
+
+  /// No description provided for @wearStep1.
+  ///
+  /// In id, this message translates to:
+  /// **'Di jam: Pengaturan → Developer options → aktifkan Debug ADB dan Debug lewat Wi-Fi (Wireless debugging).'**
+  String get wearStep1;
+
+  /// No description provided for @wearStep2.
+  ///
+  /// In id, this message translates to:
+  /// **'Di jam, ketuk Pair new device dan biarkan dialognya tetap terbuka. Catat kode 6 digit yang tampil.'**
+  String get wearStep2;
+
+  /// No description provided for @wearStep3.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi kode di bawah lalu ketuk Pasang. Alamat & port jam ditemukan otomatis.'**
+  String get wearStep3;
+
+  /// No description provided for @wearStageDiscover.
+  ///
+  /// In id, this message translates to:
+  /// **'Mencari jam di jaringan…'**
+  String get wearStageDiscover;
+
+  /// No description provided for @wearStagePairing.
+  ///
+  /// In id, this message translates to:
+  /// **'Pairing dengan jam…'**
+  String get wearStagePairing;
+
+  /// No description provided for @wearStageConnecting.
+  ///
+  /// In id, this message translates to:
+  /// **'Menghubungkan ke jam…'**
+  String get wearStageConnecting;
+
+  /// No description provided for @wearStageInstalling.
+  ///
+  /// In id, this message translates to:
+  /// **'Memasang app di jam (bisa memakan waktu satu menit)…'**
+  String get wearStageInstalling;
+
+  /// No description provided for @wearInstallTimeout.
+  ///
+  /// In id, this message translates to:
+  /// **'Pemasangan terlalu lama dan dihentikan. Coba lagi dengan jam tetap menyala dan dekat HP.'**
+  String get wearInstallTimeout;
+
+  /// No description provided for @wearManualTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi alamat manual'**
+  String get wearManualTitle;
+
+  /// No description provided for @wearManualSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hanya jika pencarian otomatis gagal'**
+  String get wearManualSubtitle;
+
+  /// No description provided for @wearDiscoverPairFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam tidak ditemukan. Pastikan dialog Pair new device masih terbuka di jam dan keduanya satu Wi-Fi, atau isi alamat manual.'**
+  String get wearDiscoverPairFailed;
+
+  /// No description provided for @wearDiscoverConnectFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Pairing berhasil, tapi alamat koneksi jam tidak ditemukan. Coba lagi atau isi alamat manual.'**
+  String get wearDiscoverConnectFailed;
+
+  /// No description provided for @wearPairAddress.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat pairing (IP:port)'**
+  String get wearPairAddress;
+
+  /// No description provided for @wearPairCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode pairing (6 digit)'**
+  String get wearPairCode;
+
+  /// No description provided for @wearConnectAddress.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat koneksi (IP:port)'**
+  String get wearConnectAddress;
+
+  /// No description provided for @wearInstall.
+  ///
+  /// In id, this message translates to:
+  /// **'Pasang ke jam'**
+  String get wearInstall;
+
+  /// No description provided for @wearInstalling.
+  ///
+  /// In id, this message translates to:
+  /// **'Memasang…'**
+  String get wearInstalling;
+
+  /// No description provided for @wearSuccess.
+  ///
+  /// In id, this message translates to:
+  /// **'Berhasil! App TPLive sudah terpasang di jam Anda. Buka TPLive di jam.'**
+  String get wearSuccess;
+
+  /// No description provided for @wearInvalidInput.
+  ///
+  /// In id, this message translates to:
+  /// **'Periksa kembali: alamat harus berformat IP:port dan kode terdiri dari 6 digit.'**
+  String get wearInvalidInput;
+
+  /// No description provided for @wearApkMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'App jam tidak ikut dibundel di build ini. Bangun ulang dengan scripts/build_release.ps1.'**
+  String get wearApkMissing;
+
+  /// No description provided for @wearPairFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Pairing gagal. Pastikan kode & alamat pairing benar dan masih tampil di jam.'**
+  String get wearPairFailed;
+
+  /// No description provided for @wearConnectFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal terhubung ke jam. Periksa alamat koneksi dan Wi-Fi yang sama.'**
+  String get wearConnectFailed;
+
+  /// No description provided for @wearFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memasang: {message}'**
+  String wearFailed(String message);
+
+  /// No description provided for @wearDisableNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Setelah selesai, matikan lagi Debug ADB di jam demi keamanan.'**
+  String get wearDisableNote;
+
   /// No description provided for @sectionLanguage.
   ///
   /// In id, this message translates to:
@@ -1286,6 +1508,78 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'TPLive bukan aplikasi resmi TransPadang maupun Pemerintah Kota Padang. Aplikasi ini dikembangkan semata-mata untuk memudahkan pengguna TransPadang.'**
   String get aboutDisclaimer;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In id, this message translates to:
+  /// **'Lewati'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjut'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In id, this message translates to:
+  /// **'Mulai'**
+  String get onboardingStart;
+
+  /// No description provided for @onboardingLiveTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat bus secara langsung'**
+  String get onboardingLiveTitle;
+
+  /// No description provided for @onboardingLiveBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Pantau posisi bus TransPadang koridor K1–K6 yang bergerak di peta, lengkap dengan halte dan jadwal perkiraan tibanya.'**
+  String get onboardingLiveBody;
+
+  /// No description provided for @onboardingFollowTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ikuti bus, tanpa repot'**
+  String get onboardingFollowTitle;
+
+  /// No description provided for @onboardingFollowBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Pin satu bus untuk mendapat pemberitahuan halte berikutnya. Saat Anda naik atau turun, aplikasi mendeteksinya otomatis. Punya smartwatch Wear OS? Pasang aplikasinya dari Pengaturan.'**
+  String get onboardingFollowBody;
+
+  /// No description provided for @onboardingPermTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktifkan lokasi & notifikasi'**
+  String get onboardingPermTitle;
+
+  /// No description provided for @onboardingPermBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi dipakai untuk mencari bus dan halte terdekat serta memperkirakan kedatangan. Notifikasi memberi tahu saat bus hampir tiba. Anda bisa mengubahnya kapan saja.'**
+  String get onboardingPermBody;
+
+  /// No description provided for @onboardingEnable.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktifkan sekarang'**
+  String get onboardingEnable;
+
+  /// No description provided for @onboardingReplayTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat panduan lagi'**
+  String get onboardingReplayTitle;
+
+  /// No description provided for @onboardingReplaySubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengenalan singkat fitur TPLive'**
+  String get onboardingReplaySubtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

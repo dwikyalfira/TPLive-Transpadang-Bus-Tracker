@@ -8,6 +8,7 @@ import 'core/app_navigator.dart';
 import 'core/settings.dart';
 import 'core/theme/app_motion.dart';
 import 'core/theme/app_theme.dart';
+import 'features/onboarding/presentation/onboarding_screen.dart';
 import 'features/tracking/presentation/home_screen.dart';
 import 'features/tracking/presentation/providers.dart';
 import 'features/tracking/presentation/widgets/pinned_bus_overlay.dart';
@@ -140,7 +141,9 @@ class TransPadangApp extends ConsumerWidget {
           // tema, bahasa) sudah dimuat di [main] — jadi layar pembuka tambahan
           // hanya menambah ~1,8 detik logo yang tampil dua kali. Status "belum
           // siap" (GPS/koneksi) ditampilkan di beranda lewat `LoadingStateView`.
-          home: const HomeScreen(),
+          home: settings.onboardingDone
+              ? const HomeScreen()
+              : const OnboardingScreen(),
         );
       },
     );

@@ -176,6 +176,16 @@ final mapStatusExpandedProvider = StateProvider<bool>((ref) => true);
 /// Nilai berupa kunci `'<koridor>|<nomorBus>'` (null = tidak mengikuti).
 final followedBusProvider = StateProvider<String?>((ref) => null);
 
+/// Status deteksi otomatis untuk bus yang diikuti: `following` (belum naik),
+/// `onboard` (terdeteksi di dalam bus), `alighted` (sudah turun). Diisi dari
+/// layanan native; tidak ada input pengguna.
+final boardingStatusProvider = StateProvider<String>((ref) => 'following');
+
+/// True bila pengguna terdeteksi sedang berada di dalam bus yang diikuti.
+final isOnboardProvider = Provider<bool>(
+  (ref) => ref.watch(boardingStatusProvider) == 'onboard',
+);
+
 /// Apakah ada bus yang sedang dipilih (diketuk) di layar peta.
 ///
 /// Dipakai [PinnedBusOverlay] untuk menyembunyikan kartu bus di-pin global

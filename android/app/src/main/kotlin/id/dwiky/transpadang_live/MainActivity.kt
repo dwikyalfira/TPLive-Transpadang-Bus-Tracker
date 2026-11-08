@@ -19,6 +19,7 @@ class MainActivity : FlutterActivity() {
 
     companion object {
         private const val CHANNEL = "id.dwiky.transpadang_live/follow"
+        private const val WEAR_CHANNEL = "id.dwiky.transpadang_live/wear_install"
         private const val REQ_POST_NOTIFICATIONS = 9001
 
         /// Kanal notifikasi penting untuk acara kedatangan bus (bersuara &
@@ -28,10 +29,25 @@ class MainActivity : FlutterActivity() {
 
     private var notifPermissionResult: MethodChannel.Result? = null
 
+    override fun onDestroy() {
+        FollowService.statusListener = null
+        super.onDestroy()
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
-            .setMethodCallHandler { call, result ->
+        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+        // Teruskan perubahan status naik/turun dari service ke Dart.
+        FollowService.statusListener = { status, ended ->
+            runOnUiThread {
+                channel.invokeMethod(
+                    "boardingStatus",
+                    mapOf("status" to status, "ended" to ended),
+                )
+            }
+        }
+        configureWearInstallChannel(flutterEngine)
+        channel.setMethodCallHandler { call, result ->
                 when (call.method) {
                     "getFollowed" -> {
                         if (FollowService.isActive) {
@@ -39,6 +55,7 @@ class MainActivity : FlutterActivity() {
                                 mapOf(
                                     "corridor" to FollowService.followedCorridor,
                                     "busNumber" to FollowService.followedBusNumber,
+                                    "status" to FollowService.boardingStatus,
                                 ),
                             )
                         } else {
@@ -54,6 +71,43 @@ class MainActivity : FlutterActivity() {
                     }
                     "requestNotificationPermission" -> requestNotifPermission(result)
                     "showEventNotification" -> showEventNotification(call, result)
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    /// Pemasangan app Wear OS lewat wireless debugging jam.
+    private fun configureWearInstallChannel(flutterEngine: FlutterEngine) {
+        val wearChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, WEAR_CHANNEL)
+        wearChannel.setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "isApkBundled" -> result.success(WearInstaller(this).isApkBundled())
+                    "pairAndInstall" -> {
+                        val args = call.arguments as? Map<*, *>
+                        val host = args?.get("host") as? String ?: ""
+                        val pairPort = (args?.get("pairPort") as? Number)?.toInt() ?: 0
+                        val code = args?.get("code") as? String ?: ""
+                        val connectPort = (args?.get("connectPort") as? Number)?.toInt() ?: 0
+                        val auto = host.isEmpty() || pairPort <= 0 || connectPort <= 0
+                        if (code.isEmpty()) {
+                            result.error("invalid_args", "kode pairing wajib diisi", null)
+                            return@setMethodCallHandler
+                        }
+                        Thread {
+                            val installer = WearInstaller(this)
+                            installer.onStage = { st ->
+                                runOnUiThread { wearChannel.invokeMethod("stage", st) }
+                            }
+                            val r = if (auto) {
+                                installer.autoPairAndInstall(code)
+                            } else {
+                                installer.pairAndInstall(host, pairPort, code, connectPort)
+                            }
+                            runOnUiThread {
+                                result.success(mapOf("ok" to r.ok, "message" to r.message))
+                            }
+                        }.start()
+                    }
                     else -> result.notImplemented()
                 }
             }
@@ -78,6 +132,10 @@ class MainActivity : FlutterActivity() {
             .putExtra(FollowService.EXTRA_DIRECTION, args?.get("direction") as? String ?: "")
             .putExtra(FollowService.EXTRA_HALTES, encodeHaltes(args?.get("haltes")))
             .putExtra(FollowService.EXTRA_LABELS, args?.get("labels") as? String ?: "{}")
+            .putExtra(
+                FollowService.EXTRA_AUTO_STOP,
+                args?.get("autoStopOnAlight") as? Boolean ?: true,
+            )
             .putExtra(
                 FollowService.EXTRA_COLOR,
                 (args?.get("color") as? Number)?.toInt()

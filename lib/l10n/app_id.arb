@@ -1,23 +1,19 @@
 {
   "@@locale": "id",
-
   "statusConnectedShort": "Terhubung",
   "statusConnecting": "Menyambung…",
   "statusReconnecting": "Menyambung ulang…",
   "statusPillDisconnected": "Tidak terhubung",
   "statusWaiting": "Menunggu…",
-  "statusOutsideHoursShort": "Di luar jam operasional",
-
+  "statusOutsideHoursShort": "Tidak beroperasi",
   "tooltipReload": "Muat ulang",
   "reloading": "Memuat ulang data bus…",
-
   "searchDestinationHint": "Cari tujuan…",
   "outsideHoursTitle": "Sedang tidak melayani penumpang",
   "outsideHoursMessage": "TransPadang beroperasi pukul 06.00–19.00 WIB.",
   "noBusesMessage": "Belum ada bus terdeteksi di sekitar Anda.",
   "gettingLocation": "Mendapatkan lokasi…",
   "retry": "Coba lagi",
-
   "locationErrorTitle": "Lokasi tidak tersedia",
   "locationServiceOffTitle": "GPS nonaktif",
   "locationServiceOffMessage": "Aktifkan GPS perangkat agar jarak dan ETA bus bisa dihitung.",
@@ -27,17 +23,17 @@
   "locationOpenSettings": "Buka Pengaturan",
   "locationEnable": "Aktifkan lokasi",
   "planPickStopInstead": "Pilih halte sebagai asal",
-
   "busesConnecting": "Menyambung ke server…",
   "busesReconnecting": "Menyambung ulang ke server…",
   "busesDisconnected": "Tidak terhubung ke server bus.",
   "busesEmptyCorridor": "Tidak ada bus di koridor {corridor} saat ini.",
   "@busesEmptyCorridor": {
     "placeholders": {
-      "corridor": {"type": "String"}
+      "corridor": {
+        "type": "String"
+      }
     }
   },
-
   "mapTitle": "Peta Jaringan",
   "mapOpen": "Lihat peta",
   "mapRecenter": "Ke lokasi saya",
@@ -53,60 +49,83 @@
   "mapStopSemantics": "Halte {name}",
   "@mapStopSemantics": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
-
   "destinationHeader": "Tujuan {destination}",
   "@destinationHeader": {
     "placeholders": {
-      "destination": {"type": "String"}
+      "destination": {
+        "type": "String"
+      }
     }
   },
   "loadingHalteData": "Memuat data halte…",
-
   "notifFollowingTitle": "Bus dilacak",
   "notifFollowingBody": "TPLive mulai melacak {bus}.",
   "@notifFollowingBody": {
     "placeholders": {
-      "bus": {"type": "String"}
+      "bus": {
+        "type": "String"
+      }
     }
   },
   "notifApproachBoardTitle": "Bus segera tiba",
   "notifApproachBoardBody": "Bus {bus} tinggal {count} halte lagi menuju halte {halte}. Siap-siap naik.",
   "@notifApproachBoardBody": {
     "placeholders": {
-      "bus": {"type": "String"},
-      "count": {"type": "int"},
-      "halte": {"type": "String"}
+      "bus": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "halte": {
+        "type": "String"
+      }
     }
   },
   "notifAtBoardTitle": "Waktunya naik",
   "notifAtBoardBody": "Bus {bus} sudah di halte {halte}. Segera naik.",
   "@notifAtBoardBody": {
     "placeholders": {
-      "bus": {"type": "String"},
-      "halte": {"type": "String"}
+      "bus": {
+        "type": "String"
+      },
+      "halte": {
+        "type": "String"
+      }
     }
   },
   "notifApproachAlightTitle": "Sebentar lagi turun",
   "notifApproachAlightBody": "Bus {bus} tinggal {count} halte lagi menuju halte {halte}. Siap-siap turun.",
   "@notifApproachAlightBody": {
     "placeholders": {
-      "bus": {"type": "String"},
-      "count": {"type": "int"},
-      "halte": {"type": "String"}
+      "bus": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "halte": {
+        "type": "String"
+      }
     }
   },
   "notifAtAlightTitle": "Waktunya turun",
   "notifAtAlightBody": "Bus {bus} sudah sampai di halte {halte}. Saatnya turun.",
   "@notifAtAlightBody": {
     "placeholders": {
-      "bus": {"type": "String"},
-      "halte": {"type": "String"}
+      "bus": {
+        "type": "String"
+      },
+      "halte": {
+        "type": "String"
+      }
     }
   },
-
   "tooltipUnfollow": "Berhenti mengikuti",
   "tooltipFollow": "Ikuti bus ini",
   "tooltipViewOnMap": "Lihat di peta",
@@ -115,34 +134,55 @@
   "notifFollowTitle": "Bus {bus} · Koridor {corridor}",
   "@notifFollowTitle": {
     "placeholders": {
-      "bus": {"type": "String"},
-      "corridor": {"type": "String"}
+      "bus": {
+        "type": "String"
+      },
+      "corridor": {
+        "type": "String"
+      }
     }
   },
   "notifFollowTitleGeneric": "Mengikuti bus {corridor}",
   "@notifFollowTitleGeneric": {
     "placeholders": {
-      "corridor": {"type": "String"}
+      "corridor": {
+        "type": "String"
+      }
     }
   },
   "notifHeadingTo": "Menuju {stop}",
   "@notifHeadingTo": {
     "placeholders": {
-      "stop": {"type": "String"}
+      "stop": {
+        "type": "String"
+      }
     }
   },
   "notifDistanceToNext": "{distance} ke halte berikutnya",
   "@notifDistanceToNext": {
     "placeholders": {
-      "distance": {"type": "String"}
+      "distance": {
+        "type": "String"
+      }
     }
   },
   "notifEta": " · ±{minutes} mnt",
   "@notifEta": {
     "placeholders": {
-      "minutes": {"type": "String"}
+      "minutes": {
+        "type": "String"
+      }
     }
   },
+  "notifEtaToUser": "±{minutes} mnt ke Anda",
+  "@notifEtaToUser": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "notifBusNearYou": "Bus di sekitar Anda",
   "notifSearchingNext": "Mencari halte berikutnya…",
   "notifSearchingSignal": "Mencari sinyal bus…",
   "notifDestinationFallback": "Ikuti bus hingga tiba di tujuan",
@@ -150,91 +190,126 @@
   "notifStopFallback": "Halte {index}",
   "@notifStopFallback": {
     "placeholders": {
-      "index": {"type": "String"}
+      "index": {
+        "type": "String"
+      }
     }
   },
   "notifChannelName": "Mengikuti bus",
   "notifChannelDescription": "Notifikasi posisi bus yang sedang diikuti",
   "notifEventChannelName": "Kedatangan bus",
   "notifEventChannelDescription": "Pemberitahuan kedatangan bus yang diikuti",
+  "notifOnboardBadge": "Di dalam bus",
+  "notifWearNoBus": "Tidak ada bus di-pin",
+  "notifWearMapHint": "Ketuk untuk peta",
+  "notifAlightedTitle": "Anda sudah turun",
+  "notifAlightedBody": "Berhenti mengikuti bus.",
   "followFailed": "Gagal mengikuti bus: {message}",
   "@followFailed": {
     "placeholders": {
-      "message": {"type": "String"}
+      "message": {
+        "type": "String"
+      }
     }
   },
   "followUnavailable": "Layanan follow tidak tersedia.",
-
   "busLabel": "Bus {number}",
   "@busLabel": {
     "placeholders": {
-      "number": {"type": "String"}
+      "number": {
+        "type": "String"
+      }
     }
   },
   "destinationLabel": "Tujuan {destination}",
   "@destinationLabel": {
     "placeholders": {
-      "destination": {"type": "String"}
+      "destination": {
+        "type": "String"
+      }
     }
   },
   "updatedLabel": "Diperbarui {age}",
   "@updatedLabel": {
     "placeholders": {
-      "age": {"type": "String"}
+      "age": {
+        "type": "String"
+      }
     }
   },
   "etaApprox": "≈ {minutes} mnt",
   "@etaApprox": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "etaUnknown": "≈ -",
   "etaPlusMinus": "± {minutes} mnt",
   "@etaPlusMinus": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "filterAll": "Semua",
   "ageSeconds": "{seconds} dtk lalu",
   "@ageSeconds": {
     "placeholders": {
-      "seconds": {"type": "int"}
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "ageMinutes": "{minutes} mnt lalu",
   "@ageMinutes": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "ageHours": "{hours} jam lalu",
   "@ageHours": {
     "placeholders": {
-      "hours": {"type": "int"}
+      "hours": {
+        "type": "int"
+      }
     }
   },
-
   "halteDataLoadFailed": "Gagal memuat data halte.\n{error}",
   "@halteDataLoadFailed": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "countHalte": "{count} halte",
   "@countHalte": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "countHalteRange": "{origin} → {destination} · {count} dari {total} halte",
   "@countHalteRange": {
     "placeholders": {
-      "origin": {"type": "String"},
-      "destination": {"type": "String"},
-      "count": {"type": "int"},
-      "total": {"type": "int"}
+      "origin": {
+        "type": "String"
+      },
+      "destination": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "currentAt": "Sedang di",
@@ -243,7 +318,9 @@
   "etaSuffix": " · ≈ {minutes} mnt",
   "@etaSuffix": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "speedUnit": "km/j",
@@ -254,61 +331,74 @@
   "halteUnavailable": "Data halte untuk koridor {corridor} belum tersedia.",
   "@halteUnavailable": {
     "placeholders": {
-      "corridor": {"type": "String"}
+      "corridor": {
+        "type": "String"
+      }
     }
   },
-
   "notPassedHalte": "Belum melewati halte",
   "arrivedDestination": "Tiba di tujuan",
   "lastHalte": "Halte terakhir",
   "halteRemaining": "{count} halte lagi",
   "@halteRemaining": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "arrivalEta": "≈ {minutes} mnt ke lokasi Anda",
   "@arrivalEta": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "arrivalEtaShort": "≈ {minutes} mnt",
   "@arrivalEtaShort": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "arrivalNear": "Bus di sekitar lokasi Anda",
   "arrivalHereShort": "sudah dekat",
   "pinnedCardMinimize": "Kecilkan kartu",
   "mapFilterTitle": "Saring koridor",
-
   "infoNetworkTitle": "Info Jaringan TransPadang",
   "infoStatNoActiveBuses": "Tidak ada bus aktif",
   "infoStatActiveBuses": "{count} bus aktif",
   "@infoStatActiveBuses": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "infoStatCorridors": "{count} koridor",
   "@infoStatCorridors": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "infoStatHaltes": "{count} halte",
   "@infoStatHaltes": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "infoCorridorTitleCode": "Koridor {code}",
   "@infoCorridorTitleCode": {
     "placeholders": {
-      "code": {"type": "String"}
+      "code": {
+        "type": "String"
+      }
     }
   },
   "infoOperationalHours": "Jam operasional 06.00–19.00 WIB",
@@ -328,7 +418,6 @@
   "infoFareChildOver5": "Anak di atas 5 tahun (tanpa seragam sekolah)",
   "infoFareChildUnder5": "Anak di bawah 5 tahun",
   "infoFareNote": "Pembayaran berlaku 2 kali setiap melewati halte terakhir & transit beda koridor.",
-
   "searchDestinationTitle": "Cari tujuan",
   "pickOriginTitle": "Pilih asal",
   "pickDestinationTitle": "Pilih tujuan",
@@ -343,64 +432,95 @@
   "minutesApprox": "≈ {minutes} mnt",
   "@minutesApprox": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "routeSummary": "{distance} · {haltes} halte",
   "@routeSummary": {
     "placeholders": {
-      "distance": {"type": "String"},
-      "haltes": {"type": "int"}
+      "distance": {
+        "type": "String"
+      },
+      "haltes": {
+        "type": "int"
+      }
     }
   },
   "routeSummaryTransit": " · {count} transit",
   "@routeSummaryTransit": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "routeSummaryDirect": " · langsung",
   "stepWalkToBoard": "Jalan {distance} ke halte {halte}",
   "@stepWalkToBoard": {
     "placeholders": {
-      "distance": {"type": "String"},
-      "halte": {"type": "String"}
+      "distance": {
+        "type": "String"
+      },
+      "halte": {
+        "type": "String"
+      }
     }
   },
   "stepRide": "{corridor}: naik di {board} → turun di {alight} ({count} halte)",
   "@stepRide": {
     "placeholders": {
-      "corridor": {"type": "String"},
-      "board": {"type": "String"},
-      "alight": {"type": "String"},
-      "count": {"type": "int"}
+      "corridor": {
+        "type": "String"
+      },
+      "board": {
+        "type": "String"
+      },
+      "alight": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "stepWalkTransfer": "Jalan {distance} ke halte {halte}, lanjut Koridor {corridor}",
   "@stepWalkTransfer": {
     "placeholders": {
-      "distance": {"type": "String"},
-      "halte": {"type": "String"},
-      "corridor": {"type": "String"}
+      "distance": {
+        "type": "String"
+      },
+      "halte": {
+        "type": "String"
+      },
+      "corridor": {
+        "type": "String"
+      }
     }
   },
   "stepTransfer": "Pindah ke Koridor {corridor} di {halte}",
   "@stepTransfer": {
     "placeholders": {
-      "corridor": {"type": "String"},
-      "halte": {"type": "String"}
+      "corridor": {
+        "type": "String"
+      },
+      "halte": {
+        "type": "String"
+      }
     }
   },
   "stepWalkToDestination": "Jalan {distance} ke tujuan",
   "@stepWalkToDestination": {
     "placeholders": {
-      "distance": {"type": "String"}
+      "distance": {
+        "type": "String"
+      }
     }
   },
   "noBusesToBoard": "Belum ada bus terdeteksi menuju halte naik.",
   "nearestBusesToBoard": "Bus terdekat ke halte naik",
   "tapCardHint": "Ketuk kartu untuk detail halte, ikon lonceng untuk mengikuti.",
-
   "tabHalte": "Halte",
   "tabPlace": "Tempat",
   "searchPlaceHint": "Cari tempat, mis. Masjid Raya",
@@ -432,10 +552,11 @@
   "placeSearchHttp": "Pencarian gagal (HTTP {status}). Coba lagi nanti.",
   "@placeSearchHttp": {
     "placeholders": {
-      "status": {"type": "int"}
+      "status": {
+        "type": "int"
+      }
     }
   },
-
   "settingsTooltip": "Pengaturan",
   "settingsTitle": "Pengaturan",
   "sectionAppearance": "Tampilan",
@@ -445,6 +566,43 @@
   "themeModeTitle": "Mode tampilan",
   "dynamicColorTitle": "Warna dinamis",
   "dynamicColorSubtitle": "Ikuti warna wallpaper perangkat (Android 12+)",
+  "sectionBus": "Bus",
+  "autoStopTitle": "Berhenti ikuti otomatis",
+  "autoStopSubtitle": "Hentikan notifikasi bus setelah terdeteksi turun dari bus",
+  "wearTitle": "Smartwatch (Wear OS)",
+  "wearSettingsSubtitle": "Tampilkan bus yang di-pin di jam; pasang app jam lewat wireless debugging",
+  "wearIntro": "Pasang app TPLive ke jam Wear OS langsung dari HP, tanpa komputer. Jam dan HP harus terhubung ke Wi-Fi yang sama.",
+  "wearStep1": "Di jam: Pengaturan → Developer options → aktifkan Debug ADB dan Debug lewat Wi-Fi (Wireless debugging).",
+  "wearStep2": "Di jam, ketuk Pair new device dan biarkan dialognya tetap terbuka. Catat kode 6 digit yang tampil.",
+  "wearStep3": "Isi kode di bawah lalu ketuk Pasang. Alamat & port jam ditemukan otomatis.",
+  "wearStageDiscover": "Mencari jam di jaringan…",
+  "wearStagePairing": "Pairing dengan jam…",
+  "wearStageConnecting": "Menghubungkan ke jam…",
+  "wearStageInstalling": "Memasang app di jam (bisa memakan waktu satu menit)…",
+  "wearInstallTimeout": "Pemasangan terlalu lama dan dihentikan. Coba lagi dengan jam tetap menyala dan dekat HP.",
+  "wearManualTitle": "Isi alamat manual",
+  "wearManualSubtitle": "Hanya jika pencarian otomatis gagal",
+  "wearDiscoverPairFailed": "Jam tidak ditemukan. Pastikan dialog Pair new device masih terbuka di jam dan keduanya satu Wi-Fi, atau isi alamat manual.",
+  "wearDiscoverConnectFailed": "Pairing berhasil, tapi alamat koneksi jam tidak ditemukan. Coba lagi atau isi alamat manual.",
+  "wearPairAddress": "Alamat pairing (IP:port)",
+  "wearPairCode": "Kode pairing (6 digit)",
+  "wearConnectAddress": "Alamat koneksi (IP:port)",
+  "wearInstall": "Pasang ke jam",
+  "wearInstalling": "Memasang…",
+  "wearSuccess": "Berhasil! App TPLive sudah terpasang di jam Anda. Buka TPLive di jam.",
+  "wearInvalidInput": "Periksa kembali: alamat harus berformat IP:port dan kode terdiri dari 6 digit.",
+  "wearApkMissing": "App jam tidak ikut dibundel di build ini. Bangun ulang dengan scripts/build_release.ps1.",
+  "wearPairFailed": "Pairing gagal. Pastikan kode & alamat pairing benar dan masih tampil di jam.",
+  "wearConnectFailed": "Gagal terhubung ke jam. Periksa alamat koneksi dan Wi-Fi yang sama.",
+  "wearFailed": "Gagal memasang: {message}",
+  "@wearFailed": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "wearDisableNote": "Setelah selesai, matikan lagi Debug ADB di jam demi keamanan.",
   "sectionLanguage": "Bahasa",
   "languageTitle": "Bahasa aplikasi",
   "languageSystem": "Sistem",
@@ -460,5 +618,17 @@
     }
   },
   "aboutAppDescription": "TPLive menampilkan posisi bus TransPadang secara real-time.",
-  "aboutDisclaimer": "TPLive bukan aplikasi resmi TransPadang maupun Pemerintah Kota Padang. Aplikasi ini dikembangkan semata-mata untuk memudahkan pengguna TransPadang."
+  "aboutDisclaimer": "TPLive bukan aplikasi resmi TransPadang maupun Pemerintah Kota Padang. Aplikasi ini dikembangkan semata-mata untuk memudahkan pengguna TransPadang.",
+  "onboardingSkip": "Lewati",
+  "onboardingNext": "Lanjut",
+  "onboardingStart": "Mulai",
+  "onboardingLiveTitle": "Lihat bus secara langsung",
+  "onboardingLiveBody": "Pantau posisi bus TransPadang koridor K1–K6 yang bergerak di peta, lengkap dengan halte dan jadwal perkiraan tibanya.",
+  "onboardingFollowTitle": "Ikuti bus, tanpa repot",
+  "onboardingFollowBody": "Pin satu bus untuk mendapat pemberitahuan halte berikutnya. Saat Anda naik atau turun, aplikasi mendeteksinya otomatis. Punya smartwatch Wear OS? Pasang aplikasinya dari Pengaturan.",
+  "onboardingPermTitle": "Aktifkan lokasi & notifikasi",
+  "onboardingPermBody": "Lokasi dipakai untuk mencari bus dan halte terdekat serta memperkirakan kedatangan. Notifikasi memberi tahu saat bus hampir tiba. Anda bisa mengubahnya kapan saja.",
+  "onboardingEnable": "Aktifkan sekarang",
+  "onboardingReplayTitle": "Lihat panduan lagi",
+  "onboardingReplaySubtitle": "Pengenalan singkat fitur TPLive"
 }

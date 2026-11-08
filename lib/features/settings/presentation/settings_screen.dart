@@ -7,6 +7,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/settings.dart';
 import '../../../core/ui/constrained_content.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../onboarding/presentation/onboarding_screen.dart';
+import 'wear_setup_screen.dart';
 
 // --- Enum & Widget helper (di luar class SettingsScreen) ---
 
@@ -305,6 +307,16 @@ class SettingsScreen extends ConsumerWidget {
   /// Kunci tanda tangan pembuat di kaki halaman (dipakai test).
   static const Key signatureKey = ValueKey('settingsSignature');
 
+  /// Kunci sakelar warna dinamis (dipakai test).
+  static const Key dynamicColorKey = ValueKey('settingsDynamicColor');
+
+  /// Kunci baris menu Smartwatch (dipakai test).
+  static const Key wearKey = ValueKey('settingsWear');
+  static const Key guideKey = ValueKey('settingsGuide');
+
+  /// Kunci sakelar berhenti-ikuti otomatis (dipakai test).
+  static const Key autoStopKey = ValueKey('settingsAutoStop');
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
@@ -349,6 +361,7 @@ class SettingsScreen extends ConsumerWidget {
               if (!kIsWeb) ...[
                 const _CardDivider(),
                 SwitchListTile(
+                  key: SettingsScreen.dynamicColorKey,
                   secondary: const Icon(Icons.palette_outlined),
                   title: Text(l10n.dynamicColorTitle),
                   subtitle: Text(l10n.dynamicColorSubtitle),
@@ -381,6 +394,51 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                   selected: _LanguageChoice.of(settings.locale),
                   onSelected: (choice) => notifier.setLocale(choice.locale),
+                ),
+              ),
+            ],
+          ),
+          // Notifikasi native "ikuti bus" hanya ada di Android.
+          if (!kIsWeb) ...[
+            _SectionLabel(text: l10n.sectionBus),
+            _SettingsCard(
+              children: [
+                SwitchListTile(
+                  key: SettingsScreen.autoStopKey,
+                  secondary: const Icon(Icons.directions_bus_outlined),
+                  title: Text(l10n.autoStopTitle),
+                  subtitle: Text(l10n.autoStopSubtitle),
+                  value: settings.autoStopOnAlight,
+                  onChanged: notifier.setAutoStopOnAlight,
+                ),
+                const _CardDivider(),
+                ListTile(
+                  key: SettingsScreen.wearKey,
+                  leading: const Icon(Icons.watch_outlined),
+                  title: Text(l10n.wearTitle),
+                  subtitle: Text(l10n.wearSettingsSubtitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const WearSetupScreen(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          _SettingsCard(
+            children: [
+              ListTile(
+                key: SettingsScreen.guideKey,
+                leading: const Icon(Icons.explore_outlined),
+                title: Text(l10n.onboardingReplayTitle),
+                subtitle: Text(l10n.onboardingReplaySubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const OnboardingScreen(replay: true),
+                  ),
                 ),
               ),
             ],

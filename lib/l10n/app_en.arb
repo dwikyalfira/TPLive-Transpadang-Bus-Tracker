@@ -1,23 +1,19 @@
 {
   "@@locale": "en",
-
   "statusConnectedShort": "Connected",
   "statusConnecting": "Connecting…",
   "statusReconnecting": "Reconnecting…",
   "statusPillDisconnected": "Not connected",
   "statusWaiting": "Waiting…",
-  "statusOutsideHoursShort": "Outside operating hours",
-
+  "statusOutsideHoursShort": "Not running",
   "tooltipReload": "Reload",
   "reloading": "Reloading bus data…",
-
   "searchDestinationHint": "Search destination…",
   "outsideHoursTitle": "Not serving passengers",
   "outsideHoursMessage": "TransPadang operates 06.00–19.00 WIB.",
   "noBusesMessage": "No buses detected around you yet.",
   "gettingLocation": "Getting your location…",
   "retry": "Try again",
-
   "locationErrorTitle": "Location unavailable",
   "locationServiceOffTitle": "GPS is off",
   "locationServiceOffMessage": "Turn on your device GPS so bus distances and ETAs can be calculated.",
@@ -27,17 +23,17 @@
   "locationOpenSettings": "Open settings",
   "locationEnable": "Turn on location",
   "planPickStopInstead": "Choose a stop as origin",
-
   "busesConnecting": "Connecting to the server…",
   "busesReconnecting": "Reconnecting to the server…",
   "busesDisconnected": "Not connected to the bus server.",
   "busesEmptyCorridor": "No buses on corridor {corridor} right now.",
   "@busesEmptyCorridor": {
     "placeholders": {
-      "corridor": {"type": "String"}
+      "corridor": {
+        "type": "String"
+      }
     }
   },
-
   "mapTitle": "Network Map",
   "mapOpen": "View map",
   "mapRecenter": "My location",
@@ -53,13 +49,13 @@
   "mapStopSemantics": "Stop {name}",
   "@mapStopSemantics": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
-
   "destinationHeader": "Toward {destination}",
   "loadingHalteData": "Loading stops…",
-
   "notifFollowingTitle": "Tracking bus",
   "notifFollowingBody": "TPLive started tracking {bus}.",
   "notifApproachBoardTitle": "Bus arriving soon",
@@ -70,7 +66,6 @@
   "notifApproachAlightBody": "Bus {bus} is {count} stops away from {halte}. Get ready to alight.",
   "notifAtAlightTitle": "Time to alight",
   "notifAtAlightBody": "Bus {bus} has arrived at {halte}. Time to get off.",
-
   "tooltipUnfollow": "Stop following",
   "tooltipFollow": "Follow this bus",
   "tooltipViewOnMap": "View on map",
@@ -81,6 +76,15 @@
   "notifHeadingTo": "Heading to {stop}",
   "notifDistanceToNext": "{distance} to the next stop",
   "notifEta": " · ±{minutes} min",
+  "notifEtaToUser": "±{minutes} min to you",
+  "@notifEtaToUser": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "notifBusNearYou": "Bus is near you",
   "notifSearchingNext": "Finding the next stop…",
   "notifSearchingSignal": "Searching for bus signal…",
   "notifDestinationFallback": "Follow the bus until you reach your destination",
@@ -90,9 +94,13 @@
   "notifChannelDescription": "Notification for the bus you are following",
   "notifEventChannelName": "Bus arrivals",
   "notifEventChannelDescription": "Alerts for the bus you are following",
+  "notifOnboardBadge": "On board",
+  "notifWearNoBus": "No pinned bus",
+  "notifWearMapHint": "Tap for map",
+  "notifAlightedTitle": "You have got off the bus",
+  "notifAlightedBody": "No longer following the bus.",
   "followFailed": "Failed to follow bus: {message}",
   "followUnavailable": "Follow service unavailable.",
-
   "busLabel": "Bus {number}",
   "destinationLabel": "Toward {destination}",
   "updatedLabel": "Updated {age}",
@@ -103,7 +111,6 @@
   "ageSeconds": "{seconds}s ago",
   "ageMinutes": "{minutes}m ago",
   "ageHours": "{hours}h ago",
-
   "halteDataLoadFailed": "Failed to load stop data.\n{error}",
   "countHalte": "{count} stops",
   "countHalteRange": "{origin} → {destination} · {count} of {total} stops",
@@ -117,19 +124,16 @@
   "badgeStart": "Start",
   "badgeEnd": "End",
   "halteUnavailable": "Stop data for corridor {corridor} is not available yet.",
-
   "notPassedHalte": "Has not passed a stop yet",
   "arrivedDestination": "Arrived at destination",
   "lastHalte": "Last stop",
   "halteRemaining": "{count} stops left",
-
   "arrivalEta": "≈ {minutes} min to your location",
   "arrivalEtaShort": "≈ {minutes} min",
   "arrivalNear": "Bus is near your location",
   "arrivalHereShort": "nearby",
   "pinnedCardMinimize": "Minimize card",
   "mapFilterTitle": "Filter corridors",
-
   "infoNetworkTitle": "TransPadang network info",
   "infoStatNoActiveBuses": "No active buses",
   "infoStatActiveBuses": "{count} active buses",
@@ -153,7 +157,6 @@
   "infoFareChildOver5": "Children over 5 (without school uniform)",
   "infoFareChildUnder5": "Children under 5",
   "infoFareNote": "The fare is charged twice each time you pass the last stop and when transferring between corridors.",
-
   "searchDestinationTitle": "Search destination",
   "pickOriginTitle": "Choose origin",
   "pickDestinationTitle": "Choose destination",
@@ -177,7 +180,6 @@
   "noBusesToBoard": "No buses detected heading to the boarding stop yet.",
   "nearestBusesToBoard": "Nearest buses to boarding stop",
   "tapCardHint": "Tap a card for stop details, tap the bell icon to follow.",
-
   "tabHalte": "Stops",
   "tabPlace": "Places",
   "searchPlaceHint": "Search a place, e.g. Masjid Raya",
@@ -207,7 +209,6 @@
   "placeSearchNoConnection": "No internet connection.",
   "placeSearchInvalidResponse": "Invalid search response.",
   "placeSearchHttp": "Search failed (HTTP {status}). Try again later.",
-
   "settingsTooltip": "Settings",
   "settingsTitle": "Settings",
   "sectionAppearance": "Appearance",
@@ -217,6 +218,43 @@
   "themeModeTitle": "Display mode",
   "dynamicColorTitle": "Dynamic color",
   "dynamicColorSubtitle": "Follow the device wallpaper (Android 12+)",
+  "sectionBus": "Bus",
+  "autoStopTitle": "Auto-stop following",
+  "autoStopSubtitle": "Stop the bus notification once you are detected getting off",
+  "wearTitle": "Smartwatch (Wear OS)",
+  "wearSettingsSubtitle": "Show the pinned bus on your watch; install the watch app via wireless debugging",
+  "wearIntro": "Install the TPLive app on your Wear OS watch straight from this phone, no computer needed. The watch and phone must be on the same Wi-Fi.",
+  "wearStep1": "On the watch: Settings → Developer options → turn on ADB debugging and Debug over Wi-Fi (Wireless debugging).",
+  "wearStep2": "On the watch, tap Pair new device and keep that dialog open. Note the 6-digit code shown.",
+  "wearStep3": "Enter the code below and tap Install. The watch's address and ports are found automatically.",
+  "wearStageDiscover": "Looking for the watch on the network…",
+  "wearStagePairing": "Pairing with the watch…",
+  "wearStageConnecting": "Connecting to the watch…",
+  "wearStageInstalling": "Installing the app on the watch (may take a minute)…",
+  "wearInstallTimeout": "Installation took too long and was stopped. Try again with the watch awake and close to the phone.",
+  "wearManualTitle": "Enter address manually",
+  "wearManualSubtitle": "Only if automatic discovery fails",
+  "wearDiscoverPairFailed": "Watch not found. Make sure the Pair new device dialog is still open on the watch and both are on the same Wi-Fi, or enter the address manually.",
+  "wearDiscoverConnectFailed": "Pairing worked, but the watch's connection address was not found. Try again or enter the address manually.",
+  "wearPairAddress": "Pairing address (IP:port)",
+  "wearPairCode": "Pairing code (6 digits)",
+  "wearConnectAddress": "Connection address (IP:port)",
+  "wearInstall": "Install on watch",
+  "wearInstalling": "Installing…",
+  "wearSuccess": "Success! TPLive is now installed on your watch. Open TPLive on the watch.",
+  "wearInvalidInput": "Please check: addresses must look like IP:port and the code must be 6 digits.",
+  "wearApkMissing": "The watch app is not bundled in this build. Rebuild with scripts/build_release.ps1.",
+  "wearPairFailed": "Pairing failed. Make sure the pairing code and address are correct and still showing on the watch.",
+  "wearConnectFailed": "Could not connect to the watch. Check the connection address and that both are on the same Wi-Fi.",
+  "wearFailed": "Install failed: {message}",
+  "@wearFailed": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "wearDisableNote": "When you are done, turn ADB debugging off again on the watch for security.",
   "sectionLanguage": "Language",
   "languageTitle": "App language",
   "languageSystem": "System",
@@ -232,5 +270,17 @@
     }
   },
   "aboutAppDescription": "TPLive shows TransPadang bus positions in real time.",
-  "aboutDisclaimer": "TPLive is not an official app of TransPadang or the Padang City Government. It is developed purely to make it easier for TransPadang riders."
+  "aboutDisclaimer": "TPLive is not an official app of TransPadang or the Padang City Government. It is developed purely to make it easier for TransPadang riders.",
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingStart": "Get started",
+  "onboardingLiveTitle": "See buses live",
+  "onboardingLiveBody": "Watch TransPadang buses on corridors K1–K6 move on the map, with stops and estimated arrival times.",
+  "onboardingFollowTitle": "Follow a bus, effortlessly",
+  "onboardingFollowBody": "Pin a bus to get notified about the next stop. The app detects when you board or get off automatically. Have a Wear OS smartwatch? Install the app from Settings.",
+  "onboardingPermTitle": "Turn on location & notifications",
+  "onboardingPermBody": "Location finds nearby buses and stops and estimates arrivals. Notifications tell you when your bus is almost here. You can change this anytime.",
+  "onboardingEnable": "Turn on now",
+  "onboardingReplayTitle": "View the guide again",
+  "onboardingReplaySubtitle": "A quick tour of TPLive"
 }

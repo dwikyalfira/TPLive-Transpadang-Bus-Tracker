@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -796,5 +798,84 @@ void main() {
     expect(container.read(mapCorridorProvider), 'K1');
     expect(find.byType(PinnedBusCardBody), findsOneWidget);
     expect(container.read(mapBusSelectedProvider), isTrue);
+  });
+
+  testWidgets('tombol fokus: kamera terus mengikuti bus sampai peta digeser',
+      (tester) async {
+    final controller = StreamController<List<Bus>>();
+    addTearDown(controller.close);
+    final container = ProviderContainer(
+      overrides: [
+        ..._overrides([_bus('11', 'K1')]),
+        busesProvider.overrideWith((ref) => controller.stream),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    controller.add([_bus('11', 'K1', lng: 100.31)]);
+    await tester.pumpWidget(
+      _app(container, const MapScreen(focusBusKey: 'K1|11')),
+    );
+    await tester.pumpAndSettle();
+
+    LatLng center() => tester
+        .widget<FlutterMap>(find.byType(FlutterMap))
+        .mapController!
+        .camera
+        .center;
+
+    // Mulai mengikuti: kamera di bus.
+    await tester.tap(find.byIcon(Icons.center_focus_strong));
+    await tester.pumpAndSettle();
+    expect(center().longitude, closeTo(100.31, 1e-4));
+
+    // Bus bergerak → kamera ikut (bukan hanya saat tombol pertama ditekan).
+    controller.add([_bus('11', 'K1', lng: 100.32)]);
+    await tester.pumpAndSettle();
+    expect(center().longitude, closeTo(100.32, 1e-4));
+
+    // Pengguna menggeser peta → berhenti mengikuti.
+    await tester.drag(find.byType(FlutterMap), const Offset(120, 0));
+    await tester.pumpAndSettle();
+    controller.add([_bus('11', 'K1', lng: 100.33)]);
+    await tester.pumpAndSettle();
+    expect((center().longitude - 100.33).abs(), greaterThan(1e-4));
+  });
+
+  testWidgets('bus yang di-pin otomatis diikuti kamera tanpa menekan tombol',
+      (tester) async {
+    final controller = StreamController<List<Bus>>();
+    addTearDown(controller.close);
+    final container = ProviderContainer(
+      overrides: [
+        ..._overrides([_bus('11', 'K1')]),
+        busesProvider.overrideWith((ref) => controller.stream),
+      ],
+    );
+    addTearDown(container.dispose);
+    // Bus K1|11 sedang di-pin (diikuti).
+    container.read(followedBusProvider.notifier).state = busFollowKey('K1', '11');
+
+    controller.add([_bus('11', 'K1', lng: 100.31)]);
+    await tester.pumpWidget(
+      _app(container, const MapScreen(focusBusKey: 'K1|11')),
+    );
+    await tester.pumpAndSettle();
+
+    LatLng center() => tester
+        .widget<FlutterMap>(find.byType(FlutterMap))
+        .mapController!
+        .camera
+        .center;
+
+    expect(center().longitude, closeTo(100.31, 1e-4));
+
+    // Bus bergerak: kamera ikut sendiri (tombol fokus tidak ditekan).
+    controller.add([_bus('11', 'K1', lng: 100.32)]);
+    await tester.pumpAndSettle();
+    expect(center().longitude, closeTo(100.32, 1e-4));
+    controller.add([_bus('11', 'K1', lng: 100.325)]);
+    await tester.pumpAndSettle();
+    expect(center().longitude, closeTo(100.325, 1e-4));
   });
 }

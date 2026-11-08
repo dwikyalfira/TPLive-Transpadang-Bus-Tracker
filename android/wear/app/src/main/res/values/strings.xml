@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TPLive</string>
+    <string name="no_pinned_bus">Tidak ada bus di-pin</string>
+    <string name="no_pinned_bus_hint">Pin bus di HP untuk melihatnya di sini</string>
+    <string name="map">Peta</string>
+    <string name="close_map">Tutup peta</string>
+    <string name="follow_bus">Ikuti bus</string>
+    <string name="on_board">Di dalam bus</string>
+    <string name="next_stop">Halte berikutnya</string>
+    <string name="stop_progress">Halte %1$d dari %2$d</string>
+    <string name="channel_live">Bus di-pin (live)</string>
+    <string name="channel_open">Bus baru di-pin</string>
+    <string name="pinned_open_title">Bus di-pin</string>
+    <string name="pinned_open_text">Ketuk untuk melihat posisi bus</string>
+    <string name="auto_open">Buka otomatis</string>
+    <string name="auto_open_hint">Izinkan agar app terbuka sendiri saat bus di-pin</string>
+</resources>

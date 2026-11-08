@@ -303,8 +303,8 @@ void main() {
       AppLocalizations.of(pillContext),
     );
     expect(color, const Color(0xFF7B1FA2));
-    expect(label, 'Di luar jam operasional');
-    expect(find.text('Di luar jam operasional'), findsOneWidget);
+    expect(label, 'Tidak beroperasi');
+    expect(find.text('Tidak beroperasi'), findsOneWidget);
 
     // Daftar bus disembunyikan saat layanan tidak melayani penumpang.
     expect(find.text('Bus 16'), findsNothing);
@@ -337,15 +337,15 @@ void main() {
     // Kartu info koridor (tab "Semua") tetap tampil.
     expect(find.text('Info Jaringan TransPadang'), findsOneWidget);
 
-    // Penanda status ungu + keterangan "Di luar jam operasional".
+    // Penanda status ungu + keterangan "Tidak beroperasi".
     final pillContext = tester.element(find.byType(LiveStatusPill));
     final (label, color) = LiveStatusPill.describe(
       ConnectionStatus.outsideHours,
       AppLocalizations.of(pillContext),
     );
     expect(color, const Color(0xFF7B1FA2));
-    expect(label, 'Di luar jam operasional');
-    expect(find.text('Di luar jam operasional'), findsOneWidget);
+    expect(label, 'Tidak beroperasi');
+    expect(find.text('Tidak beroperasi'), findsOneWidget);
 
     // Daftar bus disembunyikan, diganti info jam operasional.
     expect(find.text('Bus 16'), findsNothing);

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/follow_service.dart';
+import '../../../../core/settings.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/bus_model.dart';
 import '../../data/halte_data.dart';
@@ -76,6 +77,8 @@ class FollowBusButton extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     if (currentlyFollowing) {
       ref.read(followedBusProvider.notifier).state = null;
+      ref.read(boardingStatusProvider.notifier).state =
+          FollowService.boardingFollowing;
       await FollowService.stopFollow();
       return;
     }
@@ -99,6 +102,7 @@ class FollowBusButton extends ConsumerWidget {
         direction: payload.directionKey,
         haltes: payload.haltes,
         accentColor: corridorColor(bus.corridor).value,
+        autoStopOnAlight: ref.read(appSettingsProvider).autoStopOnAlight,
         labels: {
           'title': bus.number.trim().isEmpty
               ? l10n.notifFollowTitleGeneric(bus.corridor)
@@ -112,12 +116,23 @@ class FollowBusButton extends ConsumerWidget {
           'searchingSignal': l10n.notifSearchingSignal,
           'destinationFallback': l10n.notifDestinationFallback,
           'stopAction': l10n.notifStopAction,
+          'onboardBadge': l10n.notifOnboardBadge,
+          'wearNoBus': l10n.notifWearNoBus,
+          'etaToYou': l10n.notifEtaToUser('__MINUTES__'),
+          'busNearYou': l10n.notifBusNearYou,
+          'wearMapHint': l10n.notifWearMapHint,
+          'alightedTitle': l10n.notifAlightedTitle,
+          'alightedBody': l10n.notifAlightedBody,
+          'eventChannelName': l10n.notifEventChannelName,
+          'eventChannelDescription': l10n.notifEventChannelDescription,
           'stopFallback': l10n.notifStopFallback('__INDEX__'),
           'channelName': l10n.notifChannelName,
           'channelDescription': l10n.notifChannelDescription,
         },
       );
       if (!context.mounted) return;
+      ref.read(boardingStatusProvider.notifier).state =
+          FollowService.boardingFollowing;
       ref.read(followedBusProvider.notifier).state = key;
     } on PlatformException catch (e) {
       if (!context.mounted) return;

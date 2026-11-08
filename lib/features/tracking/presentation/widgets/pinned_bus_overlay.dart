@@ -177,6 +177,7 @@ class PinnedBusOverlay extends ConsumerWidget {
         bus: bus,
         destinationLabel: progress.destinationLabel,
         arrival: arrival,
+        onboard: ref.watch(isOnboardProvider),
       ),
       onTap: onTap,
       onCollapse: () =>

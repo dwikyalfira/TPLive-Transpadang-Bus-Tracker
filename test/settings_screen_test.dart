@@ -56,8 +56,9 @@ void main() {
     await tester.pumpWidget(_app(container));
     await tester.pumpAndSettle();
 
-    // Fitur sakelar warna dinamis dikembalikan ke UI.
-    expect(find.byType(SwitchListTile), findsOneWidget);
+    // Fitur sakelar warna dinamis dikembalikan ke UI (+ sakelar auto-stop).
+    expect(find.byKey(SettingsScreen.dynamicColorKey), findsOneWidget);
+    expect(find.byKey(SettingsScreen.autoStopKey), findsOneWidget);
   });
 
   testWidgets('tema tersimpan dalam preferensi (setelah restart app)',
@@ -137,14 +138,37 @@ void main() {
     expect(container.read(appSettingsProvider).locale, const Locale('en'));
 
     // Fitur sakelar warna dinamis dikembalikan; bisa diaktif/nonaktifkan.
-    expect(find.byType(SwitchListTile), findsOneWidget);
-    final switchTile = tester.widget<SwitchListTile>(find.byType(SwitchListTile));
+    expect(find.byKey(SettingsScreen.dynamicColorKey), findsOneWidget);
+    final switchTile = tester.widget<SwitchListTile>(
+      find.byKey(SettingsScreen.dynamicColorKey),
+    );
     expect(switchTile.value, isTrue);
 
-    await tester.tap(find.byType(SwitchListTile));
+    await tester.tap(find.byKey(SettingsScreen.dynamicColorKey));
     await tester.pumpAndSettle();
     expect(container.read(appSettingsProvider).useDynamicColor, isFalse);
 
     expect(container.read(appSettingsProvider).locale, const Locale('en'));
+  });
+
+  testWidgets('berhenti ikuti otomatis: default aktif & tersimpan',
+      (tester) async {
+    final container = await _container();
+    await tester.pumpWidget(_app(container));
+    await tester.pumpAndSettle();
+
+    expect(container.read(appSettingsProvider).autoStopOnAlight, isTrue);
+    final tile = tester.widget<SwitchListTile>(
+      find.byKey(SettingsScreen.autoStopKey),
+    );
+    expect(tile.value, isTrue);
+
+    await tester.tap(find.byKey(SettingsScreen.autoStopKey));
+    await tester.pumpAndSettle();
+    expect(container.read(appSettingsProvider).autoStopOnAlight, isFalse);
+    expect(
+      container.read(settingsStoreProvider).load().autoStopOnAlight,
+      isFalse,
+    );
   });
 }

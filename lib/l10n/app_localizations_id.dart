@@ -20,7 +20,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get statusWaiting => 'Menunggu…';
 
   @override
-  String get statusOutsideHoursShort => 'Di luar jam operasional';
+  String get statusOutsideHoursShort => 'Tidak beroperasi';
 
   @override
   String get tooltipReload => 'Muat ulang';
@@ -217,6 +217,14 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String notifEtaToUser(String minutes) {
+    return '±$minutes mnt ke Anda';
+  }
+
+  @override
+  String get notifBusNearYou => 'Bus di sekitar Anda';
+
+  @override
   String get notifSearchingNext => 'Mencari halte berikutnya…';
 
   @override
@@ -244,6 +252,21 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get notifEventChannelDescription => 'Pemberitahuan kedatangan bus yang diikuti';
+
+  @override
+  String get notifOnboardBadge => 'Di dalam bus';
+
+  @override
+  String get notifWearNoBus => 'Tidak ada bus di-pin';
+
+  @override
+  String get notifWearMapHint => 'Ketuk untuk peta';
+
+  @override
+  String get notifAlightedTitle => 'Anda sudah turun';
+
+  @override
+  String get notifAlightedBody => 'Berhenti mengikuti bus.';
 
   @override
   String followFailed(String message) {
@@ -663,6 +686,98 @@ class AppLocalizationsId extends AppLocalizations {
   String get dynamicColorSubtitle => 'Ikuti warna wallpaper perangkat (Android 12+)';
 
   @override
+  String get sectionBus => 'Bus';
+
+  @override
+  String get autoStopTitle => 'Berhenti ikuti otomatis';
+
+  @override
+  String get autoStopSubtitle => 'Hentikan notifikasi bus setelah terdeteksi turun dari bus';
+
+  @override
+  String get wearTitle => 'Smartwatch (Wear OS)';
+
+  @override
+  String get wearSettingsSubtitle => 'Tampilkan bus yang di-pin di jam; pasang app jam lewat wireless debugging';
+
+  @override
+  String get wearIntro => 'Pasang app TPLive ke jam Wear OS langsung dari HP, tanpa komputer. Jam dan HP harus terhubung ke Wi-Fi yang sama.';
+
+  @override
+  String get wearStep1 => 'Di jam: Pengaturan → Developer options → aktifkan Debug ADB dan Debug lewat Wi-Fi (Wireless debugging).';
+
+  @override
+  String get wearStep2 => 'Di jam, ketuk Pair new device dan biarkan dialognya tetap terbuka. Catat kode 6 digit yang tampil.';
+
+  @override
+  String get wearStep3 => 'Isi kode di bawah lalu ketuk Pasang. Alamat & port jam ditemukan otomatis.';
+
+  @override
+  String get wearStageDiscover => 'Mencari jam di jaringan…';
+
+  @override
+  String get wearStagePairing => 'Pairing dengan jam…';
+
+  @override
+  String get wearStageConnecting => 'Menghubungkan ke jam…';
+
+  @override
+  String get wearStageInstalling => 'Memasang app di jam (bisa memakan waktu satu menit)…';
+
+  @override
+  String get wearInstallTimeout => 'Pemasangan terlalu lama dan dihentikan. Coba lagi dengan jam tetap menyala dan dekat HP.';
+
+  @override
+  String get wearManualTitle => 'Isi alamat manual';
+
+  @override
+  String get wearManualSubtitle => 'Hanya jika pencarian otomatis gagal';
+
+  @override
+  String get wearDiscoverPairFailed => 'Jam tidak ditemukan. Pastikan dialog Pair new device masih terbuka di jam dan keduanya satu Wi-Fi, atau isi alamat manual.';
+
+  @override
+  String get wearDiscoverConnectFailed => 'Pairing berhasil, tapi alamat koneksi jam tidak ditemukan. Coba lagi atau isi alamat manual.';
+
+  @override
+  String get wearPairAddress => 'Alamat pairing (IP:port)';
+
+  @override
+  String get wearPairCode => 'Kode pairing (6 digit)';
+
+  @override
+  String get wearConnectAddress => 'Alamat koneksi (IP:port)';
+
+  @override
+  String get wearInstall => 'Pasang ke jam';
+
+  @override
+  String get wearInstalling => 'Memasang…';
+
+  @override
+  String get wearSuccess => 'Berhasil! App TPLive sudah terpasang di jam Anda. Buka TPLive di jam.';
+
+  @override
+  String get wearInvalidInput => 'Periksa kembali: alamat harus berformat IP:port dan kode terdiri dari 6 digit.';
+
+  @override
+  String get wearApkMissing => 'App jam tidak ikut dibundel di build ini. Bangun ulang dengan scripts/build_release.ps1.';
+
+  @override
+  String get wearPairFailed => 'Pairing gagal. Pastikan kode & alamat pairing benar dan masih tampil di jam.';
+
+  @override
+  String get wearConnectFailed => 'Gagal terhubung ke jam. Periksa alamat koneksi dan Wi-Fi yang sama.';
+
+  @override
+  String wearFailed(String message) {
+    return 'Gagal memasang: $message';
+  }
+
+  @override
+  String get wearDisableNote => 'Setelah selesai, matikan lagi Debug ADB di jam demi keamanan.';
+
+  @override
   String get sectionLanguage => 'Bahasa';
 
   @override
@@ -690,4 +805,40 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get aboutDisclaimer => 'TPLive bukan aplikasi resmi TransPadang maupun Pemerintah Kota Padang. Aplikasi ini dikembangkan semata-mata untuk memudahkan pengguna TransPadang.';
+
+  @override
+  String get onboardingSkip => 'Lewati';
+
+  @override
+  String get onboardingNext => 'Lanjut';
+
+  @override
+  String get onboardingStart => 'Mulai';
+
+  @override
+  String get onboardingLiveTitle => 'Lihat bus secara langsung';
+
+  @override
+  String get onboardingLiveBody => 'Pantau posisi bus TransPadang koridor K1–K6 yang bergerak di peta, lengkap dengan halte dan jadwal perkiraan tibanya.';
+
+  @override
+  String get onboardingFollowTitle => 'Ikuti bus, tanpa repot';
+
+  @override
+  String get onboardingFollowBody => 'Pin satu bus untuk mendapat pemberitahuan halte berikutnya. Saat Anda naik atau turun, aplikasi mendeteksinya otomatis. Punya smartwatch Wear OS? Pasang aplikasinya dari Pengaturan.';
+
+  @override
+  String get onboardingPermTitle => 'Aktifkan lokasi & notifikasi';
+
+  @override
+  String get onboardingPermBody => 'Lokasi dipakai untuk mencari bus dan halte terdekat serta memperkirakan kedatangan. Notifikasi memberi tahu saat bus hampir tiba. Anda bisa mengubahnya kapan saja.';
+
+  @override
+  String get onboardingEnable => 'Aktifkan sekarang';
+
+  @override
+  String get onboardingReplayTitle => 'Lihat panduan lagi';
+
+  @override
+  String get onboardingReplaySubtitle => 'Pengenalan singkat fitur TPLive';
 }

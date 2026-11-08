@@ -51,6 +51,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     _restoreFollow();
+    FollowService.listenBoardingStatus(_onBoardingStatus);
     ref.listenManual(followedBusProvider, (_, next) {
       if (next != null) _onBusPinned(next);
     });
@@ -70,6 +71,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// (mis. setelah aplikasi dibuka ulang). Di luar jam operasional, service
   /// yang tertinggal justru dihentikan agar WebSocket-nya tidak terus
   /// berjalan padahal layanan tidak beroperasi.
+  @override
+  void dispose() {
+    FollowService.stopListeningBoardingStatus();
+    super.dispose();
+  }
+
+  /// Status naik/turun dari deteksi otomatis di layanan native.
+  void _onBoardingStatus(String status, bool ended) {
+    if (!mounted) return;
+    ref.read(boardingStatusProvider.notifier).state = status;
+    if (ended) ref.read(followedBusProvider.notifier).state = null;
+  }
+
   Future<void> _restoreFollow() async {
     final followed = await FollowService.getFollowed();
     if (followed == null) return;
@@ -78,6 +92,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return;
     }
     if (!mounted) return;
+    ref.read(boardingStatusProvider.notifier).state = followed.status;
     ref.read(followedBusProvider.notifier).state =
         busFollowKey(followed.corridor, followed.busNumber);
   }

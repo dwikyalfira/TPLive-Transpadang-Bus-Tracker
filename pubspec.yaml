@@ -83,15 +83,16 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # ---------- Konfigurasi ikon aplikasi (dijalankan: dart run flutter_launcher_icons)
-# Ikon: lingkaran oranye berisi bus & tulisan "TPL" (TPLive).
+# Ikon: squircle gradasi (biru-krem-oranye/koral) berisi siluet bus navy.
+#   Dibuat oleh scripts/generate_gradient_icon.py
 #   - app_icon.png     : ikon persegi penuh (dipakai launcher lama / non-adaptif)
 #   - app_icon_fg.png  : lapisan depan adaptif, logo dikecilkan ke safe zone 66%
-#   - latar adaptif    : #F47F38 (oranye tepi logo)
+#   - latar adaptif    : icon_bg.png (gradasi)
 flutter_launcher_icons:
   android: true
   ios: false
   image_path: "assets/logo/app_icon.png"
-  adaptive_icon_background: "#F47F38"
+  adaptive_icon_background: "assets/logo/icon_bg.png"
   adaptive_icon_foreground: "assets/logo/app_icon_fg.png"
   min_sdk_android: 21
 

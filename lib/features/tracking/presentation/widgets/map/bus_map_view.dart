@@ -46,8 +46,28 @@ class BusMapView extends ConsumerStatefulWidget {
   ConsumerState<BusMapView> createState() => BusMapViewState();
 }
 
-class BusMapViewState extends ConsumerState<BusMapView> {
+class BusMapViewState extends ConsumerState<BusMapView>
+    with SingleTickerProviderStateMixin {
   final MapController _controller = MapController();
+
+  /// Mode "ikuti bus": kamera terus memusatkan bus terpilih saat datanya
+  /// bergerak, sampai pengguna menggeser peta, membatalkan pilihan, atau
+  /// menekan tombol fokus lagi.
+  bool _followBus = false;
+
+  /// Pengguna sengaja menghentikan mode ikuti untuk bus terpilih ini, jadi
+  /// jangan menyalakannya lagi otomatis (di-reset saat pilihan berganti).
+  bool _followDismissed = false;
+
+  /// Posisi bus terpilih yang DIGAMBAR: meluncur linear dari posisi data lama
+  /// ke posisi data baru selama selang antar-data, jadi penanda bergerak
+  /// mulus (bukan melompat per update). Kamera mode ikuti memakai posisi yang
+  /// sama sehingga bus selalu tepat di tengah layar tanpa tersentak.
+  final ValueNotifier<LatLng?> _glidePos = ValueNotifier<LatLng?>(null);
+  LatLng? _glideFrom;
+  LatLng? _glideTarget;
+  DateTime? _lastDataAt;
+  late final AnimationController _glideAnim;
 
   /// Wadah provider yang ditangkap saat init, dipakai di [dispose] (setelah
   /// `ref` milik State tak lagi boleh dipakai).
@@ -97,6 +117,8 @@ class BusMapViewState extends ConsumerState<BusMapView> {
 
   @override
   void dispose() {
+    _glideAnim.dispose();
+    _glidePos.dispose();
     _controller.dispose();
     _selectedStop.dispose();
     _routeLevel.dispose();
@@ -110,6 +132,11 @@ class BusMapViewState extends ConsumerState<BusMapView> {
   void initState() {
     super.initState();
     _container = ProviderScope.containerOf(context, listen: false);
+    // Dibuat di initState (bukan lazy) agar dispose() tidak membuat ticker baru.
+    _glideAnim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..addListener(_onGlideTick);
 
     final focus = widget.focusBusKey;
     if (focus != null) {
@@ -190,7 +217,76 @@ class BusMapViewState extends ConsumerState<BusMapView> {
       ref.read(mapUserLocationProvider),
     );
     if (item == null || !_mapReady) return;
-    _controller.move(item.bus.position, AppConfig.mapFocusZoom);
+    if (_followBus) {
+      // Menekan lagi saat sedang mengikuti = berhenti mengikuti.
+      _stopFollow();
+      return;
+    }
+    _startFollow(item.bus.position);
+  }
+
+  /// Mulai mengikuti: pusatkan sekarang (zoom minimal level fokus; zoom yang
+  /// lebih dekat dari pengguna dipertahankan), lalu kamera terus mengikuti.
+  void _startFollow(LatLng position) {
+    if (!_mapReady || !mounted) return;
+    final zoom = _controller.camera.zoom;
+    _controller.move(
+      _glidePos.value ?? position,
+      zoom > AppConfig.mapFocusZoom ? zoom : AppConfig.mapFocusZoom,
+    );
+    setState(() {
+      _followBus = true;
+      _followDismissed = false;
+    });
+  }
+
+  /// Berhenti mengikuti atas kehendak pengguna (geser / tekan tombol lagi).
+  /// Penanda bus tetap meluncur mulus; hanya kameranya yang dilepas.
+  void _stopFollow() {
+    if (!mounted) return;
+    if (_followBus || !_followDismissed) {
+      setState(() {
+        _followBus = false;
+        _followDismissed = true;
+      });
+    }
+  }
+
+  /// Posisi bus terpilih berubah ke [target]: luncurkan penanda (dan kamera bila
+  /// mode ikuti) secara linear selama selang antar-data (700–2500 ms).
+  void _beginGlide(LatLng target) {
+    if (!mounted || target == _glideTarget) return;
+    final now = DateTime.now();
+    final current = _glidePos.value;
+    if (current == null) {
+      // Data pertama untuk pilihan ini: langsung di posisinya, tanpa meluncur.
+      _glideTarget = target;
+      _lastDataAt = now;
+      _glidePos.value = target;
+      return;
+    }
+    final last = _lastDataAt;
+    final gap = last == null ? 1400 : now.difference(last).inMilliseconds;
+    _lastDataAt = now;
+    _glideFrom = current;
+    _glideTarget = target;
+    _glideAnim.duration = Duration(milliseconds: gap.clamp(700, 2500));
+    _glideAnim.forward(from: 0);
+  }
+
+  void _onGlideTick() {
+    final from = _glideFrom;
+    final to = _glideTarget;
+    if (from == null || to == null) return;
+    final t = _glideAnim.value; // linear: kecepatan konstan, tanpa berhenti-jalan
+    final pos = LatLng(
+      from.latitude + (to.latitude - from.latitude) * t,
+      from.longitude + (to.longitude - from.longitude) * t,
+    );
+    _glidePos.value = pos;
+    if (_followBus && _mapReady) {
+      _controller.move(pos, _controller.camera.zoom);
+    }
   }
 
   void _select(BusMapMarker marker) {
@@ -232,7 +328,16 @@ class BusMapViewState extends ConsumerState<BusMapView> {
   /// supaya kartu pin global menyembunyikan diri selama kartu peta tampil.
   void _applySelection(String? key) {
     if (_selectedKey != key) {
-      setState(() => _selectedKey = key);
+      _glideAnim.stop();
+      _glidePos.value = null;
+      _glideFrom = null;
+      _glideTarget = null;
+      _lastDataAt = null;
+      setState(() {
+        _selectedKey = key;
+        _followBus = false;
+        _followDismissed = false;
+      });
     }
     ref.read(mapBusSelectedProvider.notifier).state = key != null;
   }
@@ -274,6 +379,15 @@ class BusMapViewState extends ConsumerState<BusMapView> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final markers = ref.watch(busMapMarkersProvider);
+    BusMapMarker? selectedMarker;
+    if (_selectedKey != null) {
+      for (final m in markers) {
+        if ('${m.corridor}|${m.number}' == _selectedKey) {
+          selectedMarker = m;
+          break;
+        }
+      }
+    }
     final userLocation = ref.watch(mapUserLocationProvider);
     final selected = _selectedItem();
     final tileSource = ref.watch(
@@ -296,6 +410,36 @@ class BusMapViewState extends ConsumerState<BusMapView> {
             speedKmh: selected.bus.speedKmh,
           )
         : null;
+
+    // Bus yang di-pin (diikuti notifikasi) otomatis selalu berada di tengah
+    // layar begitu terpilih di peta, tanpa perlu menekan tombol fokus. Pengguna
+    // masih bisa menghentikannya dengan menggeser peta / menekan tombol fokus.
+    final pinnedKey = ref.watch(followedBusProvider);
+    if (selected != null &&
+        !_followBus &&
+        !_followDismissed &&
+        _mapReady &&
+        pinnedKey != null &&
+        pinnedKey == _keyOf(selected.bus)) {
+      final start = selected.bus.position;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_followBus && !_followDismissed) _startFollow(start);
+      });
+    }
+
+    // Posisi bus terpilih berubah → luncurkan penanda (+ kamera bila mengikuti).
+    // Bila bus hilang dari data live (basi) saat mengikuti, berhenti mengikuti.
+    final target = selected?.bus.position;
+    if (target != null && target != _glideTarget) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _beginGlide(target);
+      });
+    }
+    if (_followBus && target == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _followBus) setState(() => _followBus = false);
+      });
+    }
 
     if (!_centeredOnUser && userLocation != null) {
       _centeredOnUser = true;
@@ -323,12 +467,22 @@ class BusMapViewState extends ConsumerState<BusMapView> {
             onMapReady: () {
               _mapReady = true;
               _tryFocus();
+              // Bangun ulang agar mode ikuti bus yang di-pin bisa langsung menyala.
+              if (mounted) setState(() {});
             },
             // Geseran/zoom oleh jari pengguna menutup baris penyaring koridor
             // agar peta tidak tertutup saat sedang ditelusuri. Perubahan kamera
             // terprogram (fokus bus, tombol lokasi) tidak ikut menutup karena
             // `hasGesture` false. Kartu status di luar jam operasional ikut
             // dilipat dengan alasan yang sama.
+            onMapEvent: (event) {
+              // Menggeser dengan satu jari = pengguna mengambil alih kamera.
+              if (_followBus &&
+                  (event.source == MapEventSource.dragStart ||
+                      event.source == MapEventSource.onDrag)) {
+                _stopFollow();
+              }
+            },
             onPositionChanged: (position, hasGesture) {
               final zoom = position.zoom;
               if (zoom != null) {
@@ -363,9 +517,15 @@ class BusMapViewState extends ConsumerState<BusMapView> {
                 // Titik lokasi digambar lebih dulu agar penanda bus selalu di
                 // atasnya (dan tetap bisa diketuk walau bus tepat di lokasi).
                 if (userLocation != null) _userMarker(userLocation),
-                for (final marker in markers) _busMarker(marker),
+                for (final marker in markers)
+                  if (marker != selectedMarker) _busMarker(marker),
               ],
             ),
+            // Bus terpilih digambar di lapisan sendiri (di atas bus lain) dengan
+            // posisi yang meluncur mulus; hanya lapisan ini yang dibangun ulang
+            // tiap frame animasi, bukan seluruh peta.
+            if (selectedMarker != null)
+              _selectedBusLayer(selectedMarker),
             RichAttributionWidget(
               alignment: AttributionAlignment.bottomLeft,
               attributions: [
@@ -431,6 +591,13 @@ class BusMapViewState extends ConsumerState<BusMapView> {
                                       heroTag: 'mapFocusBus',
                                       tooltip: l10n.mapFocusBus,
                                       onPressed: _focusSelectedBus,
+                                      // Warna aktif = kamera sedang mengikuti bus.
+                                      backgroundColor: _followBus
+                                          ? theme.colorScheme.primary
+                                          : null,
+                                      foregroundColor: _followBus
+                                          ? theme.colorScheme.onPrimary
+                                          : null,
                                       child:
                                           const Icon(Icons.center_focus_strong),
                                     ),
@@ -502,6 +669,12 @@ class BusMapViewState extends ConsumerState<BusMapView> {
                                       destinationLabel:
                                           selected.destinationLabel,
                                       arrival: arrival,
+                                      onboard: ref.watch(isOnboardProvider) &&
+                                          ref.watch(followedBusProvider) ==
+                                              busFollowKey(
+                                                selected.bus.corridor,
+                                                selected.bus.number,
+                                              ),
                                       trailing: FollowBusButton(
                                         bus: selected.bus,
                                         activeColor: corridorAccent(
@@ -538,11 +711,21 @@ class BusMapViewState extends ConsumerState<BusMapView> {
     );
   }
 
-  Marker _busMarker(BusMapMarker marker) {
+  /// Lapisan penanda bus terpilih dengan posisi yang meluncur mulus.
+  Widget _selectedBusLayer(BusMapMarker marker) {
+    return ValueListenableBuilder<LatLng?>(
+      valueListenable: _glidePos,
+      builder: (_, pos, __) => MarkerLayer(
+        markers: [_busMarker(marker, at: pos)],
+      ),
+    );
+  }
+
+  Marker _busMarker(BusMapMarker marker, {LatLng? at}) {
     // `_selectedKey` null saat tak ada pilihan, jadi tidak perlu cek null.
     final highlight = _selectedKey == '${marker.corridor}|${marker.number}';
     return Marker(
-      point: marker.position,
+      point: at ?? marker.position,
       width: 44,
       height: 44,
       child: GestureDetector(

@@ -21,11 +21,21 @@ class AppSettings {
   /// Gaya basemap peta live ([MapMode.theme] = ikuti mode tampilan).
   final MapMode mapMode;
 
+  /// Hentikan "ikuti bus" otomatis setelah terdeteksi turun dari bus.
+  final bool autoStopOnAlight;
+
+  /// Panduan pertama kali sudah selesai/dilewati. Default `true` agar tidak
+  /// muncul tanpa sengaja (mis. di tes); [SettingsStore.load] menentukan
+  /// nilai sebenarnya.
+  final bool onboardingDone;
+
   const AppSettings({
     this.themeMode = ThemeMode.system,
     this.locale,
     this.useDynamicColor = true,
     this.mapMode = MapMode.theme,
+    this.autoStopOnAlight = true,
+    this.onboardingDone = true,
   });
 
   AppSettings copyWith({
@@ -34,12 +44,16 @@ class AppSettings {
     bool clearLocale = false,
     bool? useDynamicColor,
     MapMode? mapMode,
+    bool? autoStopOnAlight,
+    bool? onboardingDone,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
       locale: clearLocale ? null : (locale ?? this.locale),
       useDynamicColor: useDynamicColor ?? this.useDynamicColor,
       mapMode: mapMode ?? this.mapMode,
+      autoStopOnAlight: autoStopOnAlight ?? this.autoStopOnAlight,
+      onboardingDone: onboardingDone ?? this.onboardingDone,
     );
   }
 }
@@ -56,6 +70,8 @@ class SettingsStore {
   static const _kLocale = 'settings.locale';
   static const _kDynamicColor = 'settings.dynamic_color';
   static const _kMapMode = 'settings.map_mode';
+  static const _kAutoStop = 'settings.auto_stop_on_alight';
+  static const _kOnboarded = 'settings.onboarding_done';
 
   AppSettings load() {
     final theme = _prefs.getString(_kThemeMode);
@@ -75,6 +91,10 @@ class SettingsStore {
         (mode) => mode.name == mapModeCode,
         orElse: () => MapMode.theme,
       ),
+      autoStopOnAlight: _prefs.getBool(_kAutoStop) ?? true,
+      // Pemasangan baru (tanpa data apa pun) = tampilkan panduan. Pengguna
+      // lama yang sudah punya preferensi tersimpan tidak diganggu.
+      onboardingDone: _prefs.getBool(_kOnboarded) ?? _prefs.getKeys().isNotEmpty,
     );
   }
 
@@ -89,6 +109,12 @@ class SettingsStore {
 
   Future<void> saveMapMode(MapMode mode) =>
       _prefs.setString(_kMapMode, mode.name);
+
+  Future<void> saveAutoStopOnAlight(bool enabled) =>
+      _prefs.setBool(_kAutoStop, enabled);
+
+  Future<void> saveOnboardingDone(bool done) =>
+      _prefs.setBool(_kOnboarded, done);
 }
 
 /// Di-override di `main()` dengan instance yang sudah memuat [SharedPreferences].
@@ -121,6 +147,16 @@ class AppSettingsNotifier extends Notifier<AppSettings> {
   Future<void> setMapMode(MapMode mode) async {
     state = state.copyWith(mapMode: mode);
     await ref.read(settingsStoreProvider).saveMapMode(mode);
+  }
+
+  Future<void> setAutoStopOnAlight(bool enabled) async {
+    state = state.copyWith(autoStopOnAlight: enabled);
+    await ref.read(settingsStoreProvider).saveAutoStopOnAlight(enabled);
+  }
+
+  Future<void> completeOnboarding() async {
+    state = state.copyWith(onboardingDone: true);
+    await ref.read(settingsStoreProvider).saveOnboardingDone(true);
   }
 }
 

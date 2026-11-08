@@ -7,7 +7,12 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Handler
@@ -62,6 +67,18 @@ class FollowService : Service() {
         /** String notifikasi yang sudah dilokalisasi di Dart (JSON). */
         const val EXTRA_LABELS = "labels"
 
+        /** Hentikan follow otomatis setelah terdeteksi turun dari bus. */
+        const val EXTRA_AUTO_STOP = "autoStopOnAlight"
+
+        const val STATUS_FOLLOWING = "following"
+        const val STATUS_ONBOARD = "onboard"
+        const val STATUS_ALIGHTED = "alighted"
+
+        private const val EVENT_CHANNEL_ID = "bus_events"
+        private const val ALIGHT_NOTIFICATION_ID = 9103
+        private const val LOCATION_INTERVAL_MS = 5_000L
+        private const val BUS_FRESH_MILLIS = 30_000L
+
         /** Fallback bila Dart tidak mengirim warna (abu-abu badge default). */
         val DEFAULT_KEY_COLOR = 0xFF546E7A.toInt()
 
@@ -83,6 +100,13 @@ class FollowService : Service() {
         private val _followedBusNumber = AtomicReference("")
         val followedCorridor: String get() = _followedCorridor.get()
         val followedBusNumber: String get() = _followedBusNumber.get()
+
+        private val _status = AtomicReference(STATUS_FOLLOWING)
+        val boardingStatus: String get() = _status.get()
+
+        /** Dipasang MainActivity agar Dart diberi tahu saat status berubah. */
+        @Volatile
+        var statusListener: ((status: String, ended: Boolean) -> Unit)? = null
     }
 
     private var corridor = ""
@@ -105,6 +129,27 @@ class FollowService : Service() {
     private var distKm: Double? = null
     private var etaMin: Int? = null
     private var pct = 0
+    private var nextIdx = 0
+
+    private val detector = BoardingDetector()
+    private var autoStopOnAlight = true
+    private var busPos: HalteMath.Point? = null
+    private var busSpeedKmh: Double? = null
+    private var busPosMillis = 0L
+
+    /** Lokasi pengguna terakhir (dari GPS HP) untuk estimasi bus → pengguna. */
+    private var userPos: HalteMath.Point? = null
+    private var userPosMillis = 0L
+    private var locationManager: LocationManager? = null
+
+    private val locationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) = onUserLocation(location)
+
+        @Deprecated("Deprecated in Java")
+        override fun onStatusChanged(provider: String?, status: Int, extras: android.os.Bundle?) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+    }
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -142,6 +187,8 @@ class FollowService : Service() {
                 handler.postDelayed(staleCheck, STALE_CHECK_INTERVAL)
                 disconnectWS()
                 connectWS()
+                startLocationUpdates()
+                pushToWatch()
                 return START_NOT_STICKY
             }
             else -> {
@@ -162,6 +209,7 @@ class FollowService : Service() {
         _followedBusNumber.set("")
         handler.removeCallbacks(staleCheck)
         handler.removeCallbacks(reconnectRunnable)
+        stopLocationUpdates()
         disconnectWS()
         super.onDestroy()
     }
@@ -210,8 +258,18 @@ class FollowService : Service() {
             Log.w(TAG, "Gagal membaca daftar halte: ${e.message}")
         }
 
+        autoStopOnAlight = intent.getBooleanExtra(EXTRA_AUTO_STOP, true)
+        detector.reset()
+        busPos = null
+        busSpeedKmh = null
+        busPosMillis = 0L
+        userPos = null
+        userPosMillis = 0L
+        _status.set(STATUS_FOLLOWING)
+
         hasPosition = false
         nextName = null
+        nextIdx = 0
         distKm = null
         etaMin = null
         pct = 0
@@ -240,7 +298,13 @@ class FollowService : Service() {
     private fun startForegroundCompat() {
         val n = buildNotification()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTIFICATION_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+            var type = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            // Tipe location hanya boleh dipakai bila izin lokasi sudah diberikan
+            // (Android 14+ melempar SecurityException bila tidak).
+            if (hasLocationPermission()) {
+                type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            }
+            startForeground(NOTIFICATION_ID, n, type)
         } else {
             startForeground(NOTIFICATION_ID, n)
         }
@@ -327,6 +391,9 @@ class FollowService : Service() {
                 label("destinationFallback", "Ikuti bus hingga tiba di tujuan")
             }
         }
+        if (_status.get() == STATUS_ONBOARD) {
+            sub = label("onboardBadge", "Di dalam bus") + " · " + sub
+        }
 
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification.Builder(this, CHANNEL_ID)
@@ -395,6 +462,58 @@ class FollowService : Service() {
         if (!_active.get()) return
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.notify(NOTIFICATION_ID, buildNotification())
+        pushToWatch()
+    }
+
+    /** Kirim ringkasan bus yang di-pin ke app Wear OS (bila ada). */
+    private fun pushToWatch() {
+        val title = label(
+            "title",
+            if (busNumber.isNotEmpty()) "Bus $busNumber · Koridor $corridor" else "Bus $corridor",
+        )
+        // Jam menampilkan estimasi waktu BUS → PENGGUNA (jarak garis lurus ÷
+        // kecepatan bus, sama seperti kartu di app). Bila pengguna sudah di dalam
+        // bus atau lokasi belum ada, jatuh ke estimasi ke halte berikutnya.
+        var etaText: String? = etaMin?.let {
+            fill(label("eta", " · ±__MINUTES__ mnt"), "MINUTES", it.toString())
+                .removePrefix(" · ")
+                .trim()
+        }
+        var distanceText: String? = distKm?.let { formatKm(it) }
+        val user = userPos
+        val bus = busPos
+        val userFresh = System.currentTimeMillis() - userPosMillis < 60_000
+        if (_status.get() != STATUS_ONBOARD && hasPosition && user != null && bus != null && userFresh) {
+            val dKm = HalteMath.distanceKm(user, bus)
+            distanceText = formatKm(dKm)
+            etaText = if (dKm < 0.05) {
+                label("busNearYou", "Bus di sekitar Anda")
+            } else {
+                HalteMath.etaMinutes(dKm, busSpeedKmh)?.let {
+                    fill(label("etaToYou", "±__MINUTES__ mnt ke Anda"), "MINUTES", it.toString())
+                }
+            }
+        }
+        WearBridge.push(
+            this,
+            WearBridge.Snapshot(
+                title = title,
+                color = keyColor,
+                nextStop = if (hasPosition) nextName else null,
+                distanceText = distanceText,
+                etaText = etaText,
+                status = _status.get(),
+                onboardLabel = label("onboardBadge", "Di dalam bus"),
+                searchingLabel = label("searchingSignal", "Mencari sinyal bus…"),
+                stops = stops.joinToString(";") {
+                    String.format(Locale.US, "%.6f,%.6f", it.lat, it.lng)
+                },
+                busLat = if (hasPosition) busPos?.lat else null,
+                busLng = if (hasPosition) busPos?.lng else null,
+                nextIndex = nextIdx,
+                mapHint = label("wearMapHint", "Ketuk untuk peta"),
+            ),
+        )
     }
 
     // ---- WebSocket ----
@@ -482,7 +601,11 @@ class FollowService : Service() {
 
                 hasPosition = true
                 lastMatchMillis = System.currentTimeMillis()
+                busPos = HalteMath.Point(lat, lng)
+                busSpeedKmh = speedKmh
+                busPosMillis = lastMatchMillis
                 if (progress != null) {
+                    nextIdx = progress.nextIndex
                     nextName = stopNames.getOrNull(progress.nextIndex)
                     distKm = progress.distanceToNextKm
                     etaMin = HalteMath.etaMinutes(progress.distanceToNextKm, speedKmh)
@@ -503,11 +626,123 @@ class FollowService : Service() {
         }
     }
 
+    // ---- Deteksi otomatis naik / turun ----
+
+    private fun hasLocationPermission(): Boolean =
+        checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
+
+    private fun startLocationUpdates() {
+        stopLocationUpdates()
+        if (!hasLocationPermission()) return
+        try {
+            val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            locationManager = lm
+            val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
+            for (p in providers) {
+                if (lm.isProviderEnabled(p)) {
+                    lm.requestLocationUpdates(
+                        p, LOCATION_INTERVAL_MS, 0f, locationListener, Looper.getMainLooper(),
+                    )
+                }
+            }
+        } catch (e: SecurityException) {
+            Log.w(TAG, "Izin lokasi ditolak: ${e.message}")
+        } catch (e: Exception) {
+            Log.w(TAG, "Gagal memulai update lokasi: ${e.message}")
+        }
+    }
+
+    private fun stopLocationUpdates() {
+        try {
+            locationManager?.removeUpdates(locationListener)
+        } catch (e: Exception) {
+            Log.w(TAG, "Gagal menghentikan update lokasi: ${e.message}")
+        }
+        locationManager = null
+    }
+
+    private fun onUserLocation(location: Location) {
+        if (!_active.get()) return
+        userPos = HalteMath.Point(location.latitude, location.longitude)
+        userPosMillis = System.currentTimeMillis()
+        val bus = busPos ?: return
+        if (System.currentTimeMillis() - busPosMillis > BUS_FRESH_MILLIS) return
+        val distM = HalteMath.distanceKm(
+            HalteMath.Point(location.latitude, location.longitude),
+            bus,
+        ) * 1000.0
+        val userKmh = if (location.hasSpeed()) location.speed * 3.6 else null
+        val accuracy = if (location.hasAccuracy()) location.accuracy else 0f
+        val next = detector.onSample(distM, busSpeedKmh, userKmh, accuracy) ?: return
+        when (next) {
+            BoardingDetector.State.ONBOARD -> {
+                Log.d(TAG, "Terdeteksi naik bus")
+                _status.set(STATUS_ONBOARD)
+                statusListener?.invoke(STATUS_ONBOARD, false)
+                pushNotification()
+            }
+            BoardingDetector.State.ALIGHTED -> {
+                Log.d(TAG, "Terdeteksi turun dari bus")
+                _status.set(STATUS_ALIGHTED)
+                notifyAlighted()
+                if (autoStopOnAlight) {
+                    statusListener?.invoke(STATUS_ALIGHTED, true)
+                    stopFollow()
+                } else {
+                    statusListener?.invoke(STATUS_ALIGHTED, false)
+                    pushNotification()
+                }
+            }
+            BoardingDetector.State.FOLLOWING -> Unit
+        }
+    }
+
+    private fun notifyAlighted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) return
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val ch = NotificationChannel(
+                EVENT_CHANNEL_ID,
+                label("eventChannelName", "Kedatangan bus"),
+                NotificationManager.IMPORTANCE_HIGH,
+            ).apply {
+                description = label(
+                    "eventChannelDescription",
+                    "Pemberitahuan kedatangan bus yang diikuti",
+                )
+                enableVibration(true)
+            }
+            nm.createNotificationChannel(ch)
+        }
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, EVENT_CHANNEL_ID)
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(this)
+        }
+        builder
+            .setSmallIcon(R.drawable.ic_stat_bus)
+            .setContentTitle(label("alightedTitle", "Anda sudah turun"))
+            .setContentText(label("alightedBody", "Berhenti mengikuti bus."))
+            .setAutoCancel(true)
+            .setContentIntent(contentIntent())
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setPriority(Notification.PRIORITY_HIGH)
+        nm.notify(ALIGHT_NOTIFICATION_ID, builder.build())
+    }
+
     private fun stopFollow() {
         if (!_active.getAndSet(false)) {
             stopSelf()
             return
         }
+        stopLocationUpdates()
+        WearBridge.clear(this, label("wearNoBus", "Tidak ada bus di-pin"))
+        _status.set(STATUS_FOLLOWING)
         _followedCorridor.set("")
         _followedBusNumber.set("")
         handler.removeCallbacks(staleCheck)

@@ -63,3 +63,6 @@ app.*.map.json
 /android/keystore/
 *.jks
 *.keystore
+
+# APK Wear OS hasil build (di-bundle oleh scripts/build_release.ps1)
+android/app/src/main/assets/wear/

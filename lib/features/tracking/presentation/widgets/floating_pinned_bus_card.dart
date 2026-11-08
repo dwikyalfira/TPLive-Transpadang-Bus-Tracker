@@ -296,12 +296,17 @@ class PinnedBusCardFooter extends StatelessWidget {
   /// Perkiraan kedatangan bus ke lokasi pengguna (opsional).
   final UserArrival? arrival;
 
+  /// True bila pengguna terdeteksi sudah di dalam bus ini; menggantikan baris
+  /// estimasi kedatangan (tidak relevan lagi saat sudah naik).
+  final bool onboard;
+
   const PinnedBusCardFooter({
     super.key,
     required this.bus,
     this.destinationLabel,
     this.trailing,
     this.arrival,
+    this.onboard = false,
   });
 
   @override
@@ -328,7 +333,10 @@ class PinnedBusCardFooter extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (estimate != null) ...[
+                  if (onboard) ...[
+                    _OnboardLine(accent: accent),
+                    const SizedBox(height: 3),
+                  ] else if (estimate != null) ...[
                     _ArrivalLine(arrival: estimate, accent: accent),
                     const SizedBox(height: 3),
                   ],
@@ -364,6 +372,34 @@ class PinnedBusCardFooter extends StatelessWidget {
               trailing!,
             ],
           ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Baris "Di dalam bus" saat naik terdeteksi otomatis.
+class _OnboardLine extends StatelessWidget {
+  final Color accent;
+
+  const _OnboardLine({required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    return Row(
+      children: [
+        Icon(Icons.directions_bus_filled, size: 14, color: accent),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            l10n.notifOnboardBadge,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: accent, fontWeight: FontWeight.w700),
+          ),
         ),
       ],
     );

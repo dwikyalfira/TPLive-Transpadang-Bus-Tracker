@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TPLive</string>
+    <string name="no_pinned_bus">No pinned bus</string>
+    <string name="no_pinned_bus_hint">Pin a bus on your phone to see it here</string>
+    <string name="map">Map</string>
+    <string name="close_map">Close map</string>
+    <string name="follow_bus">Follow bus</string>
+    <string name="on_board">On board</string>
+    <string name="next_stop">Next stop</string>
+    <string name="stop_progress">Stop %1$d of %2$d</string>
+    <string name="channel_live">Pinned bus (live)</string>
+    <string name="channel_open">Newly pinned bus</string>
+    <string name="pinned_open_title">Bus pinned</string>
+    <string name="pinned_open_text">Tap to see the bus position</string>
+    <string name="auto_open">Open automatically</string>
+    <string name="auto_open_hint">Allow the app to open by itself when a bus is pinned</string>
+</resources>

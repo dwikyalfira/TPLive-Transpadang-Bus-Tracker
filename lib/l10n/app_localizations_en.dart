@@ -20,7 +20,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusWaiting => 'Waiting…';
 
   @override
-  String get statusOutsideHoursShort => 'Outside operating hours';
+  String get statusOutsideHoursShort => 'Not running';
 
   @override
   String get tooltipReload => 'Reload';
@@ -217,6 +217,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String notifEtaToUser(String minutes) {
+    return '±$minutes min to you';
+  }
+
+  @override
+  String get notifBusNearYou => 'Bus is near you';
+
+  @override
   String get notifSearchingNext => 'Finding the next stop…';
 
   @override
@@ -244,6 +252,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifEventChannelDescription => 'Alerts for the bus you are following';
+
+  @override
+  String get notifOnboardBadge => 'On board';
+
+  @override
+  String get notifWearNoBus => 'No pinned bus';
+
+  @override
+  String get notifWearMapHint => 'Tap for map';
+
+  @override
+  String get notifAlightedTitle => 'You have got off the bus';
+
+  @override
+  String get notifAlightedBody => 'No longer following the bus.';
 
   @override
   String followFailed(String message) {
@@ -663,6 +686,98 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dynamicColorSubtitle => 'Follow the device wallpaper (Android 12+)';
 
   @override
+  String get sectionBus => 'Bus';
+
+  @override
+  String get autoStopTitle => 'Auto-stop following';
+
+  @override
+  String get autoStopSubtitle => 'Stop the bus notification once you are detected getting off';
+
+  @override
+  String get wearTitle => 'Smartwatch (Wear OS)';
+
+  @override
+  String get wearSettingsSubtitle => 'Show the pinned bus on your watch; install the watch app via wireless debugging';
+
+  @override
+  String get wearIntro => 'Install the TPLive app on your Wear OS watch straight from this phone, no computer needed. The watch and phone must be on the same Wi-Fi.';
+
+  @override
+  String get wearStep1 => 'On the watch: Settings → Developer options → turn on ADB debugging and Debug over Wi-Fi (Wireless debugging).';
+
+  @override
+  String get wearStep2 => 'On the watch, tap Pair new device and keep that dialog open. Note the 6-digit code shown.';
+
+  @override
+  String get wearStep3 => 'Enter the code below and tap Install. The watch\'s address and ports are found automatically.';
+
+  @override
+  String get wearStageDiscover => 'Looking for the watch on the network…';
+
+  @override
+  String get wearStagePairing => 'Pairing with the watch…';
+
+  @override
+  String get wearStageConnecting => 'Connecting to the watch…';
+
+  @override
+  String get wearStageInstalling => 'Installing the app on the watch (may take a minute)…';
+
+  @override
+  String get wearInstallTimeout => 'Installation took too long and was stopped. Try again with the watch awake and close to the phone.';
+
+  @override
+  String get wearManualTitle => 'Enter address manually';
+
+  @override
+  String get wearManualSubtitle => 'Only if automatic discovery fails';
+
+  @override
+  String get wearDiscoverPairFailed => 'Watch not found. Make sure the Pair new device dialog is still open on the watch and both are on the same Wi-Fi, or enter the address manually.';
+
+  @override
+  String get wearDiscoverConnectFailed => 'Pairing worked, but the watch\'s connection address was not found. Try again or enter the address manually.';
+
+  @override
+  String get wearPairAddress => 'Pairing address (IP:port)';
+
+  @override
+  String get wearPairCode => 'Pairing code (6 digits)';
+
+  @override
+  String get wearConnectAddress => 'Connection address (IP:port)';
+
+  @override
+  String get wearInstall => 'Install on watch';
+
+  @override
+  String get wearInstalling => 'Installing…';
+
+  @override
+  String get wearSuccess => 'Success! TPLive is now installed on your watch. Open TPLive on the watch.';
+
+  @override
+  String get wearInvalidInput => 'Please check: addresses must look like IP:port and the code must be 6 digits.';
+
+  @override
+  String get wearApkMissing => 'The watch app is not bundled in this build. Rebuild with scripts/build_release.ps1.';
+
+  @override
+  String get wearPairFailed => 'Pairing failed. Make sure the pairing code and address are correct and still showing on the watch.';
+
+  @override
+  String get wearConnectFailed => 'Could not connect to the watch. Check the connection address and that both are on the same Wi-Fi.';
+
+  @override
+  String wearFailed(String message) {
+    return 'Install failed: $message';
+  }
+
+  @override
+  String get wearDisableNote => 'When you are done, turn ADB debugging off again on the watch for security.';
+
+  @override
   String get sectionLanguage => 'Language';
 
   @override
@@ -690,4 +805,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutDisclaimer => 'TPLive is not an official app of TransPadang or the Padang City Government. It is developed purely to make it easier for TransPadang riders.';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStart => 'Get started';
+
+  @override
+  String get onboardingLiveTitle => 'See buses live';
+
+  @override
+  String get onboardingLiveBody => 'Watch TransPadang buses on corridors K1–K6 move on the map, with stops and estimated arrival times.';
+
+  @override
+  String get onboardingFollowTitle => 'Follow a bus, effortlessly';
+
+  @override
+  String get onboardingFollowBody => 'Pin a bus to get notified about the next stop. The app detects when you board or get off automatically. Have a Wear OS smartwatch? Install the app from Settings.';
+
+  @override
+  String get onboardingPermTitle => 'Turn on location & notifications';
+
+  @override
+  String get onboardingPermBody => 'Location finds nearby buses and stops and estimates arrivals. Notifications tell you when your bus is almost here. You can change this anytime.';
+
+  @override
+  String get onboardingEnable => 'Turn on now';
+
+  @override
+  String get onboardingReplayTitle => 'View the guide again';
+
+  @override
+  String get onboardingReplaySubtitle => 'A quick tour of TPLive';
 }

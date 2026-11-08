@@ -1,0 +1,21 @@
+// Proyek Gradle TERPISAH untuk app Wear OS (Compose Material 3). Dibuat terpisah
+// dari proyek Flutter/phone karena membutuhkan AGP 8 + Kotlin 2 (proyek phone
+// terkunci di AGP 7.3 / Kotlin 1.9 oleh Flutter 3.19.6).
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "tplive-wear"
+include ":app"

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/status_colors.dart';
 import '../../../core/ui/constrained_content.dart';
 import '../../../core/wear_installer.dart';
 import '../../../l10n/app_localizations.dart';
@@ -243,7 +244,9 @@ class _ResultCard extends StatelessWidget {
         children: [
           Icon(
             success ? Icons.check_circle : Icons.error_outline,
-            color: success ? const Color(0xFF2E7D32) : scheme.error,
+            color: success
+                ? StatusColors.successFor(theme.brightness)
+                : scheme.error,
           ),
           const SizedBox(width: 10),
           Expanded(

@@ -643,8 +643,9 @@ class _FavoriteStar extends StatelessWidget {
           key: ValueKey<bool>(isFavorite),
         ),
       ),
+      // Peran warna tema, bukan amber K2: warna koridor hanya berarti koridor.
       color: isFavorite
-          ? const Color(0xFFEAA221)
+          ? Theme.of(context).colorScheme.primary
           : Theme.of(context).colorScheme.onSurfaceVariant,
     );
   }

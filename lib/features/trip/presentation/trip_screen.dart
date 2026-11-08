@@ -146,7 +146,9 @@ class _RouteField extends StatelessWidget {
             hint: l10n.hintPickDestination,
             endpoint: destination,
             icon: Icons.place,
-            accent: const Color(0xFFC8163F),
+            // Peran warna tema (bukan merah K1): warna koridor hanya berarti
+            // koridor.
+            accent: scheme.tertiary,
             onTap: onTapDestination,
           ),
         ],
@@ -274,10 +276,28 @@ class _PlanArea extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Isi bertukar (hitung → hasil / tak ada rute / lokasi menunggu) dengan
+    // fade singkat agar tidak "pop". Hanya opacity: ini pengganti isi, bukan
+    // gerak spasial. Tiap keadaan punya key sendiri; daftar hasil memakai key
+    // yang tetap sehingga pembaruan data bus tidak memicu animasi ulang.
+    return AnimatedSwitcher(
+      duration: AppMotion.resolve(context, AppMotion.short4),
+      switchInCurve: AppMotion.emphasizedDecelerate,
+      switchOutCurve: AppMotion.emphasizedAccelerate,
+      layoutBuilder: (current, previous) => Stack(
+        fit: StackFit.expand,
+        children: [...previous, if (current != null) current],
+      ),
+      child: _content(context, ref),
+    );
+  }
+
+  Widget _content(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final destination = ref.watch(tripDestinationEndpointProvider);
     if (destination == null) {
       return EmptyStateView(
+        key: const ValueKey('plan:chooseDestination'),
         icon: Icons.route,
         message: l10n.planChooseDestination,
       );
@@ -287,6 +307,7 @@ class _PlanArea extends ConsumerWidget {
     final locationAsync = origin.isGps ? ref.watch(userLocationProvider) : null;
     if (locationAsync != null && locationAsync.hasError) {
       return LocationErrorView(
+        key: const ValueKey('plan:locationError'),
         error: locationAsync.error!,
         onRetry: () => ref.invalidate(userLocationProvider),
         secondaryAction: TextButton(
@@ -297,6 +318,7 @@ class _PlanArea extends ConsumerWidget {
     }
     if (locationAsync != null && locationAsync.valueOrNull == null) {
       return EmptyStateView(
+        key: const ValueKey('plan:waitingLocation'),
         icon: Icons.my_location,
         message: l10n.planWaitingLocation,
       );
@@ -305,18 +327,21 @@ class _PlanArea extends ConsumerWidget {
     final plan = ref.watch(tripPlanProvider);
     if (plan == null) {
       return EmptyStateView(
+        key: const ValueKey('plan:calculating'),
         icon: Icons.hourglass_empty,
         message: l10n.planCalculating,
       );
     }
     if (!plan.hasOptions) {
       return EmptyStateView(
+        key: const ValueKey('plan:noRoute'),
         icon: Icons.directions_bus_outlined,
         message: l10n.planNoRoute,
       );
     }
 
     return ListView(
+      key: const ValueKey('plan:results'),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       children: [
         ...plan.options.map((option) => _OptionCard(option: option)),

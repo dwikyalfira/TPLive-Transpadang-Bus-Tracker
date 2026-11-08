@@ -427,6 +427,9 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ],
+          // Kartu ini tanpa judul seksi sendiri; jarak 16 dp (kelipatan grid)
+          // mencegahnya menempel ke kartu di atasnya.
+          const SizedBox(height: 16),
           _SettingsCard(
             children: [
               ListTile(

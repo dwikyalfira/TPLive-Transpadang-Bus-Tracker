@@ -726,8 +726,9 @@ class BusMapViewState extends ConsumerState<BusMapView>
     final highlight = _selectedKey == '${marker.corridor}|${marker.number}';
     return Marker(
       point: at ?? marker.position,
-      width: 44,
-      height: 44,
+      // Area sentuh 48 dp (minimum Material); gambar pin tetap di tengah.
+      width: 48,
+      height: 48,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => _select(marker),
@@ -1086,8 +1087,8 @@ class _BusMarkerPin extends StatelessWidget {
       label: number.isEmpty ? null : number,
       button: true,
       child: SizedBox(
-        width: 44,
-        height: 44,
+        width: 48,
+        height: 48,
         child: Stack(
           alignment: Alignment.center,
           children: [

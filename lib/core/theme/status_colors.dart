@@ -14,4 +14,13 @@ abstract final class StatusColors {
 
   static Color nightFor(Brightness brightness) =>
       brightness == Brightness.dark ? nightOnDark : night;
+
+  /// Hijau "berhasil" untuk tema terang (kontras ≥ 4,5:1 di atas putih).
+  static const Color success = Color(0xFF2E7D32);
+
+  /// Varian cerah agar tetap terbaca di atas `surface` gelap.
+  static const Color successOnDark = Color(0xFF81C784);
+
+  static Color successFor(Brightness brightness) =>
+      brightness == Brightness.dark ? successOnDark : success;
 }

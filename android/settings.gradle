@@ -17,6 +17,19 @@ pluginManagement {
     }
 }
 
+// D8 bawaan AGP 7.3.0 crash (NullPointerException) saat mem-dex
+// libadb-android & spake2-android pada build debug, sedangkan AGP sendiri
+// terkunci oleh Flutter 3.19. Harus di sini, bukan di build.gradle root, karena
+// AGP dimuat dari classpath settings lewat blok `plugins` di bawah.
+buildscript {
+    repositories {
+        google()
+    }
+    dependencies {
+        classpath "com.android.tools:r8:8.2.47"
+    }
+}
+
 plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
     id "com.android.application" version "7.3.0" apply false

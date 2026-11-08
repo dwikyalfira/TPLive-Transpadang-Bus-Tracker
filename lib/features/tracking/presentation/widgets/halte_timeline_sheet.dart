@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_motion.dart';
@@ -228,40 +230,120 @@ class _DismissDragRegion extends StatefulWidget {
   State<_DismissDragRegion> createState() => _DismissDragRegionState();
 }
 
-class _DismissDragRegionState extends State<_DismissDragRegion> {
-  double _startSize = 0;
+/// Seluruh gerak diwakili satu nilai, **offset** (piksel, positif = turun dari
+/// posisi penuh): nilai >= 0 menjadi tinggi sheet, nilai < 0 menjadi geseran
+/// header melewati batas atas (sheet sendiri tidak bisa lebih tinggi dari
+/// maksimumnya). Satu sumber nilai ini membuat jari dan pegas saling menyambung
+/// tanpa lompatan, termasuk saat sheet ditangkap lagi di tengah animasi.
+class _DismissDragRegionState extends State<_DismissDragRegion>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _settle;
+
+  /// Geseran header saat melewati batas atas (<= 0). Tidak lewat `setState`
+  /// agar tidak membangun ulang header tiap gerakan jari.
+  final ValueNotifier<double> _overdrag = ValueNotifier<double>(0);
+
+  /// Posisi jari (tanpa rubber-band) saat gestur dimulai.
+  double _dragOrigin = 0;
   double _accumulatedDy = 0;
+  bool _pastDismissPoint = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _settle = AnimationController.unbounded(vsync: this)
+      ..addListener(() => _applyOffset(_settle.value));
+  }
+
+  @override
+  void dispose() {
+    _settle.dispose();
+    _overdrag.dispose();
+    super.dispose();
+  }
+
+  double get _closedOffset => widget.controller.sizeToPixels(_busSheetMaxSize);
+
+  double get _dismissPoint =>
+      _closedOffset * AppMotion.sheetDismissDistanceRatio;
+
+  double get _currentOffset => _overdrag.value < 0
+      ? _overdrag.value
+      : widget.controller
+          .sizeToPixels(_busSheetMaxSize - widget.controller.size);
+
+  void _applyOffset(double offset) {
+    if (!widget.controller.isAttached) return;
+    _overdrag.value = offset.clamp(-AppMotion.rubberBandLimit, 0.0);
+    final size =
+        (_busSheetMaxSize - widget.controller.pixelsToSize(math.max(offset, 0)))
+            .clamp(0.0, _busSheetMaxSize);
+    if (size != widget.controller.size) widget.controller.jumpTo(size);
+  }
 
   void _onStart(DragStartDetails _) {
+    // Menghentikan pegas di sini yang membuat sheet bisa ditangkap di tengah
+    // jalan; animasi lanjut dari posisi jari, bukan dari awal.
+    _settle.stop();
     _accumulatedDy = 0;
-    _startSize = widget.controller.isAttached
-        ? widget.controller.size
-        : _busSheetMaxSize;
+    if (!widget.controller.isAttached) return;
+    final offset = _currentOffset;
+    _dragOrigin = offset < 0 ? -AppMotion.rubberBandInverse(-offset) : offset;
+    _pastDismissPoint = offset > _dismissPoint;
   }
 
   void _onUpdate(DragUpdateDetails d) {
     if (!widget.controller.isAttached) return;
     _accumulatedDy += d.delta.dy;
-    final target = (_startSize - widget.controller.pixelsToSize(_accumulatedDy))
-        .clamp(0.0, _busSheetMaxSize);
-    widget.controller.jumpTo(target);
+    final raw = _dragOrigin + _accumulatedDy;
+    _applyOffset(raw >= 0 ? raw : -AppMotion.rubberBand(-raw));
+
+    // Getar halus tepat saat melepas jari akan mengubah hasilnya (tutup/kembali).
+    final pastDismissPoint = raw > _dismissPoint;
+    if (pastDismissPoint != _pastDismissPoint) {
+      _pastDismissPoint = pastDismissPoint;
+      HapticFeedback.selectionClick();
+    }
   }
 
-  void _onEnd(DragEndDetails d) {
+  void _onEnd(DragEndDetails d) => _release(d.velocity.pixelsPerSecond.dy);
+
+  void _onCancel() => _release(0);
+
+  /// Melanjutkan gerak jari dengan pegas yang membawa kecepatan [velocity].
+  void _release(double velocity) {
     if (!widget.controller.isAttached) return;
-    // Hormati kecepatan (fling) jari: swipe ke bawah yang cepat menutup sheet
-    // tanpa harus menariknya lebih dulu melewati separuh tinggi. Tanpa ini,
-    // swipe pendek-cepat akan memantul kembali sehingga terasa tidak menempel
-    // ke jari ("tidak seamless").
-    final flung = d.velocity.pixelsPerSecond.dy > 280;
-    final closing = flung || widget.controller.size < _busSheetMaxSize * 0.5;
-    widget.controller.animateTo(
-      closing ? 0.0 : _busSheetMaxSize,
-      duration: closing ? AppMotion.short4 : AppMotion.medium4,
-      curve: closing
-          ? AppMotion.emphasizedAccelerate
-          : AppMotion.emphasizedDecelerate,
-    );
+    final offset = _currentOffset;
+    final closed = _closedOffset;
+
+    // Tutup bila jarak ATAU kecepatan cukup; hentakan ke atas selalu membatalkan
+    // walau sheet sudah melewati separuh tinggi.
+    final closing = velocity > AppMotion.sheetFlingVelocity ||
+        (offset > _dismissPoint && velocity >= -AppMotion.sheetFlingVelocity);
+    final target = closing ? closed : 0.0;
+
+    // "Hapus animasi" aktif: gerakan jari tetap, tetapi hasilnya langsung
+    // diterapkan tanpa pegas maupun pantulan.
+    if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
+      _applyOffset(target);
+      return;
+    }
+
+    _settle
+        .animateWith(
+      SpringSimulation(
+        closing ? AppMotion.sheetDismissSpring : AppMotion.sheetSettleSpring,
+        offset,
+        target,
+        offset < 0 ? velocity * AppMotion.rubberBandFactor : velocity,
+        tolerance: AppMotion.gestureTolerance,
+      ),
+    )
+        .then((_) {
+      // Simulasi berhenti dalam toleransi; pastikan nilai akhirnya tepat,
+      // karena modal hanya menutup saat sheet persis di ukuran minimum.
+      if (mounted) _applyOffset(target);
+    });
   }
 
   @override
@@ -271,7 +353,15 @@ class _DismissDragRegionState extends State<_DismissDragRegion> {
       onVerticalDragStart: _onStart,
       onVerticalDragUpdate: _onUpdate,
       onVerticalDragEnd: _onEnd,
-      child: widget.child,
+      onVerticalDragCancel: _onCancel,
+      child: ValueListenableBuilder<double>(
+        valueListenable: _overdrag,
+        child: widget.child,
+        builder: (context, overdrag, child) => Transform.translate(
+          offset: Offset(0, overdrag),
+          child: child,
+        ),
+      ),
     );
   }
 }

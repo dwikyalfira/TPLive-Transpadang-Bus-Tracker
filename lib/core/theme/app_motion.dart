@@ -39,6 +39,60 @@ abstract final class AppMotion {
   /// Linear: hanya untuk indikator progres (tidak boleh melambat di akhir).
   static const Curve linear = Curves.linear;
 
+  // --- Gestur tarik (drag) ---
+  /// Pegas saat sheet kembali ke posisi setelah dilepas: cepat, dengan sedikit
+  /// pantulan karena jari baru saja memberi "gaya". Khusus akhir gestur;
+  /// jangan dipakai untuk aksi tombol.
+  static final SpringDescription sheetSettleSpring =
+      SpringDescription.withDampingRatio(
+    mass: 1,
+    stiffness: 420,
+    ratio: 0.75,
+  );
+
+  /// Pegas saat sheet ditutup: teredam kritis, sehingga keluar layar tanpa
+  /// pantulan namun tetap meneruskan kecepatan jari.
+  static final SpringDescription sheetDismissSpring =
+      SpringDescription.withDampingRatio(
+    mass: 1,
+    stiffness: 420,
+    ratio: 1,
+  );
+
+  /// Toleransi simulasi gestur yang satuannya piksel (bawaan Flutter 0,001
+  /// terlalu halus dan memperpanjang ekor animasi tanpa terlihat).
+  static const Tolerance gestureTolerance =
+      Tolerance(distance: 0.5, velocity: 5);
+
+  /// Kecepatan turun (px/detik) yang menutup sheet walau jaraknya pendek.
+  static const double sheetFlingVelocity = 280;
+
+  /// Fraksi jarak tempuh sheet yang harus dilewati untuk menutup tanpa fling.
+  static const double sheetDismissDistanceRatio = 0.5;
+
+  /// Perbandingan gerak elemen terhadap jari saat ditarik melewati batas.
+  static const double rubberBandFactor = 0.2;
+
+  /// Jarak maksimum (piksel) elemen dapat ditarik melewati batas.
+  static const double rubberBandLimit = 16;
+
+  /// Mengubah jarak tarik jari [distance] (>= 0) melewati batas menjadi jarak
+  /// gerak elemen: awalnya [rubberBandFactor] dari jari, lalu makin berat dan
+  /// mendekati [rubberBandLimit] tanpa pernah berhenti mendadak.
+  static double rubberBand(double distance) {
+    final scaled = distance * rubberBandFactor;
+    return scaled * rubberBandLimit / (scaled + rubberBandLimit);
+  }
+
+  /// Kebalikan [rubberBand]: jarak jari yang menghasilkan jarak elemen
+  /// [offset], dipakai saat elemen ditangkap lagi di tengah animasi.
+  static double rubberBandInverse(double offset) {
+    final bounded = offset.clamp(0.0, rubberBandLimit * 0.99);
+    return bounded *
+        rubberBandLimit /
+        (rubberBandFactor * (rubberBandLimit - bounded));
+  }
+
   /// Durasi yang menghormati preferensi aksesibilitas "hapus animasi"
   /// ([MediaQueryData.disableAnimations]).
   ///

@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transpadang_live/core/app_navigator.dart';
 import 'package:transpadang_live/core/settings.dart';
+import 'package:transpadang_live/core/theme/app_motion.dart';
 import 'package:transpadang_live/features/tracking/data/bus_model.dart';
 import 'package:transpadang_live/features/tracking/data/corridor_route.dart';
 import 'package:transpadang_live/features/tracking/data/halte_data.dart';
@@ -315,6 +316,99 @@ void main() {
     await gesture.up(timeStamp: stamp);
     await tester.pumpAndSettle();
     expect(find.byType(DraggableScrollableSheet), findsNothing);
+  });
+
+  testWidgets('tarikan pendek-pelan pada header kembali ke posisi penuh',
+      (tester) async {
+    await tester.pumpWidget(_app(_overrides()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    final header = find.byKey(const Key('busSheetHeader'));
+    final restTop = tester.getTopLeft(header).dy;
+
+    final gesture = await tester.startGesture(tester.getCenter(header));
+    await gesture.moveBy(const Offset(0, 120));
+    await tester.pump();
+    expect(tester.getTopLeft(header).dy, greaterThan(restTop + 60));
+
+    // Jari diam sebelum dilepas, sehingga kecepatannya nol.
+    await tester.pump(const Duration(milliseconds: 300));
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DraggableScrollableSheet), findsOneWidget);
+    expect(tester.getTopLeft(header).dy, moreOrLessEquals(restTop));
+  });
+
+  testWidgets('header menahan tarikan ke atas lalu kembali saat dilepas',
+      (tester) async {
+    await tester.pumpWidget(_app(_overrides()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    final header = find.byKey(const Key('busSheetHeader'));
+    final headerContent = find.descendant(
+      of: header,
+      matching: find.byType(Column),
+    );
+    final restTop = tester.getTopLeft(headerContent.first).dy;
+
+    final gesture = await tester.startGesture(tester.getCenter(header));
+    await gesture.moveBy(const Offset(0, -400));
+    await tester.pump();
+
+    // Bergerak sedikit (bukan 1:1) dan tidak melewati batas rubber-band.
+    final moved = restTop - tester.getTopLeft(headerContent.first).dy;
+    expect(moved, greaterThan(0));
+    expect(moved, lessThanOrEqualTo(AppMotion.rubberBandLimit));
+
+    await tester.pump(const Duration(milliseconds: 300));
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DraggableScrollableSheet), findsOneWidget);
+    expect(
+      tester.getTopLeft(headerContent.first).dy,
+      moreOrLessEquals(restTop),
+    );
+  });
+
+  testWidgets('sheet dapat ditangkap lagi saat sedang kembali', (tester) async {
+    await tester.pumpWidget(_app(_overrides()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('buka detail'));
+    await tester.pumpAndSettle();
+
+    final header = find.byKey(const Key('busSheetHeader'));
+    final restTop = tester.getTopLeft(header).dy;
+
+    final first = await tester.startGesture(tester.getCenter(header));
+    await first.moveBy(const Offset(0, 200));
+    await tester.pump(const Duration(milliseconds: 300));
+    await first.up();
+    await tester.pump(const Duration(milliseconds: 32));
+
+    // Masih di tengah animasi, lalu ditekan & ditarik lagi.
+    final caughtTop = tester.getTopLeft(header).dy;
+    expect(caughtTop, greaterThan(restTop));
+    final second = await tester.startGesture(tester.getCenter(header));
+    await second.moveBy(const Offset(0, 40));
+    await tester.pump();
+    final draggedTop = tester.getTopLeft(header).dy;
+    expect(draggedTop, greaterThan(restTop));
+
+    // Selama jari menahan, pegas tidak boleh terus menarik sheet.
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tester.getTopLeft(header).dy, moreOrLessEquals(draggedTop));
+
+    await second.up();
+    await tester.pumpAndSettle();
   });
 
   testWidgets('detail bus tidak meluber saat sheet mengecil drastis',
